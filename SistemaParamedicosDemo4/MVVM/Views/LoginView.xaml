@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SistemaParamedicosDemo4.MVVM.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:SistemaParamedicosDemo4.MVVM.ViewModels"
+             Title="Iniciar Sesión"
+             BackgroundColor="#F5F7FA"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.BindingContext>
+        <viewModels:LoginViewModel/>
+    </ContentPage.BindingContext>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Colores -->
+            <Color x:Key="PrimaryColor">#2E86AB</Color>
+            <Color x:Key="DarkGray">#343A40</Color>
+            <Color x:Key="MediumGray">#6C757D</Color>
+            <Color x:Key="LightGray">#F8F9FA</Color>
+            <Color x:Key="BorderColor">#DEE2E6</Color>
+
+            <!-- Estilos -->
+            <Style x:Key="TitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="32"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="HorizontalOptions" Value="Center"/>
+            </Style>
+
+            <Style x:Key="SubtitleStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="TextColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="HorizontalOptions" Value="Center"/>
+                <Setter Property="Margin" Value="0,5,0,30"/>
+            </Style>
+
+            <Style x:Key="LabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0,0,0,8"/>
+            </Style>
+
+            <Style x:Key="EntryStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="HeightRequest" Value="50"/>
+                <Setter Property="FontSize" Value="16"/>
+            </Style>
+
+            <Style x:Key="LoginButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="HeightRequest" Value="55"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Margin" Value="0,20,0,0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <Grid>
+            <VerticalStackLayout 
+                Padding="40"
+                VerticalOptions="Center"
+                Spacing="0">
+
+                <!-- Logo -->
+                <Border 
+                    BackgroundColor="{StaticResource PrimaryColor}"
+                    StrokeThickness="0"
+                    HeightRequest="100"
+                    WidthRequest="100"
+                    HorizontalOptions="Center"
+                    Margin="0,0,0,30">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="50"/>
+                    </Border.StrokeShape>
+                    <Label 
+                        Text="SP"
+                        FontSize="40"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+                </Border>
+
+                <!-- Título -->
+                <Label 
+                    Text="Sistema Paramédicos"
+                    Style="{StaticResource TitleStyle}"/>
+
+                <Label 
+                    Text="Ingrese sus credenciales"
+                    Style="{StaticResource SubtitleStyle}"/>
+
+                <!-- Formulario -->
+                <Border 
+                    BackgroundColor="White"
+                    StrokeThickness="1"
+                    Stroke="{StaticResource BorderColor}"
+                    Padding="30"
+                    MaximumWidthRequest="500">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow 
+                            Brush="Gray"
+                            Opacity="0.1"
+                            Radius="10"
+                            Offset="0,4"/>
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="0">
+                        <!-- Usuario -->
+                        <Label 
+                            Text="Usuario"
+                            Style="{StaticResource LabelStyle}"/>
+                        <Border
+                            BackgroundColor="{StaticResource LightGray}"
+                            StrokeThickness="1"
+                            Stroke="{StaticResource BorderColor}"
+                            Margin="0,0,0,20">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Entry 
+                                Text="{Binding usuario}"
+                                Placeholder="Ingrese su usuario"
+                                Style="{StaticResource EntryStyle}"/>
+                        </Border>
+
+                        <!-- Contraseña -->
+                        <Label 
+                            Text="Contraseña"
+                            Style="{StaticResource LabelStyle}"/>
+                        <Border
+                            BackgroundColor="{StaticResource LightGray}"
+                            StrokeThickness="1"
+                            Stroke="{StaticResource BorderColor}"
+                            Margin="0,0,0,0">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8"/>
+                            </Border.StrokeShape>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="50"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Entry 
+                                    Grid.Column="0"
+                                    Text="{Binding password}"
+                                    Placeholder="Ingrese su contraseña"
+                                    IsPassword="True"
+                                    Style="{StaticResource EntryStyle}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Botón Iniciar Sesión -->
+                        <Button 
+                            Text="INICIAR SESIÓN"
+                            Command="{Binding LoginCommand}"
+                            Style="{StaticResource LoginButtonStyle}"/>
+
+                        <!-- Indicador de carga -->
+                        <ActivityIndicator 
+                            IsRunning="{Binding isLoading}"
+                            IsVisible="{Binding isLoading}"
+                            Color="{StaticResource PrimaryColor}"
+                            Margin="0,20,0,0"/>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

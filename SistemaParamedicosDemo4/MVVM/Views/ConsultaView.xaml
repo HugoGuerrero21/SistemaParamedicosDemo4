@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SistemaParamedicosDemo4.MVVM.Views.ConsultaView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Vista Médicos"
+             BackgroundColor="#F5F7FA">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Colores -->
+            <Color x:Key="PrimaryColor">#2E86AB</Color>
+            <Color x:Key="SecondaryColor">#17A2B8</Color>
+            <Color x:Key="SuccessColor">#28A745</Color>
+            <Color x:Key="DangerColor">#DC3545</Color>
+            <Color x:Key="WarningColor">#FFC107</Color>
+            <Color x:Key="LightGray">#F8F9FA</Color>
+            <Color x:Key="MediumGray">#6C757D</Color>
+            <Color x:Key="DarkGray">#343A40</Color>
+            <Color x:Key="BorderColor">#DEE2E6</Color>
+
+            <!-- Estilos -->
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+                <Setter Property="Padding" Value="20"/>
+                <Setter Property="Margin" Value="5"/>
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="Gray" Opacity="0.15" Radius="6" Offset="0,2"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="HeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="24"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0,0,0,5"/>
+            </Style>
+
+            <Style x:Key="SubHeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0"/>
+            </Style>
+
+            <Style x:Key="SectionHeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+
+            <Style x:Key="BodyStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="TextColor" Value="{StaticResource MediumGray}"/>
+            </Style>
+
+            <Style x:Key="FieldLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0,0,0,5"/>
+            </Style>
+
+            <Style x:Key="EntryStyle" TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0,0,0,15"/>
+            </Style>
+
+            <Style x:Key="PickerStyle" TargetType="Picker">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="TitleColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="Margin" Value="0,0,0,15"/>
+            </Style>
+
+            <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource SuccessColor}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="Padding" Value="20,12"/>
+                <Setter Property="FontSize" Value="14"/>
+            </Style>
+
+            <Style x:Key="DangerButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource DangerColor}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="Padding" Value="20,12"/>
+                <Setter Property="FontSize" Value="14"/>
+            </Style>
+
+            <Style x:Key="IconButtonStyle" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="Padding" Value="10"/>
+                <Setter Property="FontSize" Value="12"/>
+            </Style>
+
+            <Style x:Key="AvatarStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}"/>
+                <Setter Property="StrokeThickness" Value="0"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 25"/>
+                <Setter Property="WidthRequest" Value="50"/>
+                <Setter Property="HeightRequest" Value="50"/>
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+
+            <Style x:Key="StatusBadgeStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="{StaticResource SuccessColor}"/>
+                <Setter Property="StrokeThickness" Value="0"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
+                <Setter Property="Padding" Value="8,4"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Padding="20">
+
+            <!-- Header -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackLayout Grid.Column="0">
+                    <Label Text="Nueva consulta" Style="{StaticResource HeaderStyle}"/>
+                    <Label Text="A continuación se muestra el formulario para hacer registro de una nueva consulta médica." 
+                           Style="{StaticResource BodyStyle}"/>
+                </StackLayout>
+
+                <Label Grid.Column="1" 
+                       Text="{Binding Consulta.FechaConsulta}"
+                       Style="{StaticResource BodyStyle}"
+                       VerticalOptions="Start"/>
+            </Grid>
+
+            <!-- Información del Paciente -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackLayout>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Avatar -->
+                        <Border Grid.Column="0" Style="{StaticResource AvatarStyle}">
+                            <Label Text="JP" 
+                                   TextColor="White"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <!-- Info básica -->
+                        <StackLayout Grid.Column="1" Spacing="2" Margin="15,0,0,0">
+                            <Label Text="Juan Carlos Perez Hernandez" 
+                                   Style="{StaticResource SubHeaderStyle}"/>
+                            <Label Text="TRSEMP001 - CHOFER" 
+                                   Style="{StaticResource BodyStyle}"/>
+                        </StackLayout>
+
+                        <!-- Status -->
+                        <Border Grid.Column="2" Style="{StaticResource StatusBadgeStyle}">
+                            <Label Text="● Activo" 
+                                   TextColor="White"
+                                   FontSize="12"
+                                   FontAttributes="Bold"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Información General -->
+                    <Label Text="Información General" Style="{StaticResource SectionHeaderStyle}" Margin="0,20,0,10"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackLayout Grid.Column="0" Grid.Row="0" Spacing="2">
+                            <Label Text="Id Empleado:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="TRSEMP001" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="1" Grid.Row="0" Spacing="2">
+                            <Label Text="Nombre:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="Juan Perez" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="2" Grid.Row="0" Spacing="2">
+                            <Label Text="Teléfono:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="6621234567" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="3" Grid.Row="0" Spacing="2">
+                            <Label Text="Alergias:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="Ninguna" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="0" Grid.Row="1" Spacing="2">
+                            <Label Text="Edad:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="35" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="1" Grid.Row="1" Spacing="2">
+                            <Label Text="Sexo:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="M" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="2" Grid.Row="1" Spacing="2">
+                            <Label Text="Puesto:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="CHOFER" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="3" Grid.Row="1" Spacing="2">
+                            <Label Text="Tipo de sangre:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="A+" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                        </StackLayout>
+                    </Grid>
+                </StackLayout>
+            </Border>
+
+            <!-- Signos vitales y Consulta -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Signos vitales -->
+                <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                    <StackLayout>
+                        <Label Text="Signos vitales" Style="{StaticResource SectionHeaderStyle}"/>
+
+                        <Label Text="Tensión arterial:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="120/80" Style="{StaticResource EntryStyle}"/>
+
+                        <Label Text="Temperatura:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="36.5°C" Style="{StaticResource EntryStyle}"/>
+
+                        <Label Text="Frecuencia Cardíaca:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="72 bpm" Style="{StaticResource EntryStyle}"/>
+
+                        <Label Text="Frecuencia Respiratoria:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="16 rpm" Style="{StaticResource EntryStyle}"/>
+
+                        <Label Text="Observaciones:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="Observaciones adicionales..." Style="{StaticResource EntryStyle}"/>
+                    </StackLayout>
+                </Border>
+
+                <!-- Consulta -->
+                <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                    <StackLayout>
+                        <Label Text="Consulta" Style="{StaticResource SectionHeaderStyle}"/>
+
+                        <Label Text="Motivo de Consulta:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="Describe el motivo..." Style="{StaticResource EntryStyle}"/>
+
+                        <Label Text="Diagnóstico:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="Diagnóstico médico..." Style="{StaticResource EntryStyle}"/>
+
+                        <Label Text="Clasificación:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Picker Title="Seleccionar clasificación" Style="{StaticResource PickerStyle}">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Musculoesquelético</x:String>
+                                    <x:String>Respiratorio</x:String>
+                                    <x:String>Cardiovascular</x:String>
+                                    <x:String>Digestivo</x:String>
+                                    <x:String>Neurológico</x:String>
+                                    <x:String>Otros</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+
+                        <Label Text="Recomendaciones:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="Recomendacion por el paramedico" Style="{StaticResource EntryStyle}"/>
+
+                        <Label Text="Última comida:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Placeholder="¿Cuándo fue la última comida?" Style="{StaticResource EntryStyle}"/>
+
+                        <!-- Checkbox de control -->
+                        <HorizontalStackLayout Spacing="10" Margin="0,20,0,0">
+                            <CheckBox IsChecked="{Binding SeUtilizoMaterial}"
+                                        Color="{StaticResource PrimaryColor}"
+                                        VerticalOptions="Center"/>
+                            <Label Text="Se utilizó material o medicamento"
+                                         Style="{StaticResource BodyStyle}"
+                                         VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </StackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Material utilizado -->
+            <Border Style="{StaticResource CardStyle}"
+                    IsVisible="{Binding SeUtilizoMaterial}">
+                <StackLayout>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Text="Material utilizado" Style="{StaticResource SectionHeaderStyle}"/>
+                    </Grid>
+                    
+                    <StackLayout x:Name="PanelMedicamentos"
+                     Margin="0,15,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Medicamento/Material:" Style="{StaticResource FieldLabelStyle}"/>
+                                <Picker x:Name="PickerMedicamento"
+                            ItemsSource="{Binding Medicamentos}"
+                            ItemDisplayBinding="{Binding NombreCompleto}"
+                            SelectedItem="{Binding MedicamentoSeleccionado}"
+                            Title="Seleccionar medicamento o material" 
+                            Style="{StaticResource PickerStyle}"/>
+                            </StackLayout>
+
+                            <StackLayout Grid.Column="2">
+                                <Label Text="Disponible:" Style="{StaticResource FieldLabelStyle}"/>
+                                <Label Text="{Binding CantidadDisponible, StringFormat='{0:F2}'}" 
+                           Style="{StaticResource BodyStyle}" 
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           Margin="0,8,0,0"/>
+                            </StackLayout>
+
+                            <StackLayout Grid.Column="4">
+                                <Label Text="Cantidad:" Style="{StaticResource FieldLabelStyle}"/>
+                                <Entry x:Name="EntryCantidad"
+                           Text="{Binding CantidadMedicamento}"
+                           Placeholder="0" 
+                           Keyboard="Numeric"
+                           Style="{StaticResource EntryStyle}"/>
+                            </StackLayout>
+
+                            <Button Grid.Column="6"
+                        Text="+ AGREGAR"
+                        Command="{Binding AgregarMedicamentoCommand}"
+                        Style="{StaticResource IconButtonStyle}"
+                        VerticalOptions="End"
+                        Margin="0,0,0,15"/>
+                        </Grid>
+
+                        <!-- Lista de medicamentos agregados -->
+                        <StackLayout x:Name="PanelListaMedicamentos" 
+                         IsVisible="{Binding TieneMedicamentosAgregados}">
+                            <Label Text="Material/Medicamentos agregados:" 
+                       Style="{StaticResource FieldLabelStyle}" 
+                       Margin="0,10,0,5"/>
+
+                            <Border BackgroundColor="{StaticResource LightGray}" 
+                        StrokeThickness="0" 
+                        Padding="15,10">
+                                <StackLayout>
+                                    <!-- Header -->
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="4*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0" 
+                                   Text="Medicamento/Material" 
+                                   FontAttributes="Bold" 
+                                   Style="{StaticResource BodyStyle}"/>
+                                        <Label Grid.Column="1" 
+                                   Text="Cantidad" 
+                                   FontAttributes="Bold" 
+                                   Style="{StaticResource BodyStyle}"/>
+                                        <Label Grid.Column="2" 
+                                   Text="Acción" 
+                                   FontAttributes="Bold" 
+                                   Style="{StaticResource BodyStyle}"/>
+                                    </Grid>
+
+                                    <!-- Items -->
+                                    <CollectionView ItemsSource="{Binding MedicamentosAgregados}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Padding="0,5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="4*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Label Grid.Column="0" 
+                                               Text="{Binding NombreMedicamento}" 
+                                               Style="{StaticResource BodyStyle}"/>
+                                                    <Label Grid.Column="1" 
+                                               Text="{Binding Cantidad, StringFormat='{0:F2}'}" 
+                                               Style="{StaticResource BodyStyle}"/>
+                                                    <Button Grid.Column="2"
+                                                Text="✕"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EliminarMedicamentoCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="{StaticResource DangerColor}"
+                                                TextColor="White"
+                                                WidthRequest="35"
+                                                HeightRequest="35"
+                                                CornerRadius="4"
+                                                Padding="0"
+                                                FontSize="16"
+                                                FontAttributes="Bold"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </StackLayout>
+                            </Border>
+                        </StackLayout>
+                    </StackLayout>
+                </StackLayout>
+            </Border>
+
+            <!-- Botones de acción -->
+            <Grid Margin="0,20,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Text="CANCELAR"
+                        Style="{StaticResource DangerButtonStyle}"
+                        Command="{Binding CancelarCommand}"/>
+
+                <Button Grid.Column="2"
+                        Text="GUARDAR"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding GuardarCommand}"/>
+            </Grid>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
