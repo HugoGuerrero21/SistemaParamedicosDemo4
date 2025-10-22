@@ -1,13 +1,21 @@
-﻿using System;
+﻿using SQLite;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace SistemaParamedicosDemo4.MVVM.Models
 {
+    [Table("t_movimientosdetalles")]
     public class MovimientoDetalleModel : INotifyPropertyChanged
     {
-        public string IdMovimientDetalles { get; set; }
+        [PrimaryKey]
+        [MaxLength(25)]
+        public string IdMovimientoDetalle { get; set; } 
+
+
+        [MaxLength(25)]
         public string IdMovimiento { get; set; }
+
+        [MaxLength(25)]
         public string ClaveProducto { get; set; }
 
         private double _cantidad;
@@ -21,14 +29,24 @@ namespace SistemaParamedicosDemo4.MVVM.Models
             }
         }
 
+        [MaxLength(45)]
         public string IdLocacion { get; set; }
+
+        [MaxLength(45)]
         public string PrecioFinal { get; set; }
+
         public byte Status { get; set; }
+
         public double CantidadUtilizada { get; set; }
+
+        [MaxLength(45)]
         public string IdDetallePadre { get; set; }
 
-        // Propiedad de navegación (no se guarda en BD, solo para uso en la UI)
+        // Propiedades de navegación - NO se guardan en BD
+   
         private ProductoModel _producto;
+
+        [Ignore]
         public ProductoModel Producto
         {
             get => _producto;
@@ -40,8 +58,10 @@ namespace SistemaParamedicosDemo4.MVVM.Models
             }
         }
 
-        // Propiedad para observaciones (temporal, no se guarda en este modelo)
+        // Propiedad temporal - NO se guarda en BD
         private string _observaciones;
+
+        [Ignore]
         public string Observaciones
         {
             get => _observaciones;
@@ -52,7 +72,8 @@ namespace SistemaParamedicosDemo4.MVVM.Models
             }
         }
 
-        // Propiedad calculada para mostrar en la lista
+        // Propiedad calculada - NO se guarda en BD
+        [Ignore]
         public string NombreMedicamento => Producto != null
             ? $"{Producto.Nombre} {Producto.Model}"
             : ClaveProducto;

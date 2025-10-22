@@ -1,4 +1,5 @@
 ﻿using PropertyChanged;
+using SistemaParamedicosDemo4.Data.Repositories;
 using SistemaParamedicosDemo4.MVVM.Views;
 using System;
 using System.Threading.Tasks;
@@ -28,8 +29,13 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
         #endregion
 
+                #region Repositorio
+        private UsuarioAccesoRepositories _usuariosRepository;
+        #endregion
+
         public LoginViewModel()
         {
+            _usuariosRepository = new UsuarioAccesoRepositories();
             LoginCommand = new Command(Login, CanLogin);
         }
 
@@ -78,8 +84,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         {
             await Task.Delay(100);
 
-            return (usuario == "admin" && password == "admin123")
-                || (usuario == "paramedico" && password == "para123");
+            bool credencialesValidas = _usuariosRepository.ValidarCredenciales(usuario, password);
+            return credencialesValidas;
         }
 
         private void OnPropertyChangedMethod()

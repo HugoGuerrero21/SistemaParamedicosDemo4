@@ -254,19 +254,19 @@
                         <Label Text="Signos vitales" Style="{StaticResource SectionHeaderStyle}"/>
 
                         <Label Text="Tensión arterial:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="120/80" Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding TensionArterial}" Placeholder="120/80" Style="{StaticResource EntryStyle}"/>
 
                         <Label Text="Temperatura:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="36.5°C" Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding Temperatura}" Placeholder="36.5°C" Style="{StaticResource EntryStyle}"/>
 
                         <Label Text="Frecuencia Cardíaca:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="72 bpm" Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding FrecuenciaCardiaca}" Placeholder="72 bpm" Keyboard="Numeric" Style="{StaticResource EntryStyle}"/>
 
                         <Label Text="Frecuencia Respiratoria:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="16 rpm" Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding FrecuenciaRespiratoria}" Placeholder="16 rpm" Keyboard="Numeric" Style="{StaticResource EntryStyle}"/>
 
                         <Label Text="Observaciones:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="Observaciones adicionales..." Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding ObservacionesSignos}" Placeholder="Observaciones adicionales..." Style="{StaticResource EntryStyle}"/>
                     </StackLayout>
                 </Border>
 
@@ -276,30 +276,24 @@
                         <Label Text="Consulta" Style="{StaticResource SectionHeaderStyle}"/>
 
                         <Label Text="Motivo de Consulta:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="Describe el motivo..." Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding MotivoConsulta}" Placeholder="Describe el motivo..." Style="{StaticResource EntryStyle}"/>
 
                         <Label Text="Diagnóstico:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="Diagnóstico médico..." Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding Diagnostico}" Placeholder="Diagnóstico médico..." Style="{StaticResource EntryStyle}"/>
 
                         <Label Text="Clasificación:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Picker Title="Seleccionar clasificación" Style="{StaticResource PickerStyle}">
-                            <Picker.ItemsSource>
-                                <x:Array Type="{x:Type x:String}">
-                                    <x:String>Musculoesquelético</x:String>
-                                    <x:String>Respiratorio</x:String>
-                                    <x:String>Cardiovascular</x:String>
-                                    <x:String>Digestivo</x:String>
-                                    <x:String>Neurológico</x:String>
-                                    <x:String>Otros</x:String>
-                                </x:Array>
-                            </Picker.ItemsSource>
-                        </Picker>
+                        <Picker ItemsSource="{Binding TiposEnfermedad}"
+                                    ItemDisplayBinding="{Binding NombreEnfermedad}"
+                                    SelectedItem="{Binding TipoEnfermedadSeleccionado}"
+                                    Title="Seleccionar clasificación" 
+                                    Style="{StaticResource PickerStyle}"/>
+
 
                         <Label Text="Recomendaciones:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="Recomendacion por el paramedico" Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding Tratamiento}" Placeholder="Recomendacion por el paramedico" Style="{StaticResource EntryStyle}"/>
 
                         <Label Text="Última comida:" Style="{StaticResource FieldLabelStyle}"/>
-                        <Entry Placeholder="¿Cuándo fue la última comida?" Style="{StaticResource EntryStyle}"/>
+                        <Entry Text="{Binding UltimaComida}" Placeholder="¿Cuándo fue la última comida?" Style="{StaticResource EntryStyle}"/>
 
                         <!-- Checkbox de control -->
                         <HorizontalStackLayout Spacing="10" Margin="0,20,0,0">

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SQLitePCL;
 
 namespace SistemaParamedicosDemo4
 {
@@ -6,6 +7,7 @@ namespace SistemaParamedicosDemo4
     {
         public static MauiApp CreateMauiApp()
         {
+            Batteries_V2.Init();
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()

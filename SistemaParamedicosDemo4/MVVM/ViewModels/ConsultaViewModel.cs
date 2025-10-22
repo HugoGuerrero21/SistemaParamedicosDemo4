@@ -1,4 +1,5 @@
 ﻿using PropertyChanged;
+using SistemaParamedicosDemo4.Data.Repositories;
 using SistemaParamedicosDemo4.MVVM.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -12,6 +13,13 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
     [AddINotifyPropertyChangedInterface]
     public class ConsultaViewModel : INotifyPropertyChanged
     {
+        #region Repositorios
+        private TipoEnfermedadRepository _tipoEnfermedadRepo;
+        private ProductoRepository _productoRepo;
+        private ConsultaRepository _consultaRepo;
+        private EmpleadoRepository _empleadoRepo;
+        #endregion
+
         #region Properties
 
         // Modelo principal de la consulta
@@ -47,11 +55,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         public ObservableCollection<ProductoModel> Medicamentos { get; set; }
         public ObservableCollection<MovimientoDetalleModel> MedicamentosAgregados { get; set; }
 
-
-        #endregion
-
-        #region Commands
-
         public ICommand AgregarMedicamentoCommand { get; }
         public ICommand EliminarMedicamentoCommand { get; }
         public ICommand GuardarCommand { get; }
@@ -61,12 +64,17 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
         public ConsultaViewModel()
         {
+            // Inicializar repositorios
+            _tipoEnfermedadRepo = new TipoEnfermedadRepository();
+            _productoRepo = new ProductoRepository();
+            _consultaRepo = new ConsultaRepository();
+            _empleadoRepo = new EmpleadoRepository();
+
             Consulta = new ConsultaModel { FechaConsulta = DateTime.Now };
 
             TiposEnfermedad = new ObservableCollection<TipoEnfermedadModel>();
             Medicamentos = new ObservableCollection<ProductoModel>();
             MedicamentosAgregados = new ObservableCollection<MovimientoDetalleModel>();
-
 
             // Cuando cambie la colección, notificar que la propiedad calculada cambió
             MedicamentosAgregados.CollectionChanged += (s, e) =>
@@ -74,13 +82,13 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 this.OnPropertyChanged(nameof(TieneMedicamentosAgregados));
             };
 
-            // PRIMERO inicializa los Commands
+            // Inicializar Commands
             AgregarMedicamentoCommand = new Command(AgregarMedicamento, CanAgregarMedicamento);
             EliminarMedicamentoCommand = new Command<MovimientoDetalleModel>(EliminarMedicamento);
             GuardarCommand = new Command(Guardar, CanGuardar);
             CancelarCommand = new Command(Cancelar);
 
-            // LUEGO configura el PropertyChanged para actualizar los Commands
+            // Configurar PropertyChanged
             PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(MedicamentoSeleccionado))
@@ -102,71 +110,48 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 }
             };
 
-            AgregarMedicamentoCommand = new Command(AgregarMedicamento, CanAgregarMedicamento);
-            EliminarMedicamentoCommand = new Command<MovimientoDetalleModel>(EliminarMedicamento);
-            GuardarCommand = new Command(Guardar, CanGuardar);
-            CancelarCommand = new Command(Cancelar);
-
-            CargarDatosIniciales();
-            // Establecer explícitamente el valor inicial
+            // Cargar datos desde SQLite
+            CargarDatosDesdeBaseDatos();
         }
 
-        private void CargarDatosIniciales()
+        /// <summary>
+        /// Carga los datos iniciales desde la base de datos SQLite
+        /// </summary>
+        private void CargarDatosDesdeBaseDatos()
         {
-            // Cargar tipos de enfermedad
-            TiposEnfermedad.Add(new TipoEnfermedadModel { IdTipoEnfermedad = 1, NombreEnfermedad = "Musculoesquelético" });
-            TiposEnfermedad.Add(new TipoEnfermedadModel { IdTipoEnfermedad = 2, NombreEnfermedad = "Respiratorio" });
-            TiposEnfermedad.Add(new TipoEnfermedadModel { IdTipoEnfermedad = 3, NombreEnfermedad = "Cardiovascular" });
-            TiposEnfermedad.Add(new TipoEnfermedadModel { IdTipoEnfermedad = 4, NombreEnfermedad = "Digestivo" });
-            TiposEnfermedad.Add(new TipoEnfermedadModel { IdTipoEnfermedad = 5, NombreEnfermedad = "Neurológico" });
-            TiposEnfermedad.Add(new TipoEnfermedadModel { IdTipoEnfermedad = 6, NombreEnfermedad = "Otros" });
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Cargando datos desde SQLite...");
 
-            // Cargar medicamentos con cantidad disponible
-            Medicamentos.Add(new ProductoModel
-            {
-                ProductoId = "MED001",
-                Nombre = "Paracetamol",
-                Marca = "Genérico",
-                Model = "500mg",
-                CantidadDisponible = 150
-            });
-            Medicamentos.Add(new ProductoModel
-            {
-                ProductoId = "MED002",
-                Nombre = "Ibuprofeno",
-                Marca = "Genérico",
-                Model = "400mg",
-                CantidadDisponible = 80
-            });
-            Medicamentos.Add(new ProductoModel
-            {
-                ProductoId = "MED003",
-                Nombre = "Aspirina",
-                Marca = "Bayer",
-                Model = "100mg",
-                CantidadDisponible = 200
-            });
-            Medicamentos.Add(new ProductoModel
-            {
-                ProductoId = "MED004",
-                Nombre = "Amoxicilina",
-                Marca = "Genérico",
-                Model = "500mg",
-                CantidadDisponible = 50
-            });
+                // Cargar tipos de enfermedad desde BD
+                var tiposEnfermedad = _tipoEnfermedadRepo.GetAllTypes();
+                foreach (var tipo in tiposEnfermedad)
+                {
+                    TiposEnfermedad.Add(tipo);
+                }
+                System.Diagnostics.Debug.WriteLine($"✓ {TiposEnfermedad.Count} tipos de enfermedad cargados");
 
-            // Cargar empleado de ejemplo
-            EmpleadoSeleccionado = new EmpleadoModel
+                // Cargar productos/medicamentos desde BD
+                var productos = _productoRepo.GetProductoConsStock();
+                foreach (var producto in productos)
+                {
+                    Medicamentos.Add(producto);
+                }
+                System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados");
+
+                // Cargar empleado de ejemplo (el primero disponible)
+                var empleados = _empleadoRepo.GetAll();
+                if (empleados.Count > 0)
+                {
+                    EmpleadoSeleccionado = empleados[0];
+                    CalcularEdad();
+                    System.Diagnostics.Debug.WriteLine($"✓ Empleado cargado: {EmpleadoSeleccionado.Nombre}");
+                }
+            }
+            catch (Exception ex)
             {
-                IdEmpleado = "TRSEMP001",
-                Nombre = "Juan Carlos Perez Hernandez",
-                TipoSangre = "A+",
-                SexoSangre = "M",
-                AlergiasSangre = "Ninguna",
-                Telefono = "6621234567",
-                FechaNacimiento = new DateTime(1990, 5, 15),
-                IdPuesto = "CHOFER"
-            };
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar datos: {ex.Message}");
+            }
         }
 
         private void CalcularEdad()
@@ -256,9 +241,9 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 // Agregar el medicamento
                 var movimientoDetalle = new MovimientoDetalleModel
                 {
-                    IdMovimientDetalles = Guid.NewGuid().ToString(),
+                    IdMovimientoDetalle = Guid.NewGuid().ToString(),
                     ClaveProducto = MedicamentoSeleccionado.ProductoId,
-                    Producto = MedicamentoSeleccionado, // Asignar la referencia al producto
+                    Producto = MedicamentoSeleccionado,
                     Cantidad = CantidadMedicamento,
                     Observaciones = string.IsNullOrWhiteSpace(ObservacionesMedicamento)
                         ? "Sin observaciones"
@@ -339,12 +324,10 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
                 // Actualizar el modelo de consulta con los datos del formulario
                 Consulta.IdEmpleado = EmpleadoSeleccionado.IdEmpleado;
-                Consulta.Empleado = EmpleadoSeleccionado;
                 Consulta.FechaConsulta = DateTime.Now;
                 Consulta.MotivoConsulta = MotivoConsulta;
                 Consulta.Diagnostico = Diagnostico;
                 Consulta.IdTipoEnfermedad = TipoEnfermedadSeleccionado.IdTipoEnfermedad;
-                Consulta.TipoEnfermedad = TipoEnfermedadSeleccionado;
                 Consulta.FrecuenciaCardiaca = FrecuenciaCardiaca;
                 Consulta.FrecuenciaRespiratoria = FrecuenciaRespiratoria;
                 Consulta.Temperatura = Temperatura;
@@ -364,21 +347,38 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     }
                 }
 
-                // Aquí deberías guardar en la base de datos
-                // Ejemplo:
-                // await _consultaService.GuardarConsulta(Consulta);
-                // if (MedicamentosAgregados.Count > 0)
-                // {
-                //     await _movimientoService.GuardarMovimientoDetalles(MedicamentosAgregados);
-                // }
+                // Guardar en la base de datos
+                bool guardado = _consultaRepo.GuardarConsultaCompleta(
+                    Consulta,
+                    MedicamentosAgregados.ToList());
 
-                await Application.Current.MainPage.DisplayAlert(
-                    "Éxito",
-                    "Consulta guardada correctamente",
-                    "OK");
+                if (guardado)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Éxito",
+                        "Consulta guardada correctamente en la base de datos",
+                        "OK");
 
-                // Navegar hacia atrás o limpiar el formulario
-                LimpiarFormulario();
+                    System.Diagnostics.Debug.WriteLine("✓ Consulta guardada en SQLite");
+
+                    // Limpiar el formulario
+                    LimpiarFormulario();
+
+                    // Recargar medicamentos desde BD para actualizar el stock
+                    Medicamentos.Clear();
+                    var productos = _productoRepo.GetProductoConsStock();
+                    foreach (var producto in productos)
+                    {
+                        Medicamentos.Add(producto);
+                    }
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        $"Error al guardar: {_consultaRepo.StatusMessage}",
+                        "OK");
+                }
             }
             catch (Exception ex)
             {
@@ -386,6 +386,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     "Error",
                     $"Error al guardar: {ex.Message}",
                     "OK");
+                System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
             }
         }
 
@@ -413,17 +414,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
                 LimpiarFormulario();
             }
-        }
-
-        private bool CamposModificados()
-        {
-            return !string.IsNullOrWhiteSpace(MotivoConsulta) ||
-                   !string.IsNullOrWhiteSpace(Diagnostico) ||
-                   !string.IsNullOrWhiteSpace(TensionArterial) ||
-                   !string.IsNullOrWhiteSpace(Temperatura) ||
-                   FrecuenciaCardiaca > 0 ||
-                   FrecuenciaRespiratoria > 0 ||
-                   MedicamentosAgregados.Count > 0;
         }
 
         private void LimpiarFormulario()
