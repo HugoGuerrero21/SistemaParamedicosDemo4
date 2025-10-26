@@ -69,25 +69,14 @@
                 VerticalOptions="Center"
                 Spacing="0">
 
-                <!-- Logo -->
-                <Border 
-                    BackgroundColor="{StaticResource PrimaryColor}"
-                    StrokeThickness="0"
-                    HeightRequest="100"
-                    WidthRequest="100"
-                    HorizontalOptions="Center"
-                    Margin="0,0,0,30">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="50"/>
-                    </Border.StrokeShape>
-                    <Label 
-                        Text="SP"
-                        FontSize="40"
-                        FontAttributes="Bold"
-                        TextColor="White"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"/>
-                </Border>
+                <!-- Logo de la empresa -->
+                <!-- ⭐ CAMBIO: Ahora usamos el logo logo_trs.png en lugar del círculo con "SP" -->
+                <Image Source="logo_trs.png"
+                       HeightRequest="120"
+                       WidthRequest="120"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,30"/>
 
                 <!-- Título -->
                 <Label 

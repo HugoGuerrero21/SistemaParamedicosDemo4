@@ -3,12 +3,94 @@
     x:Class="SistemaParamedicosDemo4.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:SistemaParamedicosDemo4"
-    Title="SistemaParamedicosDemo4">
+    xmlns:views="clr-namespace:SistemaParamedicosDemo4.MVVM.Views"
+    Shell.FlyoutBehavior="Flyout"
+    FlyoutBackgroundColor="#2E86AB">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <!-- Estilos del Flyout -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Style x:Key="FlyoutItemStyle" TargetType="Label">
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="Padding" Value="20,15"/>
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <!-- Header del Flyout (Logo y nombre del usuario) -->
+    <Shell.FlyoutHeader>
+        <Grid BackgroundColor="#1A5F7A" Padding="20" HeightRequest="180">
+            <StackLayout VerticalOptions="Center" Spacing="10">
+                <!-- Logo de la empresa -->
+                <Image Source="logo_trs.png" 
+                       HeightRequest="80" 
+                       WidthRequest="80"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"/>
+
+                <Label Text="Sistema Paramédicos"
+                       TextColor="White"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+
+                <Label Text="TRS - Transportes"
+                       TextColor="White"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Opacity="0.8"/>
+            </StackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+
+    <!-- Opciones del Menú -->
+    <FlyoutItem Title="Nueva Consulta" 
+                Icon="icon_consulta.png"
+                FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent Title="Nueva Consulta"
+                      ContentTemplate="{DataTemplate views:ConsultaView}"
+                      Route="consulta"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Empleados" 
+                Icon="icon_empleados.png"
+                FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent Title="Lista de Empleados"
+                      ContentTemplate="{DataTemplate views:EmpleadosListView}"
+                      Route="empleados"/>
+    </FlyoutItem>
+
+    <!-- Footer del Flyout (Cerrar Sesión) -->
+    <Shell.FlyoutFooter>
+        <Grid BackgroundColor="#1A5F7A" Padding="20" HeightRequest="80">
+            <Border BackgroundColor="#DC3545"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 8">
+                <Grid>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCerrarSesionClicked"/>
+                    </Grid.GestureRecognizers>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0"
+                           Text="🚪"
+                           FontSize="24"
+                           VerticalOptions="Center"
+                           Margin="15,0,10,0"/>
+
+                    <Label Grid.Column="1"
+                           Text="Cerrar Sesión"
+                           TextColor="White"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Shell.FlyoutFooter>
 
 </Shell>

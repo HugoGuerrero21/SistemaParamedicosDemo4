@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SistemaParamedicosDemo4.MVVM.Views.DetalleConsultaView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="Detalle de Consulta"
+             BackgroundColor="#F5F7FA">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryColor">#2E86AB</Color>
+            <Color x:Key="DarkGray">#343A40</Color>
+            <Color x:Key="MediumGray">#6C757D</Color>
+            <Color x:Key="LightGray">#F8F9FA</Color>
+            <Color x:Key="BorderColor">#DEE2E6</Color>
+            <Color x:Key="SuccessColor">#28A745</Color>
+
+            <Style x:Key="HeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="24"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+            </Style>
+
+            <Style x:Key="SectionHeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+
+            <Style x:Key="FieldLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="TextColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
+            </Style>
+
+            <Style x:Key="FieldValueStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+            </Style>
+
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
+                <Setter Property="Padding" Value="20"/>
+                <Setter Property="Margin" Value="0,10"/>
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="Gray" Opacity="0.1" Radius="8" Offset="0,2"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Padding="20">
+
+            <!-- Header con Información del Empleado (como tu imagen) -->
+            <Border BackgroundColor="White"
+                    StrokeThickness="1"
+                    Stroke="{StaticResource BorderColor}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="20"
+                    Margin="0,0,0,20">
+                <Border.Shadow>
+                    <Shadow Brush="Gray" Opacity="0.1" Radius="8" Offset="0,2"/>
+                </Border.Shadow>
+
+                <StackLayout>
+                    <!-- Avatar y nombre -->
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Avatar grande -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="{StaticResource PrimaryColor}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 40"
+                                WidthRequest="80"
+                                HeightRequest="80">
+                            <Label Text="{Binding Consulta.Empleado.Iniciales}"
+                                   TextColor="White"
+                                   FontSize="32"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <!-- Info del empleado -->
+                        <StackLayout Grid.Column="1" 
+                                     Spacing="6" 
+                                     Margin="20,0,0,0"
+                                     VerticalOptions="Center">
+                            <Label Text="{Binding Consulta.Empleado.Nombre}"
+                                   FontSize="22"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource DarkGray}"/>
+                            <Label Text="{Binding Consulta.IdEmpleado}"
+                                   FontSize="15"
+                                   TextColor="{StaticResource MediumGray}"/>
+                            <Label Text="{Binding Consulta.Empleado.IdPuesto}"
+                                   FontSize="14"
+                                   TextColor="{StaticResource MediumGray}"
+                                   FontAttributes="Bold"/>
+                        </StackLayout>
+                    </Grid>
+
+                    <!-- Tarjetas de información -->
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Consultas -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="#E3F2FD"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="15,10">
+                            <StackLayout Spacing="4">
+                                <Label Text="{Binding TotalConsultasEmpleado}"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       TextColor="#2196F3"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Consultas"
+                                       FontSize="13"
+                                       TextColor="{StaticResource MediumGray}"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Border>
+
+                        <!-- Edad -->
+                        <Border Grid.Column="1"
+                                BackgroundColor="#FFF3E0"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="15,10">
+                            <StackLayout Spacing="4">
+                                <Label Text="{Binding EdadEmpleado}"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       TextColor="#FF9800"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Años"
+                                       FontSize="13"
+                                       TextColor="{StaticResource MediumGray}"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Border>
+
+                        <!-- Tipo de Sangre -->
+                        <Border Grid.Column="2"
+                                BackgroundColor="#E8F5E9"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="15,10">
+                            <StackLayout Spacing="4">
+                                <Label Text="{Binding Consulta.Empleado.TipoSangre}"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       TextColor="#4CAF50"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Tipo Sangre"
+                                       FontSize="13"
+                                       TextColor="{StaticResource MediumGray}"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Border>
+                    </Grid>
+                </StackLayout>
+            </Border>
+
+            <!-- Título con fecha de ESTA consulta -->
+            <StackLayout Margin="0,0,0,10">
+                <Label Text="Detalle de Consulta" Style="{StaticResource HeaderStyle}"/>
+                <Label Text="{Binding Consulta.FechaConsulta, StringFormat='Fecha: {0:dd/MM/yyyy HH:mm}'}"
+                       TextColor="{StaticResource MediumGray}"
+                       FontSize="14"/>
+            </StackLayout>
+
+            <!-- Información del Paciente -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackLayout>
+                    <Label Text="Información del Paciente" Style="{StaticResource SectionHeaderStyle}"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackLayout Grid.Column="0" Grid.Row="0" Margin="0,0,10,15">
+                            <Label Text="Nombre:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.Empleado.Nombre}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="1" Grid.Row="0" Margin="10,0,0,15">
+                            <Label Text="ID Empleado:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.IdEmpleado}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="0" Grid.Row="1" Margin="0,0,10,15">
+                            <Label Text="Tipo de Sangre:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.Empleado.TipoSangre}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="1" Grid.Row="1" Margin="10,0,0,15">
+                            <Label Text="Alergias:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.Empleado.AlergiasSangre}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+                    </Grid>
+                </StackLayout>
+            </Border>
+
+            <!-- Signos Vitales -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackLayout>
+                    <Label Text="Signos Vitales" Style="{StaticResource SectionHeaderStyle}"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackLayout Grid.Column="0" Grid.Row="0" Margin="0,0,10,15">
+                            <Label Text="Tensión Arterial:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.PresionArterial}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="1" Grid.Row="0" Margin="10,0,0,15">
+                            <Label Text="Temperatura:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.Temperatura}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="0" Grid.Row="1" Margin="0,0,10,0">
+                            <Label Text="Frecuencia Cardíaca:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.FrecuenciaCardiaca, StringFormat='{0} bpm'}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+
+                        <StackLayout Grid.Column="1" Grid.Row="1" Margin="10,0,0,0">
+                            <Label Text="Frecuencia Respiratoria:" Style="{StaticResource FieldLabelStyle}"/>
+                            <Label Text="{Binding Consulta.FrecuenciaRespiratoria, StringFormat='{0} rpm'}" Style="{StaticResource FieldValueStyle}"/>
+                        </StackLayout>
+                    </Grid>
+
+                    <StackLayout Margin="0,15,0,0" IsVisible="{Binding TieneObservacionesSignos}">
+                        <Label Text="Observaciones:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Label Text="{Binding Consulta.Observaciones}" 
+                               Style="{StaticResource FieldValueStyle}"
+                               LineBreakMode="WordWrap"/>
+                    </StackLayout>
+                </StackLayout>
+            </Border>
+
+            <!-- Consulta Médica -->
+            <Border Style="{StaticResource CardStyle}">
+                <StackLayout>
+                    <Label Text="Consulta Médica" Style="{StaticResource SectionHeaderStyle}"/>
+
+                    <StackLayout Margin="0,0,0,15">
+                        <Label Text="Motivo de Consulta:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Label Text="{Binding Consulta.MotivoConsulta}" 
+                               Style="{StaticResource FieldValueStyle}"
+                               LineBreakMode="WordWrap"/>
+                    </StackLayout>
+
+                    <StackLayout Margin="0,0,0,15">
+                        <Label Text="Diagnóstico:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Label Text="{Binding Consulta.Diagnostico}" 
+                               Style="{StaticResource FieldValueStyle}"
+                               LineBreakMode="WordWrap"/>
+                    </StackLayout>
+
+                    <StackLayout Margin="0,0,0,15">
+                        <Label Text="Clasificación:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Border BackgroundColor="{StaticResource LightGray}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="10,6"
+                                HorizontalOptions="Start">
+                            <Label Text="{Binding Consulta.TipoEnfermedad.NombreEnfermedad}" 
+                                   TextColor="{StaticResource DarkGray}"
+                                   FontAttributes="Bold"
+                                   FontSize="13"/>
+                        </Border>
+                    </StackLayout>
+
+                    <StackLayout IsVisible="{Binding TieneUltimaComida}">
+                        <Label Text="Última Comida:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Label Text="{Binding Consulta.UltimaComida}" 
+                               Style="{StaticResource FieldValueStyle}"
+                               LineBreakMode="WordWrap"/>
+                    </StackLayout>
+                </StackLayout>
+            </Border>
+
+            <!-- Material Utilizado -->
+            <Border Style="{StaticResource CardStyle}" IsVisible="{Binding TieneMedicamentos}">
+                <StackLayout>
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" 
+                               Text="Material Utilizado" 
+                               Style="{StaticResource SectionHeaderStyle}"/>
+
+                        <Border Grid.Column="1"
+                                BackgroundColor="{StaticResource SuccessColor}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="8,4">
+                            <Label Text="{Binding TotalMedicamentos, StringFormat='{0} items'}"
+                                   TextColor="White"
+                                   FontSize="12"
+                                   FontAttributes="Bold"/>
+                        </Border>
+                    </Grid>
+
+                    <!-- Tabla de medicamentos -->
+                    <Border BackgroundColor="{StaticResource LightGray}" 
+                            StrokeThickness="0" 
+                            Padding="15,10">
+                        <StackLayout>
+                            <!-- Header -->
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.Column="0" 
+                                       Text="Medicamento/Material" 
+                                       FontAttributes="Bold" 
+                                       FontSize="13"
+                                       TextColor="{StaticResource DarkGray}"/>
+                                <Label Grid.Column="1" 
+                                       Text="Cantidad" 
+                                       FontAttributes="Bold" 
+                                       FontSize="13"
+                                       TextColor="{StaticResource DarkGray}"/>
+                                <Label Grid.Column="2" 
+                                       Text="Observaciones" 
+                                       FontAttributes="Bold" 
+                                       FontSize="13"
+                                       TextColor="{StaticResource DarkGray}"/>
+                            </Grid>
+
+                            <!-- Items -->
+                            <CollectionView ItemsSource="{Binding Medicamentos}">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Padding="0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="2*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Label Grid.Column="0" 
+                                                   Text="{Binding NombreMedicamento}" 
+                                                   FontSize="14"
+                                                   TextColor="{StaticResource DarkGray}"
+                                                   LineBreakMode="WordWrap"/>
+                                            <Label Grid.Column="1" 
+                                                   Text="{Binding Cantidad, StringFormat='{0:F2}'}" 
+                                                   FontSize="14"
+                                                   TextColor="{StaticResource DarkGray}"/>
+                                            <Label Grid.Column="2" 
+                                                   Text="{Binding Observaciones}" 
+                                                   FontSize="13"
+                                                   TextColor="{StaticResource MediumGray}"
+                                                   LineBreakMode="WordWrap"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </StackLayout>
+                    </Border>
+                </StackLayout>
+            </Border>
+
+            <!-- Botón Cerrar -->
+            <Button Text="CERRAR"
+                    Command="{Binding CerrarCommand}"
+                    BackgroundColor="{StaticResource PrimaryColor}"
+                    TextColor="White"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    Padding="20,12"
+                    Margin="0,20,0,20"/>
+
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SistemaParamedicosDemo4.MVVM.Views.HistorialConsultasView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:SistemaParamedicosDemo4.MVVM.ViewModels"
+             Title="Historial de Consultas"
+             BackgroundColor="#F5F7FA">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryColor">#2E86AB</Color>
+            <Color x:Key="DarkGray">#343A40</Color>
+            <Color x:Key="MediumGray">#6C757D</Color>
+            <Color x:Key="LightGray">#F8F9FA</Color>
+            <Color x:Key="BorderColor">#DEE2E6</Color>
+            <Color x:Key="SuccessColor">#28A745</Color>
+
+            <Style x:Key="HeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="24"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+            </Style>
+
+            <Style x:Key="CardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
+                <Setter Property="Padding" Value="15"/>
+                <Setter Property="Margin" Value="10,5"/>
+                <Setter Property="Shadow">
+                    <Setter.Value>
+                        <Shadow Brush="Gray" Opacity="0.1" Radius="8" Offset="0,2"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="SectionHeaderStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="Margin" Value="0,10,0,5"/>
+            </Style>
+
+            <Style x:Key="FieldLabelStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="TextColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
+            </Style>
+
+            <Style x:Key="FieldValueStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Padding="20">
+
+            <!-- Header con Información del Empleado -->
+            <Border BackgroundColor="White"
+                    StrokeThickness="1"
+                    Stroke="{StaticResource BorderColor}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="20"
+                    Margin="0,0,0,20">
+                <Border.Shadow>
+                    <Shadow Brush="Gray" Opacity="0.1" Radius="8" Offset="0,2"/>
+                </Border.Shadow>
+
+                <StackLayout>
+                    <!-- Avatar y nombre -->
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Avatar grande -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="{StaticResource PrimaryColor}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 40"
+                                WidthRequest="80"
+                                HeightRequest="80">
+                            <Label Text="{Binding Empleado.Iniciales}"
+                                   TextColor="White"
+                                   FontSize="32"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <!-- Info del empleado -->
+                        <StackLayout Grid.Column="1" 
+                                     Spacing="6" 
+                                     Margin="20,0,0,0"
+                                     VerticalOptions="Center">
+                            <Label Text="{Binding Empleado.Nombre}"
+                                   FontSize="22"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource DarkGray}"/>
+                            <Label Text="{Binding Empleado.IdEmpleado}"
+                                   FontSize="15"
+                                   TextColor="{StaticResource MediumGray}"/>
+                            <Label Text="{Binding Empleado.IdPuesto}"
+                                   FontSize="14"
+                                   TextColor="{StaticResource MediumGray}"
+                                   FontAttributes="Bold"/>
+                        </StackLayout>
+                    </Grid>
+
+                    <!-- Tarjetas de información -->
+                    <Grid ColumnSpacing="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Consultas -->
+                        <Border Grid.Column="0"
+                                BackgroundColor="#E3F2FD"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="15,10">
+                            <StackLayout Spacing="4">
+                                <Label Text="{Binding TotalConsultas}"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       TextColor="#2196F3"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Consultas"
+                                       FontSize="13"
+                                       TextColor="{StaticResource MediumGray}"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Border>
+
+                        <!-- Edad -->
+                        <Border Grid.Column="1"
+                                BackgroundColor="#FFF3E0"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="15,10">
+                            <StackLayout Spacing="4">
+                                <Label Text="{Binding EdadEmpleado}"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       TextColor="#FF9800"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Años"
+                                       FontSize="13"
+                                       TextColor="{StaticResource MediumGray}"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Border>
+
+                        <!-- Tipo de Sangre -->
+                        <Border Grid.Column="2"
+                                BackgroundColor="#E8F5E9"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="15,10">
+                            <StackLayout Spacing="4">
+                                <Label Text="{Binding Empleado.TipoSangre}"
+                                       FontSize="28"
+                                       FontAttributes="Bold"
+                                       TextColor="#4CAF50"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="Tipo Sangre"
+                                       FontSize="13"
+                                       TextColor="{StaticResource MediumGray}"
+                                       HorizontalOptions="Center"/>
+                            </StackLayout>
+                        </Border>
+                    </Grid>
+                </StackLayout>
+            </Border>
+
+            <!-- Título de Historial -->
+            <Label Text="Historial de Consultas" Style="{StaticResource HeaderStyle}" Margin="10,10,10,5"/>
+            <Label Text="{Binding TotalConsultas, StringFormat='Total: {0} consultas registradas'}"
+                   TextColor="{StaticResource MediumGray}"
+                   FontSize="14"
+                   Margin="10,0,10,20"/>
+
+            <!-- Lista de Consultas con Acordeón -->
+            <StackLayout BindableLayout.ItemsSource="{Binding Consultas}" Spacing="10">
+                <BindableLayout.EmptyView>
+                    <StackLayout Padding="50" VerticalOptions="Center">
+                        <Label Text="📋"
+                               FontSize="48"
+                               HorizontalOptions="Center"/>
+                        <Label Text="No hay consultas registradas"
+                               FontSize="18"
+                               TextColor="{StaticResource MediumGray}"
+                               HorizontalOptions="Center"
+                               Margin="0,10,0,0"/>
+                    </StackLayout>
+                </BindableLayout.EmptyView>
+
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackLayout Spacing="0">
+                                <!-- Header de la consulta (siempre visible) -->
+                                <Grid>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleExpandidoCommand}"/>
+                                    </Grid.GestureRecognizers>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Fecha y hora -->
+                                    <Label Grid.Row="0" Grid.Column="0"
+                                           Text="{Binding FechaConsulta, StringFormat='{0:dd/MM/yyyy - HH:mm}'}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource DarkGray}"/>
+
+                                    <!-- Badge de material -->
+                                    <Border Grid.Row="0" Grid.Column="1"
+                                            BackgroundColor="{StaticResource SuccessColor}"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 12"
+                                            Padding="8,4"
+                                            Margin="0,0,10,0"
+                                            IsVisible="{Binding TieneMovimiento}">
+                                        <Label Text="📦 Material"
+                                               TextColor="White"
+                                               FontSize="11"
+                                               FontAttributes="Bold"/>
+                                    </Border>
+
+                                    <!-- Icono expandir/colapsar -->
+                                    <Label Grid.Row="0" Grid.Column="2"
+                                           Text="{Binding IconoExpandido}"
+                                           FontSize="24"
+                                           TextColor="{StaticResource PrimaryColor}"
+                                           VerticalOptions="Center"/>
+
+                                    <!-- Motivo -->
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                                           Text="{Binding MotivoConsulta}"
+                                           FontSize="14"
+                                           TextColor="{StaticResource DarkGray}"
+                                           Margin="0,8,0,4"/>
+
+                                    <!-- Tipo de enfermedad -->
+                                    <Border Grid.Row="2" Grid.Column="0"
+                                            BackgroundColor="{StaticResource LightGray}"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 8"
+                                            Padding="8,4"
+                                            HorizontalOptions="Start">
+                                        <Label Text="{Binding TipoEnfermedad.NombreEnfermedad}"
+                                               FontSize="11"
+                                               TextColor="{StaticResource MediumGray}"
+                                               FontAttributes="Bold"/>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Detalle expandible -->
+                                <StackLayout IsVisible="{Binding EstaExpandido}" Margin="0,15,0,0">
+                                    <!-- Separador -->
+                                    <BoxView HeightRequest="1" 
+                                             BackgroundColor="{StaticResource BorderColor}" 
+                                             Margin="0,0,0,15"/>
+
+                                    <!-- Diagnóstico -->
+                                    <Label Text="Diagnóstico:" Style="{StaticResource FieldLabelStyle}"/>
+                                    <Label Text="{Binding Diagnostico}" 
+                                           Style="{StaticResource FieldValueStyle}"
+                                           Margin="0,0,0,15"/>
+
+                                    <!-- Signos Vitales -->
+                                    <Label Text="Signos Vitales" Style="{StaticResource SectionHeaderStyle}"/>
+                                    <Grid ColumnSpacing="15" RowSpacing="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <StackLayout Grid.Column="0" Grid.Row="0">
+                                            <Label Text="Presión Arterial:" Style="{StaticResource FieldLabelStyle}"/>
+                                            <Label Text="{Binding PresionArterial}" Style="{StaticResource FieldValueStyle}"/>
+                                        </StackLayout>
+
+                                        <StackLayout Grid.Column="1" Grid.Row="0">
+                                            <Label Text="Temperatura:" Style="{StaticResource FieldLabelStyle}"/>
+                                            <Label Text="{Binding Temperatura}" Style="{StaticResource FieldValueStyle}"/>
+                                        </StackLayout>
+
+                                        <StackLayout Grid.Column="0" Grid.Row="1">
+                                            <Label Text="Frec. Cardíaca:" Style="{StaticResource FieldLabelStyle}"/>
+                                            <Label Text="{Binding FrecuenciaCardiaca, StringFormat='{0} bpm'}" Style="{StaticResource FieldValueStyle}"/>
+                                        </StackLayout>
+
+                                        <StackLayout Grid.Column="1" Grid.Row="1">
+                                            <Label Text="Frec. Respiratoria:" Style="{StaticResource FieldLabelStyle}"/>
+                                            <Label Text="{Binding FrecuenciaRespiratoria, StringFormat='{0} rpm'}" Style="{StaticResource FieldValueStyle}"/>
+                                        </StackLayout>
+                                    </Grid>
+
+                                    <!-- Observaciones -->
+                                    <StackLayout Margin="0,15,0,0" IsVisible="{Binding TieneObservaciones}">
+                                        <Label Text="Observaciones:" Style="{StaticResource FieldLabelStyle}"/>
+                                        <Label Text="{Binding Observaciones}" Style="{StaticResource FieldValueStyle}"/>
+                                    </StackLayout>
+
+                                    <!-- Medicamentos -->
+                                    <StackLayout IsVisible="{Binding TieneMedicamentos}" Margin="0,15,0,0">
+                                        <Label Text="Medicamentos Utilizados" Style="{StaticResource SectionHeaderStyle}"/>
+                                        <Border BackgroundColor="{StaticResource LightGray}"
+                                                StrokeThickness="0"
+                                                Padding="10">
+                                            <StackLayout BindableLayout.ItemsSource="{Binding Medicamentos}">
+                                                <BindableLayout.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Padding="0,5">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="3*"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Label Grid.Column="0"
+                                                                   Text="{Binding NombreMedicamento}"
+                                                                   FontSize="13"
+                                                                   TextColor="{StaticResource DarkGray}"/>
+                                                            <Label Grid.Column="1"
+                                                                   Text="{Binding Cantidad, StringFormat='{0:F2}'}"
+                                                                   FontSize="13"
+                                                                   FontAttributes="Bold"
+                                                                   TextColor="{StaticResource PrimaryColor}"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </BindableLayout.ItemTemplate>
+                                            </StackLayout>
+                                        </Border>
+                                    </StackLayout>
+                                </StackLayout>
+                            </StackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </StackLayout>
+
+            <!-- Indicador de carga -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{StaticResource PrimaryColor}"
+                               Margin="0,20,0,0"/>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
