@@ -9,8 +9,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
     {
         [PrimaryKey]
         [MaxLength(25)]
-        public string IdMovimientoDetalle { get; set; } 
-
+        public string IdMovimientoDetalle { get; set; }
 
         [MaxLength(25)]
         public string IdMovimiento { get; set; }
@@ -43,9 +42,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
         public string IdDetallePadre { get; set; }
 
         // Propiedades de navegación - NO se guardan en BD
-   
         private ProductoModel _producto;
-
         [Ignore]
         public ProductoModel Producto
         {
@@ -60,7 +57,6 @@ namespace SistemaParamedicosDemo4.MVVM.Models
 
         // Propiedad temporal - NO se guarda en BD
         private string _observaciones;
-
         [Ignore]
         public string Observaciones
         {
@@ -72,14 +68,23 @@ namespace SistemaParamedicosDemo4.MVVM.Models
             }
         }
 
-        // Propiedad calculada - NO se guarda en BD
+        // ⭐ MEJORAR LA PROPIEDAD CALCULADA
         [Ignore]
-        public string NombreMedicamento => Producto != null
-            ? $"{Producto.Nombre} {Producto.Model}"
-            : ClaveProducto;
+        public string NombreMedicamento
+        {
+            get
+            {
+                if (Producto != null)
+                {
+                    // Retornar el nombre completo con modelo y marca
+                    return $"{Producto.Nombre} {Producto.Model} - {Producto.Marca}";
+                }
+                // Si no hay producto cargado, mostrar solo la clave
+                return ClaveProducto ?? "Medicamento desconocido";
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

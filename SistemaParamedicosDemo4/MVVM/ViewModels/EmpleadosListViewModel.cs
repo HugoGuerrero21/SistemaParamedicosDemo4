@@ -8,153 +8,167 @@ using System.Windows.Input;
 
 namespace SistemaParamedicosDemo4.MVVM.ViewModels
 {
-	[AddINotifyPropertyChangedInterface]
-	public class EmpleadosListViewModel
-	{
-		#region Repositorios
-		private EmpleadoRepository _empleadoRepo;
-		private ConsultaRepository _consultaRepo;
-		#endregion
+    [AddINotifyPropertyChangedInterface]
+    public class EmpleadosListViewModel : IQueryAttributable
+    {
+        #region Repositorios
+        private EmpleadoRepository _empleadoRepo;
+        private ConsultaRepository _consultaRepo;
+        #endregion
 
-		#region Properties
-		public ObservableCollection<EmpleadoModel> EmpleadosFiltrados { get; set; }
-		private List<EmpleadoModel> _todosLosEmpleados;
-		public string TextoBusqueda { get; set; }
-		public int TotalEmpleados { get; set; }
-		public bool IsBusy { get; set; }
-		#endregion
+        #region Properties
+        public ObservableCollection<EmpleadoModel> EmpleadosFiltrados { get; set; }
+        private List<EmpleadoModel> _todosLosEmpleados;
+        public string TextoBusqueda { get; set; }
+        public int TotalEmpleados { get; set; }
+        public bool IsBusy { get; set; }
+        #endregion
 
-		#region Commands
-		public ICommand BuscarCommand { get; }
-		public ICommand MostrarTodosCommand { get; }
-		public ICommand FiltrarPorPuestoCommand { get; }
-		public ICommand VerHistorialCommand { get; }
-		#endregion
+        #region Commands
+        public ICommand BuscarCommand { get; }
+        public ICommand MostrarTodosCommand { get; }
+        public ICommand FiltrarPorPuestoCommand { get; }
+        public ICommand VerHistorialCommand { get; }
+        public ICommand AppearingCommand { get; } // ⭐ COMANDO PARA OnAppearing
+        #endregion
 
-		public EmpleadosListViewModel()
-		{
-			_empleadoRepo = new EmpleadoRepository();
-			_consultaRepo = new ConsultaRepository();
-			EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>();
+        public EmpleadosListViewModel()
+        {
+            _empleadoRepo = new EmpleadoRepository();
+            _consultaRepo = new ConsultaRepository();
+            EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>();
 
-			// Inicializar Commands
-			BuscarCommand = new Command(Buscar);
-			MostrarTodosCommand = new Command(MostrarTodos);
-			FiltrarPorPuestoCommand = new Command<string>(FiltrarPorPuesto);
-			VerHistorialCommand = new Command<EmpleadoModel>(VerHistorial);
+            // Inicializar Commands
+            BuscarCommand = new Command(Buscar);
+            MostrarTodosCommand = new Command(MostrarTodos);
+            FiltrarPorPuestoCommand = new Command<string>(FiltrarPorPuesto);
+            VerHistorialCommand = new Command<EmpleadoModel>(VerHistorial);
+            AppearingCommand = new Command(OnAppearing); // ⭐ NUEVO
 
-			// Cargar empleados
-			CargarEmpleados();
-		}
+            // ⭐ SUSCRIBIRSE AL MENSAJE EN EL VIEWMODEL (no en code-behind)
+            MessagingCenter.Subscribe<ConsultaViewModel, string>(this, "ConsultaGuardada", (sender, idEmpleado) =>
+            {
+                System.Diagnostics.Debug.WriteLine($"📩 Mensaje recibido en VM: actualizar empleado {idEmpleado}");
+                RefrescarEmpleados();
+            });
 
-		private void CargarEmpleados()
-		{
-			try
-			{
-				IsBusy = true;
+            // Cargar empleados inicial
+            CargarEmpleados();
+        }
 
-				var empleados = _empleadoRepo.GetAll();
+        // ⭐ IMPLEMENTACIÓN DE IQueryAttributable
+        // Se ejecuta cada vez que se navega a esta vista
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            System.Diagnostics.Debug.WriteLine("🔄 ApplyQueryAttributes - Refrescando empleados...");
+            RefrescarEmpleados();
+        }
 
-				_todosLosEmpleados = empleados.Select(e =>
-				{
-					// ⭐ CARGAR EL TOTAL DE CONSULTAS PARA CADA EMPLEADO
-					var consultas = _consultaRepo.GetConsultasByEmpleado(e.IdEmpleado);
-					e.TotalConsultas = consultas.Count;
+        // ⭐ MÉTODO PARA EL COMANDO APPEARING
+        private void OnAppearing()
+        {
+            System.Diagnostics.Debug.WriteLine("👁️ Vista apareció - Refrescando empleados...");
+            RefrescarEmpleados();
+        }
 
-					System.Diagnostics.Debug.WriteLine($"Empleado: {e.Nombre} - Consultas: {consultas.Count}");
+        private void CargarEmpleados()
+        {
+            try
+            {
+                IsBusy = true;
 
-					return e;
-				}).ToList();
+                var empleados = _empleadoRepo.GetAll();
 
-				MostrarTodos();
-				TotalEmpleados = _todosLosEmpleados.Count;
+                _todosLosEmpleados = empleados.Select(e =>
+                {
+                    // Cargar el total de consultas para cada empleado
+                    var consultas = _consultaRepo.GetConsultasByEmpleado(e.IdEmpleado);
+                    e.TotalConsultas = consultas.Count;
 
-				System.Diagnostics.Debug.WriteLine($"✓ {TotalEmpleados} empleados cargados");
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"❌ Error al cargar empleados: {ex.Message}");
-			}
-			finally
-			{
-				IsBusy = false;
-			}
-		}
+                    System.Diagnostics.Debug.WriteLine($"Empleado: {e.Nombre} - Consultas: {consultas.Count}");
 
-		// ⭐ MÉTODO PÚBLICO PARA REFRESCAR DESDE OTRAS VISTAS
-		public void RefrescarEmpleados()
-		{
-			CargarEmpleados();
-		}
+                    return e;
+                }).ToList();
 
-		private void Buscar()
-		{
-			if (string.IsNullOrWhiteSpace(TextoBusqueda))
-			{
-				MostrarTodos();
-				return;
-			}
+                MostrarTodos();
+                TotalEmpleados = _todosLosEmpleados.Count;
 
-			var busqueda = TextoBusqueda.ToLower();
+                System.Diagnostics.Debug.WriteLine($"✓ {TotalEmpleados} empleados cargados");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar empleados: {ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
 
-			var empleadosFiltrados = _todosLosEmpleados.Where(e =>
-				e.Nombre.ToLower().Contains(busqueda) ||
-				e.IdEmpleado.ToLower().Contains(busqueda) ||
-				e.IdPuesto.ToLower().Contains(busqueda)
-			).ToList();
+        public void RefrescarEmpleados()
+        {
+            System.Diagnostics.Debug.WriteLine("🔄 Refrescando lista de empleados...");
+            CargarEmpleados();
+        }
 
-			ActualizarLista(empleadosFiltrados);
-		}
+        private void Buscar()
+        {
+            if (string.IsNullOrWhiteSpace(TextoBusqueda))
+            {
+                MostrarTodos();
+                return;
+            }
 
-		private void MostrarTodos()
-		{
-			ActualizarLista(_todosLosEmpleados);
-		}
+            var busqueda = TextoBusqueda.ToLower();
 
-		private void FiltrarPorPuesto(string puesto)
-		{
-			var empleadosFiltrados = _todosLosEmpleados
-				.Where(e => e.IdPuesto.Equals(puesto, StringComparison.OrdinalIgnoreCase))
-				.ToList();
+            var empleadosFiltrados = _todosLosEmpleados.Where(e =>
+                e.Nombre.ToLower().Contains(busqueda) ||
+                e.IdEmpleado.ToLower().Contains(busqueda) ||
+                e.IdPuesto.ToLower().Contains(busqueda)
+            ).ToList();
 
-			ActualizarLista(empleadosFiltrados);
-		}
+            ActualizarLista(empleadosFiltrados);
+        }
 
-		private void ActualizarLista(List<EmpleadoModel> empleados)
-		{
-			EmpleadosFiltrados.Clear();
-			foreach (var empleado in empleados)
-			{
-				EmpleadosFiltrados.Add(empleado);
-			}
-		}
+        private void MostrarTodos()
+        {
+            ActualizarLista(_todosLosEmpleados);
+        }
 
-		private async void VerHistorial(EmpleadoModel empleado)
-		{
-			if (empleado == null) return;
+        private void FiltrarPorPuesto(string puesto)
+        {
+            var empleadosFiltrados = _todosLosEmpleados
+                .Where(e => e.IdPuesto.Equals(puesto, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-			// Navegar a la vista de historial pasando el empleado
-			var parametros = new Dictionary<string, object>
-			{
-				{ "Empleado", empleado }
-			};
+            ActualizarLista(empleadosFiltrados);
+        }
 
-			await Shell.Current.GoToAsync("historial", parametros);
-		}
+        private void ActualizarLista(List<EmpleadoModel> empleados)
+        {
+            EmpleadosFiltrados.Clear();
+            foreach (var empleado in empleados)
+            {
+                EmpleadosFiltrados.Add(empleado);
+            }
+        }
 
-		private string ObtenerIniciales(string nombreCompleto)
-		{
-			if (string.IsNullOrWhiteSpace(nombreCompleto))
-				return "??";
+        private async void VerHistorial(EmpleadoModel empleado)
+        {
+            if (empleado == null) return;
 
-			var palabras = nombreCompleto.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var parametros = new Dictionary<string, object>
+            {
+                { "Empleado", empleado }
+            };
 
-			if (palabras.Length >= 2)
-				return $"{palabras[0][0]}{palabras[1][0]}".ToUpper();
+            await Shell.Current.GoToAsync("historial", parametros);
+        }
 
-			return palabras[0].Length >= 2
-				? palabras[0].Substring(0, 2).ToUpper()
-				: palabras[0][0].ToString().ToUpper();
-		}
-	}
+        // ⭐ DESUSCRIBIRSE CUANDO SE DESTRUYA EL VIEWMODEL
+        ~EmpleadosListViewModel()
+        {
+            MessagingCenter.Unsubscribe<ConsultaViewModel, string>(this, "ConsultaGuardada");
+        }
+    }
 }

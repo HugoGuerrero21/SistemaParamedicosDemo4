@@ -22,13 +22,13 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 StatusMessage = "Repositorio de movimientos inicializado";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
             }
-
-            catch( Exception ex)
+            catch (Exception ex)
             {
                 StatusMessage = $"Se ha producido un error{ex.Message}";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
             }
         }
+
         public List<MovimientoDetalleModel> GetAllDetalles()
         {
             try
@@ -42,13 +42,25 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 return new List<MovimientoDetalleModel>();
             }
         }
+
         public List<MovimientoDetalleModel> GetDetallesByMovimiento(string idMovimiento)
         {
             try
             {
-                return Connection.Table<MovimientoDetalleModel>()
+                System.Diagnostics.Debug.WriteLine($"🔍 Buscando detalles para IdMovimiento: {idMovimiento}");
+
+                var detalles = Connection.Table<MovimientoDetalleModel>()
                     .Where(d => d.IdMovimiento == idMovimiento)
                     .ToList();
+
+                System.Diagnostics.Debug.WriteLine($"📦 Encontrados {detalles.Count} detalles en BD");
+
+                foreach (var detalle in detalles)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  - Detalle: {detalle.IdMovimientoDetalle} | Producto: {detalle.ClaveProducto} | Cantidad: {detalle.Cantidad}");
+                }
+
+                return detalles;
             }
             catch (Exception ex)
             {
@@ -57,6 +69,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 return new List<MovimientoDetalleModel>();
             }
         }
+
         public MovimientoDetalleModel GetDetalleById(string id)
         {
             try
@@ -70,6 +83,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 return null;
             }
         }
+
         public bool InsertarDetalle(MovimientoDetalleModel detalle)
         {
             try
@@ -109,21 +123,40 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 if (detalles == null || detalles.Count == 0)
                 {
                     StatusMessage = "No hay detalles para insertar";
+                    System.Diagnostics.Debug.WriteLine("⚠️ " + StatusMessage);
                     return false;
                 }
 
+                System.Diagnostics.Debug.WriteLine($"💾 Intentando insertar {detalles.Count} detalles...");
+
+                foreach (var detalle in detalles)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  📝 IdDetalle: {detalle.IdMovimientoDetalle}");
+                    System.Diagnostics.Debug.WriteLine($"  📝 IdMovimiento: {detalle.IdMovimiento}");
+                    System.Diagnostics.Debug.WriteLine($"  📝 ClaveProducto: {detalle.ClaveProducto}");
+                    System.Diagnostics.Debug.WriteLine($"  📝 Cantidad: {detalle.Cantidad}");
+                }
+
                 Connection.InsertAll(detalles);
+
                 StatusMessage = $"{detalles.Count} detalles insertados";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                System.Diagnostics.Debug.WriteLine($"✅ {StatusMessage}");
+
+                // ⭐ VERIFICAR QUE SE GUARDARON
+                var verificacion = Connection.Table<MovimientoDetalleModel>().ToList();
+                System.Diagnostics.Debug.WriteLine($"🔍 Total de detalles en BD después de insertar: {verificacion.Count}");
+
                 return true;
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Error al insertar detalles: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                 return false;
             }
         }
+
         public bool ActualizarDetalle(MovimientoDetalleModel detalle)
         {
             try

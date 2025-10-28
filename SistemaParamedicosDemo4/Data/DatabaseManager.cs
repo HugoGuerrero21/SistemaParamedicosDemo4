@@ -11,6 +11,7 @@ namespace SistemaParamedicosDemo4.Data
         public SQLiteConnection Connection { get; private set; }
         public string StatusMessage { get; set; }
 
+
         private DatabaseManager()
         {
             try
@@ -26,7 +27,7 @@ namespace SistemaParamedicosDemo4.Data
 
                 // IMPORTANTE: Solo eliminar si es necesario (desarrollo)
                 // Comentar esta línea en producción
-                Connection.DropTable<MovimientoDetalleModel>();
+                //Connection.DropTable<MovimientoDetalleModel>();
                 Connection.CreateTable<MovimientoDetalleModel>();
 
                 StatusMessage = "Base de datos inicializada correctamente";
@@ -73,22 +74,22 @@ namespace SistemaParamedicosDemo4.Data
         //    }
         //}
 
-        //public static void EliminarBaseDeDatos()
-        //{
-        //    try
-        //    {
-        //        if (File.Exists(Constants.DataBasePath))
-        //        {
-        //            File.Delete(Constants.DataBasePath);
-        //            System.Diagnostics.Debug.WriteLine("✅ Base de datos eliminada");
-        //        }
+        public static void EliminarBaseDeDatos()
+        {
+            try
+            {
+                if (File.Exists(Constants.DataBasePath))
+                {
+                    File.Delete(Constants.DataBasePath);
+                    System.Diagnostics.Debug.WriteLine("✅ Base de datos eliminada");
+                }
 
-        //        _instance = null; // Resetear la instancia
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        System.Diagnostics.Debug.WriteLine($"❌ Error al eliminar BD: {ex.Message}");
-        //    }
-        //}
+                _instance = null; // Resetear la instancia
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al eliminar BD: {ex.Message}");
+            }
+        }
     }
 }

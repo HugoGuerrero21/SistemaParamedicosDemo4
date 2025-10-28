@@ -3,12 +3,14 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:SistemaParamedicosDemo4.MVVM.ViewModels"
+             xmlns:behaviors="clr-namespace:SistemaParamedicosDemo4.Behaviors"
              Title="Lista de Empleados"
              BackgroundColor="#F5F7FA">
 
-    <ContentPage.BindingContext>
-        <viewModels:EmpleadosListViewModel/>
-    </ContentPage.BindingContext>
+    <!-- ⭐ BEHAVIOR PARA MANEJAR OnAppearing -->
+    <ContentPage.Behaviors>
+        <behaviors:PageAppearingBehavior Command="{Binding AppearingCommand}"/>
+    </ContentPage.Behaviors>
 
     <ContentPage.Resources>
         <ResourceDictionary>

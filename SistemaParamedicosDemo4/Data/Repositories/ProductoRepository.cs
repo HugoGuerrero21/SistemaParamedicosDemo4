@@ -59,18 +59,31 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             }
         }
 
+        // Solo la parte del método GetProductosById con mejor debugging
+
         public ProductoModel GetProductosById(string id)
         {
             try
             {
-                return Connection.Find<ProductoModel>(id);
+                var producto = Connection.Find<ProductoModel>(id);
+
+                if (producto != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"✅ Producto encontrado: {id} -> {producto.Nombre} {producto.Model}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Producto NO encontrado con ID: {id}");
+                }
+
+                return producto;
             }
             catch (Exception ex)
             {
                 StatusMessage = $"No se pudo encontrar el producto{ex.Message}";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
                 return null;
-            } 
+            }
         }
 
         public ProductoModel InsertarProducto(ProductoModel producto)
