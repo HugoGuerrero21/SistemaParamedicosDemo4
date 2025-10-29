@@ -258,18 +258,40 @@
                                            TextColor="{StaticResource DarkGray}"
                                            Margin="0,8,0,4"/>
 
-                                    <!-- Tipo de enfermedad -->
-                                    <Border Grid.Row="2" Grid.Column="0"
-                                            BackgroundColor="{StaticResource LightGray}"
-                                            StrokeThickness="0"
-                                            StrokeShape="RoundRectangle 8"
-                                            Padding="8,4"
-                                            HorizontalOptions="Start">
-                                        <Label Text="{Binding TipoEnfermedad.NombreEnfermedad}"
-                                               FontSize="11"
-                                               TextColor="{StaticResource MediumGray}"
-                                               FontAttributes="Bold"/>
-                                    </Border>
+                                    <!-- Clasificación y Paramédico -->
+                                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Tipo de enfermedad -->
+                                        <Border Grid.Column="0"
+                                                BackgroundColor="{StaticResource LightGray}"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 8"
+                                                Padding="8,4"
+                                                HorizontalOptions="Start">
+                                            <Label Text="{Binding TipoEnfermedad.NombreEnfermedad}"
+                                                   FontSize="11"
+                                                   TextColor="{StaticResource MediumGray}"
+                                                   FontAttributes="Bold"/>
+                                        </Border>
+
+                                        <!-- Paramédico -->
+                                        <HorizontalStackLayout Grid.Column="1"
+                                                               Spacing="5"
+                                                               HorizontalOptions="End"
+                                                               VerticalOptions="Center"
+                                                               Margin="10,0,0,0">
+                                            <Label Text="👨‍⚕️"
+                                                   FontSize="12"/>
+                                            <Label Text="{Binding UsuariosAcceso.Nombre}"
+                                                   FontSize="11"
+                                                   TextColor="{StaticResource MediumGray}"
+                                                   FontAttributes="Italic"/>
+                                        </HorizontalStackLayout>
+                                    </Grid>
                                 </Grid>
 
                                 <!-- Detalle expandible -->

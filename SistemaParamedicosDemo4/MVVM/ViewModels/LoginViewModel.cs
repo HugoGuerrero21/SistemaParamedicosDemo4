@@ -41,40 +41,47 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 				   !isLoading;
 		}
 
-		private async void Login()
-		{
-			try
-			{
-				isLoading = true;
-				bool loginExitoso = await ValidarCredenciales(usuario, password);
+        private async void Login()
+        {
+            try
+            {
+                isLoading = true;
 
-				if (loginExitoso)
-				{
-					// ⭐ CAMBIO: Navegar al AppShell en lugar de ConsultaView directamente
-					Application.Current.MainPage = new AppShell();
-				}
-				else
-				{
-					await Application.Current.MainPage.DisplayAlert(
-						"Error",
-						"Usuario o contraseña incorrectos",
-						"OK");
-				}
-			}
-			catch (Exception ex)
-			{
-				await Application.Current.MainPage.DisplayAlert(
-					"Error",
-					$"Error al iniciar sesión: {ex.Message}",
-					"OK");
-			}
-			finally
-			{
-				isLoading = false;
-			}
-		}
+                // ⭐ OBTENER EL USUARIO COMPLETO
+                var usuarioEncontrado = _usuariosRepository.GetUsuarioByNombreUsuario(usuario);
 
-		private async Task<bool> ValidarCredenciales(string usuario, string password)
+                if (usuarioEncontrado != null && usuarioEncontrado.Password == password)
+                {
+                    // ⭐ GUARDAR LA SESIÓN
+                    SesionActual.IdUsuario = usuarioEncontrado.IdUsuario;
+                    SesionActual.NombreUsuario = usuarioEncontrado.Nombre;
+
+                    System.Diagnostics.Debug.WriteLine($"✓ Sesión iniciada: {SesionActual.NombreUsuario} (ID: {SesionActual.IdUsuario})");
+
+                    Application.Current.MainPage = new AppShell();
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        "Usuario o contraseña incorrectos",
+                        "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    $"Error al iniciar sesión: {ex.Message}",
+                    "OK");
+            }
+            finally
+            {
+                isLoading = false;
+            }
+        }
+
+        private async Task<bool> ValidarCredenciales(string usuario, string password)
 		{
 			await Task.Delay(100);
 			bool credencialesValidas = _usuariosRepository.ValidarCredenciales(usuario, password);
@@ -86,4 +93,11 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 			((Command)LoginCommand).ChangeCanExecute();
 		}
 	}
+}
+
+// ⭐ CLASE PARA GUARDAR LA SESIÓN ACTUAL
+public static class SesionActual
+{
+    public static string IdUsuario { get; set; }
+    public static string NombreUsuario { get; set; }
 }

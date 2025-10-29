@@ -10,455 +10,486 @@ using System.Windows.Input;
 
 namespace SistemaParamedicosDemo4.MVVM.ViewModels
 {
-	[AddINotifyPropertyChangedInterface]
-	public class ConsultaViewModel : INotifyPropertyChanged
-	{
-		#region Repositorios
-		private TipoEnfermedadRepository _tipoEnfermedadRepo;
-		private ProductoRepository _productoRepo;
-		private ConsultaRepository _consultaRepo;
-		private EmpleadoRepository _empleadoRepo;
-		#endregion
+    [AddINotifyPropertyChangedInterface]
+    public class ConsultaViewModel : INotifyPropertyChanged
+    {
+        #region Repositorios
+        private TipoEnfermedadRepository _tipoEnfermedadRepo;
+        private ProductoRepository _productoRepo;
+        private ConsultaRepository _consultaRepo;
+        private EmpleadoRepository _empleadoRepo;
+        #endregion
 
-		#region Properties
+        #region Properties
 
-		// Modelo principal de la consulta
-		public ConsultaModel Consulta { get; set; }
-		public EmpleadoModel EmpleadoSeleccionado { get; set; }
-		public int Edad { get; set; }
+        // Modelo principal de la consulta
+        public ConsultaModel Consulta { get; set; }
+        public EmpleadoModel EmpleadoSeleccionado { get; set; }
+        public int Edad { get; set; }
 
-		// Signos vitales
-		public string TensionArterial { get; set; }
-		public string Temperatura { get; set; }
-		public short FrecuenciaCardiaca { get; set; }
-		public byte FrecuenciaRespiratoria { get; set; }
-		public string ObservacionesSignos { get; set; }
+        // Signos vitales
+        public string TensionArterial { get; set; }
+        public string Temperatura { get; set; }
+        public short FrecuenciaCardiaca { get; set; }
+        public byte FrecuenciaRespiratoria { get; set; }
+        public string ObservacionesSignos { get; set; }
 
-		// Consulta
-		public string MotivoConsulta { get; set; }
-		public string Diagnostico { get; set; }
-		public TipoEnfermedadModel TipoEnfermedadSeleccionado { get; set; }
-		public string Tratamiento { get; set; }
-		public string UltimaComida { get; set; }
+        // Consulta
+        public string MotivoConsulta { get; set; }
+        public string Diagnostico { get; set; }
+        public TipoEnfermedadModel TipoEnfermedadSeleccionado { get; set; }
+        public string Tratamiento { get; set; }
+        public string UltimaComida { get; set; }
 
-		// Material/Medicamentos
-		public bool SeUtilizoMaterial { get; set; }
-		public ProductoModel MedicamentoSeleccionado { get; set; }
-		public double CantidadDisponible { get; set; }
-		public double CantidadMedicamento { get; set; }
-		public string ObservacionesMedicamento { get; set; }
+        // ⭐ PROPIEDADES PARA HISTORIAL
+        public ObservableCollection<ConsultaResumenModel> UltimasConsultas { get; set; }
+        public bool TieneConsultasPrevias => UltimasConsultas?.Count > 0;
+        public bool HistorialExpandido { get; set; }
 
-		public bool TieneMedicamentosAgregados => MedicamentosAgregados?.Count > 0;
+        // Material/Medicamentos
+        public bool SeUtilizoMaterial { get; set; }
+        public ProductoModel MedicamentoSeleccionado { get; set; }
+        public double CantidadDisponible { get; set; }
+        public double CantidadMedicamento { get; set; }
+        public string ObservacionesMedicamento { get; set; }
 
-		// Colecciones
-		public ObservableCollection<TipoEnfermedadModel> TiposEnfermedad { get; set; }
-		public ObservableCollection<ProductoModel> Medicamentos { get; set; }
-		public ObservableCollection<MovimientoDetalleModel> MedicamentosAgregados { get; set; }
+        public bool TieneMedicamentosAgregados => MedicamentosAgregados?.Count > 0;
 
-		public ICommand AgregarMedicamentoCommand { get; }
-		public ICommand EliminarMedicamentoCommand { get; }
-		public ICommand GuardarCommand { get; }
-		public ICommand CancelarCommand { get; }
+        // Colecciones
+        public ObservableCollection<TipoEnfermedadModel> TiposEnfermedad { get; set; }
+        public ObservableCollection<ProductoModel> Medicamentos { get; set; }
+        public ObservableCollection<MovimientoDetalleModel> MedicamentosAgregados { get; set; }
 
-		#endregion
+        public ICommand AgregarMedicamentoCommand { get; }
+        public ICommand EliminarMedicamentoCommand { get; }
+        public ICommand GuardarCommand { get; }
+        public ICommand CancelarCommand { get; }
+        public ICommand ToggleHistorialCommand { get; }
 
-		public ConsultaViewModel()
-		{
-			// Inicializar repositorios
-			_tipoEnfermedadRepo = new TipoEnfermedadRepository();
-			_productoRepo = new ProductoRepository();
-			_consultaRepo = new ConsultaRepository();
-			_empleadoRepo = new EmpleadoRepository();
+        #endregion
 
-			Consulta = new ConsultaModel { FechaConsulta = DateTime.Now };
+        public ConsultaViewModel()
+        {
+            // Inicializar repositorios
+            _tipoEnfermedadRepo = new TipoEnfermedadRepository();
+            _productoRepo = new ProductoRepository();
+            _consultaRepo = new ConsultaRepository();
+            _empleadoRepo = new EmpleadoRepository();
 
-			TiposEnfermedad = new ObservableCollection<TipoEnfermedadModel>();
-			Medicamentos = new ObservableCollection<ProductoModel>();
-			MedicamentosAgregados = new ObservableCollection<MovimientoDetalleModel>();
+            Consulta = new ConsultaModel { FechaConsulta = DateTime.Now };
 
-			// Cuando cambie la colección, notificar que la propiedad calculada cambió
-			MedicamentosAgregados.CollectionChanged += (s, e) =>
-			{
-				this.OnPropertyChanged(nameof(TieneMedicamentosAgregados));
-			};
+            TiposEnfermedad = new ObservableCollection<TipoEnfermedadModel>();
+            Medicamentos = new ObservableCollection<ProductoModel>();
+            MedicamentosAgregados = new ObservableCollection<MovimientoDetalleModel>();
+            UltimasConsultas = new ObservableCollection<ConsultaResumenModel>();
 
-			// Inicializar Commands
-			AgregarMedicamentoCommand = new Command(AgregarMedicamento, CanAgregarMedicamento);
-			EliminarMedicamentoCommand = new Command<MovimientoDetalleModel>(EliminarMedicamento);
-			GuardarCommand = new Command(Guardar, CanGuardar);
-			CancelarCommand = new Command(Cancelar);
+            // Cuando cambie la colección, notificar que la propiedad calculada cambió
+            MedicamentosAgregados.CollectionChanged += (s, e) =>
+            {
+                this.OnPropertyChanged(nameof(TieneMedicamentosAgregados));
+            };
 
-			// Configurar PropertyChanged
-			PropertyChanged += (s, e) =>
-			{
-				if (e.PropertyName == nameof(MedicamentoSeleccionado))
-				{
-					ActualizarCantidadDisponible();
-					((Command)AgregarMedicamentoCommand).ChangeCanExecute();
-				}
-				else if (e.PropertyName == nameof(CantidadMedicamento) ||
-						 e.PropertyName == nameof(SeUtilizoMaterial) ||
-						 e.PropertyName == nameof(CantidadDisponible))
-				{
-					((Command)AgregarMedicamentoCommand).ChangeCanExecute();
-				}
-				else if (e.PropertyName == nameof(MotivoConsulta) ||
-						 e.PropertyName == nameof(Diagnostico) ||
-						 e.PropertyName == nameof(TipoEnfermedadSeleccionado))
-				{
-					((Command)GuardarCommand).ChangeCanExecute();
-				}
-			};
+            // Inicializar Commands
+            AgregarMedicamentoCommand = new Command(AgregarMedicamento, CanAgregarMedicamento);
+            EliminarMedicamentoCommand = new Command<MovimientoDetalleModel>(EliminarMedicamento);
+            GuardarCommand = new Command(Guardar, CanGuardar);
+            CancelarCommand = new Command(Cancelar);
+            ToggleHistorialCommand = new Command(() => HistorialExpandido = !HistorialExpandido);
 
-			// Cargar datos desde SQLite
-			CargarDatosDesdeBaseDatos();
-		}
+            // Configurar PropertyChanged
+            PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(MedicamentoSeleccionado))
+                {
+                    ActualizarCantidadDisponible();
+                    ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
+                }
+                else if (e.PropertyName == nameof(CantidadMedicamento) ||
+                         e.PropertyName == nameof(SeUtilizoMaterial) ||
+                         e.PropertyName == nameof(CantidadDisponible))
+                {
+                    ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
+                }
+                else if (e.PropertyName == nameof(MotivoConsulta) ||
+                         e.PropertyName == nameof(Diagnostico) ||
+                         e.PropertyName == nameof(TipoEnfermedadSeleccionado))
+                {
+                    ((Command)GuardarCommand).ChangeCanExecute();
+                }
+            };
 
-		/// <summary>
-		/// Carga los datos iniciales desde la base de datos SQLite
-		/// </summary>
-		private void CargarDatosDesdeBaseDatos()
-		{
-			try
-			{
-				System.Diagnostics.Debug.WriteLine("Cargando datos desde SQLite...");
+            // Cargar datos desde SQLite
+            CargarDatosDesdeBaseDatos();
+        }
 
-				// Cargar tipos de enfermedad desde BD
-				var tiposEnfermedad = _tipoEnfermedadRepo.GetAllTypes();
-				foreach (var tipo in tiposEnfermedad)
-				{
-					TiposEnfermedad.Add(tipo);
-				}
-				System.Diagnostics.Debug.WriteLine($"✓ {TiposEnfermedad.Count} tipos de enfermedad cargados");
+        private void CargarDatosDesdeBaseDatos()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Cargando datos desde SQLite...");
 
-				// Cargar productos/medicamentos desde BD
-				var productos = _productoRepo.GetProductoConsStock();
-				foreach (var producto in productos)
-				{
-					Medicamentos.Add(producto);
-				}
-				System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados");
+                var tiposEnfermedad = _tipoEnfermedadRepo.GetAllTypes();
+                foreach (var tipo in tiposEnfermedad)
+                {
+                    TiposEnfermedad.Add(tipo);
+                }
+                System.Diagnostics.Debug.WriteLine($"✓ {TiposEnfermedad.Count} tipos de enfermedad cargados");
 
-				// Cargar empleado de ejemplo (el primero disponible)
-				var empleados = _empleadoRepo.GetAll();
-				if (empleados.Count > 0)
-				{
-					EmpleadoSeleccionado = empleados[0];
-					CalcularEdad();
-					System.Diagnostics.Debug.WriteLine($"✓ Empleado cargado: {EmpleadoSeleccionado.Nombre}");
-				}
-			}
-			catch (Exception ex)
-			{
-				System.Diagnostics.Debug.WriteLine($"❌ Error al cargar datos: {ex.Message}");
-			}
-		}
+                var productos = _productoRepo.GetProductoConsStock();
+                foreach (var producto in productos)
+                {
+                    Medicamentos.Add(producto);
+                }
+                System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados");
 
-		private void CalcularEdad()
-		{
-			if (EmpleadoSeleccionado != null)
-			{
-				var hoy = DateTime.Today;
-				var edad = hoy.Year - EmpleadoSeleccionado.FechaNacimiento.Year;
-				if (EmpleadoSeleccionado.FechaNacimiento.Date > hoy.AddYears(-edad)) edad--;
-				Edad = edad;
-			}
-		}
+                var empleados = _empleadoRepo.GetAll();
+                if (empleados.Count > 0)
+                {
+                    EmpleadoSeleccionado = empleados[0];
+                    CalcularEdad();
+                    System.Diagnostics.Debug.WriteLine($"✓ Empleado cargado: {EmpleadoSeleccionado.Nombre}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar datos: {ex.Message}");
+            }
+        }
 
-		private void ActualizarCantidadDisponible()
-		{
-			if (MedicamentoSeleccionado != null)
-			{
-				CantidadDisponible = MedicamentoSeleccionado.CantidadDisponible;
-			}
-			else
-			{
-				CantidadDisponible = 0;
-			}
-		}
+        private void CalcularEdad()
+        {
+            if (EmpleadoSeleccionado != null)
+            {
+                var hoy = DateTime.Today;
+                var edad = hoy.Year - EmpleadoSeleccionado.FechaNacimiento.Year;
+                if (EmpleadoSeleccionado.FechaNacimiento.Date > hoy.AddYears(-edad)) edad--;
+                Edad = edad;
 
-		private bool CanAgregarMedicamento()
-		{
-			return SeUtilizoMaterial &&
-				   MedicamentoSeleccionado != null &&
-				   CantidadMedicamento > 0 &&
-				   CantidadMedicamento <= CantidadDisponible;
-		}
+                CargarUltimasConsultas();
+            }
+        }
 
-		private async void AgregarMedicamento()
-		{
-			if (MedicamentoSeleccionado != null && CantidadMedicamento > 0)
-			{
-				// Validar que no exceda la cantidad disponible
-				if (CantidadMedicamento > CantidadDisponible)
-				{
-					await Application.Current.MainPage.DisplayAlert(
-						"Error",
-						$"La cantidad solicitada ({CantidadMedicamento}) excede la cantidad disponible ({CantidadDisponible})",
-						"OK");
-					return;
-				}
+        private void CargarUltimasConsultas()
+        {
+            try
+            {
+                if (EmpleadoSeleccionado == null) return;
 
-				// Verificar si el medicamento ya fue agregado
-				var medicamentoExistente = MedicamentosAgregados
-					.FirstOrDefault(m => m.ClaveProducto == MedicamentoSeleccionado.ProductoId);
+                UltimasConsultas.Clear();
 
-				if (medicamentoExistente != null)
-				{
-					bool actualizar = await Application.Current.MainPage.DisplayAlert(
-						"Medicamento existente",
-						"Este medicamento ya ha sido agregado. ¿Desea aumentar la cantidad?",
-						"Sí",
-						"No");
+                var consultas = _consultaRepo.GetConsultasByEmpleado(EmpleadoSeleccionado.IdEmpleado)
+                    .OrderByDescending(c => c.FechaConsulta)
+                    .Take(5)
+                    .ToList();
 
-					if (actualizar)
-					{
-						// Validar que la suma no exceda lo disponible
-						double nuevaCantidad = medicamentoExistente.Cantidad + CantidadMedicamento;
-						double cantidadActualDisponible = MedicamentoSeleccionado.CantidadDisponible + medicamentoExistente.Cantidad;
+                foreach (var consulta in consultas)
+                {
+                    consulta.TipoEnfermedad = _tipoEnfermedadRepo.GetById(consulta.IdTipoEnfermedad);
 
-						if (nuevaCantidad > cantidadActualDisponible)
-						{
-							await Application.Current.MainPage.DisplayAlert(
-								"Error",
-								$"La cantidad total ({nuevaCantidad}) excedería la cantidad disponible ({cantidadActualDisponible})",
-								"OK");
-							return;
-						}
+                    var resumen = new ConsultaResumenModel
+                    {
+                        FechaConsulta = consulta.FechaConsulta,
+                        MotivoConsulta = consulta.MotivoConsulta,
+                        Diagnostico = consulta.Diagnostico,
+                        TipoEnfermedad = consulta.TipoEnfermedad?.NombreEnfermedad ?? "Sin clasificar"
+                    };
 
-						// Actualizar la cantidad
-						medicamentoExistente.Cantidad = nuevaCantidad;
-						medicamentoExistente.Observaciones = ObservacionesMedicamento ?? medicamentoExistente.Observaciones;
+                    UltimasConsultas.Add(resumen);
+                }
 
-						// Actualizar inventario
-						MedicamentoSeleccionado.CantidadDisponible -= CantidadMedicamento;
-					}
+                System.Diagnostics.Debug.WriteLine($"✓ {UltimasConsultas.Count} consultas previas cargadas");
+                OnPropertyChanged(nameof(TieneConsultasPrevias));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar últimas consultas: {ex.Message}");
+            }
+        }
 
-					LimpiarCamposMedicamento();
-					return;
-				}
+        private void ActualizarCantidadDisponible()
+        {
+            if (MedicamentoSeleccionado != null)
+            {
+                CantidadDisponible = MedicamentoSeleccionado.CantidadDisponible;
+            }
+            else
+            {
+                CantidadDisponible = 0;
+            }
+        }
 
-				// Agregar el medicamento
-				var movimientoDetalle = new MovimientoDetalleModel
-				{
-					IdMovimientoDetalle = Guid.NewGuid().ToString(),
-					ClaveProducto = MedicamentoSeleccionado.ProductoId,
-					Producto = MedicamentoSeleccionado,
-					Cantidad = CantidadMedicamento,
-					Observaciones = string.IsNullOrWhiteSpace(ObservacionesMedicamento)
-						? "Sin observaciones"
-						: ObservacionesMedicamento,
-					Status = 1
-				};
+        private bool CanAgregarMedicamento()
+        {
+            return SeUtilizoMaterial &&
+                   MedicamentoSeleccionado != null &&
+                   CantidadMedicamento > 0 &&
+                   CantidadMedicamento <= CantidadDisponible;
+        }
 
-				MedicamentosAgregados.Add(movimientoDetalle);
+        private async void AgregarMedicamento()
+        {
+            if (MedicamentoSeleccionado != null && CantidadMedicamento > 0)
+            {
+                if (CantidadMedicamento > CantidadDisponible)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        $"La cantidad solicitada ({CantidadMedicamento}) excede la cantidad disponible ({CantidadDisponible})",
+                        "OK");
+                    return;
+                }
 
-				// Actualizar cantidad disponible en el producto
-				MedicamentoSeleccionado.CantidadDisponible -= CantidadMedicamento;
+                var medicamentoExistente = MedicamentosAgregados
+                    .FirstOrDefault(m => m.ClaveProducto == MedicamentoSeleccionado.ProductoId);
 
-				// Limpiar campos
-				LimpiarCamposMedicamento();
+                if (medicamentoExistente != null)
+                {
+                    bool actualizar = await Application.Current.MainPage.DisplayAlert(
+                        "Medicamento existente",
+                        "Este medicamento ya ha sido agregado. ¿Desea aumentar la cantidad?",
+                        "Sí",
+                        "No");
 
-				await Application.Current.MainPage.DisplayAlert(
-					"Éxito",
-					"Medicamento agregado correctamente",
-					"OK");
-			}
-		}
+                    if (actualizar)
+                    {
+                        double nuevaCantidad = medicamentoExistente.Cantidad + CantidadMedicamento;
+                        double cantidadActualDisponible = MedicamentoSeleccionado.CantidadDisponible + medicamentoExistente.Cantidad;
 
-		private async void EliminarMedicamento(MovimientoDetalleModel medicamento)
-		{
-			if (medicamento != null)
-			{
-				bool respuesta = await Application.Current.MainPage.DisplayAlert(
-					"Confirmar",
-					$"¿Desea eliminar {medicamento.NombreMedicamento}?",
-					"Sí",
-					"No");
+                        if (nuevaCantidad > cantidadActualDisponible)
+                        {
+                            await Application.Current.MainPage.DisplayAlert(
+                                "Error",
+                                $"La cantidad total ({nuevaCantidad}) excedería la cantidad disponible ({cantidadActualDisponible})",
+                                "OK");
+                            return;
+                        }
 
-				if (respuesta)
-				{
-					// Devolver la cantidad al inventario
-					var productoOriginal = Medicamentos
-						.FirstOrDefault(p => p.ProductoId == medicamento.ClaveProducto);
+                        medicamentoExistente.Cantidad = nuevaCantidad;
+                        medicamentoExistente.Observaciones = ObservacionesMedicamento ?? medicamentoExistente.Observaciones;
+                        MedicamentoSeleccionado.CantidadDisponible -= CantidadMedicamento;
+                    }
 
-					if (productoOriginal != null)
-					{
-						productoOriginal.CantidadDisponible += medicamento.Cantidad;
-					}
+                    LimpiarCamposMedicamento();
+                    return;
+                }
 
-					MedicamentosAgregados.Remove(medicamento);
-				}
-			}
-		}
+                var movimientoDetalle = new MovimientoDetalleModel
+                {
+                    IdMovimientoDetalle = Guid.NewGuid().ToString(),
+                    ClaveProducto = MedicamentoSeleccionado.ProductoId,
+                    Producto = MedicamentoSeleccionado,
+                    Cantidad = CantidadMedicamento,
+                    Observaciones = string.IsNullOrWhiteSpace(ObservacionesMedicamento)
+                        ? "Sin observaciones"
+                        : ObservacionesMedicamento,
+                    Status = 1
+                };
 
-		private void LimpiarCamposMedicamento()
-		{
-			MedicamentoSeleccionado = null;
-			CantidadMedicamento = 0;
-			ObservacionesMedicamento = string.Empty;
-			CantidadDisponible = 0;
-		}
+                MedicamentosAgregados.Add(movimientoDetalle);
+                MedicamentoSeleccionado.CantidadDisponible -= CantidadMedicamento;
+                LimpiarCamposMedicamento();
 
-		private bool CanGuardar()
-		{
-			return EmpleadoSeleccionado != null &&
-				   !string.IsNullOrWhiteSpace(MotivoConsulta) &&
-				   !string.IsNullOrWhiteSpace(Diagnostico) &&
-				   TipoEnfermedadSeleccionado != null;
-		}
+                await Application.Current.MainPage.DisplayAlert(
+                    "Éxito",
+                    "Medicamento agregado correctamente",
+                    "OK");
+            }
+        }
 
-		private async void Guardar()
-		{
-			try
-			{
-				// Validar que si se marcó el checkbox, debe haber medicamentos agregados
-				if (SeUtilizoMaterial && MedicamentosAgregados.Count == 0)
-				{
-					await Application.Current.MainPage.DisplayAlert(
-						"Advertencia",
-						"Ha indicado que se utilizó material pero no ha agregado ningún medicamento.",
-						"OK");
-					return;
-				}
+        private async void EliminarMedicamento(MovimientoDetalleModel medicamento)
+        {
+            if (medicamento != null)
+            {
+                bool respuesta = await Application.Current.MainPage.DisplayAlert(
+                    "Confirmar",
+                    $"¿Desea eliminar {medicamento.NombreMedicamento}?",
+                    "Sí",
+                    "No");
 
-				// ⭐ GUARDAR EL ID DEL EMPLEADO ANTES DE LIMPIAR
-				var idEmpleadoGuardado = EmpleadoSeleccionado?.IdEmpleado;
+                if (respuesta)
+                {
+                    var productoOriginal = Medicamentos
+                        .FirstOrDefault(p => p.ProductoId == medicamento.ClaveProducto);
 
-				// Actualizar el modelo de consulta con los datos del formulario
-				Consulta.IdEmpleado = EmpleadoSeleccionado.IdEmpleado;
-				Consulta.FechaConsulta = DateTime.Now;
-				Consulta.MotivoConsulta = MotivoConsulta;
-				Consulta.Diagnostico = Diagnostico;
-				Consulta.IdTipoEnfermedad = TipoEnfermedadSeleccionado.IdTipoEnfermedad;
-				Consulta.FrecuenciaCardiaca = FrecuenciaCardiaca;
-				Consulta.FrecuenciaRespiratoria = FrecuenciaRespiratoria;
-				Consulta.Temperatura = Temperatura;
-				Consulta.PresionArterial = TensionArterial;
-				Consulta.Observaciones = ObservacionesSignos;
-				Consulta.UltimaComida = UltimaComida;
+                    if (productoOriginal != null)
+                    {
+                        productoOriginal.CantidadDisponible += medicamento.Cantidad;
+                    }
 
-				// Si se utilizó material, generar un ID de movimiento
-				if (SeUtilizoMaterial && MedicamentosAgregados.Count > 0)
-				{
-					Consulta.IdMovimiento = Guid.NewGuid().ToString();
+                    MedicamentosAgregados.Remove(medicamento);
+                }
+            }
+        }
 
-					// Asociar el IdMovimiento a todos los detalles
-					foreach (var detalle in MedicamentosAgregados)
-					{
-						detalle.IdMovimiento = Consulta.IdMovimiento;
-					}
-				}
+        private void LimpiarCamposMedicamento()
+        {
+            MedicamentoSeleccionado = null;
+            CantidadMedicamento = 0;
+            ObservacionesMedicamento = string.Empty;
+            CantidadDisponible = 0;
+        }
 
-				// Guardar en la base de datos
-				bool guardado = _consultaRepo.GuardarConsultaCompleta(
-					Consulta,
-					MedicamentosAgregados.ToList());
+        private bool CanGuardar()
+        {
+            return EmpleadoSeleccionado != null &&
+                   !string.IsNullOrWhiteSpace(MotivoConsulta) &&
+                   !string.IsNullOrWhiteSpace(Diagnostico) &&
+                   TipoEnfermedadSeleccionado != null;
+        }
 
-				if (guardado)
-				{
-					await Application.Current.MainPage.DisplayAlert(
-						"Éxito",
-						"Consulta guardada correctamente en la base de datos",
-						"OK");
+        private async void Guardar()
+        {
+            try
+            {
+                if (SeUtilizoMaterial && MedicamentosAgregados.Count == 0)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Advertencia",
+                        "Ha indicado que se utilizó material pero no ha agregado ningún medicamento.",
+                        "OK");
+                    return;
+                }
 
-					System.Diagnostics.Debug.WriteLine("✓ Consulta guardada en SQLite");
-					MessagingCenter.Send(this, "ConsultaGuardada", idEmpleadoGuardado);
+                var idEmpleadoGuardado = EmpleadoSeleccionado?.IdEmpleado;
 
-					// ⭐ ENVIAR MENSAJE PARA ACTUALIZAR LA LISTA DE EMPLEADOS
-					if (!string.IsNullOrEmpty(idEmpleadoGuardado))
-					{
-						MessagingCenter.Send(this, "ConsultaGuardada", idEmpleadoGuardado);
-						System.Diagnostics.Debug.WriteLine($"✓ Mensaje enviado para actualizar empleado {idEmpleadoGuardado}");
-					}
+                Consulta.IdUsuarioAcceso = SesionActual.IdUsuario;
+                Consulta.IdEmpleado = EmpleadoSeleccionado.IdEmpleado;
+                Consulta.FechaConsulta = DateTime.Now;
+                Consulta.MotivoConsulta = MotivoConsulta;
+                Consulta.Diagnostico = Diagnostico;
+                Consulta.IdTipoEnfermedad = TipoEnfermedadSeleccionado.IdTipoEnfermedad;
+                Consulta.FrecuenciaCardiaca = FrecuenciaCardiaca;
+                Consulta.FrecuenciaRespiratoria = FrecuenciaRespiratoria;
+                Consulta.Temperatura = Temperatura;
+                Consulta.PresionArterial = TensionArterial;
+                Consulta.Observaciones = ObservacionesSignos;
+                Consulta.UltimaComida = UltimaComida;
 
-					// Limpiar el formulario
-					LimpiarFormulario();
+                if (SeUtilizoMaterial && MedicamentosAgregados.Count > 0)
+                {
+                    Consulta.IdMovimiento = Guid.NewGuid().ToString();
 
-					// Recargar medicamentos desde BD para actualizar el stock
-					Medicamentos.Clear();
-					var productos = _productoRepo.GetProductoConsStock();
-					foreach (var producto in productos)
-					{
-						Medicamentos.Add(producto);
-					}
-				}
-				else
-				{
-					await Application.Current.MainPage.DisplayAlert(
-						"Error",
-						$"Error al guardar: {_consultaRepo.StatusMessage}",
-						"OK");
-				}
-			}
-			catch (Exception ex)
-			{
-				await Application.Current.MainPage.DisplayAlert(
-					"Error",
-					$"Error al guardar: {ex.Message}",
-					"OK");
-				System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
-			}
-		}
+                    foreach (var detalle in MedicamentosAgregados)
+                    {
+                        detalle.IdMovimiento = Consulta.IdMovimiento;
+                    }
+                }
 
-		private async void Cancelar()
-		{
-			bool respuesta = await Application.Current.MainPage.DisplayAlert(
-				"Cancelar",
-				"¿Está seguro que desea cancelar? Se perderán todos los cambios.",
-				"Sí",
-				"No");
+                bool guardado = _consultaRepo.GuardarConsultaCompleta(
+                    Consulta,
+                    MedicamentosAgregados.ToList());
 
-			if (respuesta)
-			{
-				// Devolver las cantidades al inventario
-				foreach (var medicamento in MedicamentosAgregados)
-				{
-					var productoOriginal = Medicamentos
-						.FirstOrDefault(p => p.ProductoId == medicamento.ClaveProducto);
+                if (guardado)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Éxito",
+                        "Consulta guardada correctamente en la base de datos",
+                        "OK");
 
-					if (productoOriginal != null)
-					{
-						productoOriginal.CantidadDisponible += medicamento.Cantidad;
-					}
-				}
+                    System.Diagnostics.Debug.WriteLine("✓ Consulta guardada en SQLite");
 
-				LimpiarFormulario();
-			}
-		}
+                    if (!string.IsNullOrEmpty(idEmpleadoGuardado))
+                    {
+                        MessagingCenter.Send(this, "ConsultaGuardada", idEmpleadoGuardado);
+                        System.Diagnostics.Debug.WriteLine($"✓ Mensaje enviado para actualizar empleado {idEmpleadoGuardado}");
+                    }
 
-		private void LimpiarFormulario()
-		{
-			TensionArterial = string.Empty;
-			Temperatura = string.Empty;
-			FrecuenciaCardiaca = 0;
-			FrecuenciaRespiratoria = 0;
-			ObservacionesSignos = string.Empty;
-			MotivoConsulta = string.Empty;
-			Diagnostico = string.Empty;
-			TipoEnfermedadSeleccionado = null;
-			Tratamiento = string.Empty;
-			UltimaComida = string.Empty;
-			SeUtilizoMaterial = false;
-			MedicamentosAgregados.Clear();
-			LimpiarCamposMedicamento();
+                    LimpiarFormulario();
 
-			// Reiniciar el modelo de consulta
-			Consulta = new ConsultaModel
-			{
-				FechaConsulta = DateTime.Now
-			};
-		}
+                    Medicamentos.Clear();
+                    var productos = _productoRepo.GetProductoConsStock();
+                    foreach (var producto in productos)
+                    {
+                        Medicamentos.Add(producto);
+                    }
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        $"Error al guardar: {_consultaRepo.StatusMessage}",
+                        "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    $"Error al guardar: {ex.Message}",
+                    "OK");
+                System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
+            }
+        }
 
-		#region INotifyPropertyChanged
+        private async void Cancelar()
+        {
+            bool respuesta = await Application.Current.MainPage.DisplayAlert(
+                "Cancelar",
+                "¿Está seguro que desea cancelar? Se perderán todos los cambios.",
+                "Sí",
+                "No");
 
-		public event PropertyChangedEventHandler PropertyChanged;
+            if (respuesta)
+            {
+                foreach (var medicamento in MedicamentosAgregados)
+                {
+                    var productoOriginal = Medicamentos
+                        .FirstOrDefault(p => p.ProductoId == medicamento.ClaveProducto);
 
-		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-		}
+                    if (productoOriginal != null)
+                    {
+                        productoOriginal.CantidadDisponible += medicamento.Cantidad;
+                    }
+                }
 
-		#endregion
-	}
+                LimpiarFormulario();
+            }
+        }
+
+        private void LimpiarFormulario()
+        {
+            TensionArterial = string.Empty;
+            Temperatura = string.Empty;
+            FrecuenciaCardiaca = 0;
+            FrecuenciaRespiratoria = 0;
+            ObservacionesSignos = string.Empty;
+            MotivoConsulta = string.Empty;
+            Diagnostico = string.Empty;
+            TipoEnfermedadSeleccionado = null;
+            Tratamiento = string.Empty;
+            UltimaComida = string.Empty;
+            SeUtilizoMaterial = false;
+            MedicamentosAgregados.Clear();
+            LimpiarCamposMedicamento();
+
+            Consulta = new ConsultaModel
+            {
+                FechaConsulta = DateTime.Now
+            };
+
+            // ⭐ REFRESCAR LAS ÚLTIMAS CONSULTAS
+            CargarUltimasConsultas();
+        }
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+    }
+}
+
+// ⭐ MODELO PARA MOSTRAR RESUMEN DE CONSULTAS
+public class ConsultaResumenModel
+{
+    public DateTime FechaConsulta { get; set; }
+    public string MotivoConsulta { get; set; }
+    public string Diagnostico { get; set; }
+    public string TipoEnfermedad { get; set; }
+    public string FechaFormateada => FechaConsulta.ToString("dd/MM/yyyy HH:mm");
 }

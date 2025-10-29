@@ -74,7 +74,15 @@ namespace SistemaParamedicosDemo4
 					Password = "para123"
 				});
 
-				System.Diagnostics.Debug.WriteLine("✓ Usuarios insertados");
+                repositorio.InsertarUsuario(new UsuariosAccesoModel
+                {
+                    IdUsuario = "USR003",
+                    Nombre = "Hugo Guerrero",
+                    Usuario = "hugo",
+                    Password = "para123"
+                });
+
+                System.Diagnostics.Debug.WriteLine("✓ Usuarios insertados");
 			}
 			else
 			{

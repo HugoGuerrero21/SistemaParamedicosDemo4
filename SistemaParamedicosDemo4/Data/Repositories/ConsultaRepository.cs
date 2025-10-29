@@ -16,9 +16,11 @@ namespace SistemaParamedicosDemo4.Data.Repositories
         private TipoEnfermedadRepository _tipoEnfermedadRepo;
         private ProductoRepository _productoRepo;
         private MovimientoDetalleRepository _movimientoDetalleRepo;
+        private UsuarioAccesoRepositories _usuarioRepo;
 
         public ConsultaRepository()
         {
+            _usuarioRepo = new UsuarioAccesoRepositories();
             try
             {
                 // Usar la conexión compartida del DatabaseManager
@@ -67,6 +69,13 @@ namespace SistemaParamedicosDemo4.Data.Repositories
 
                     // Cargar el tipo de enfermedad
                     consulta.TipoEnfermedad = _tipoEnfermedadRepo.GetById(consulta.IdTipoEnfermedad);
+
+                    // ⭐ CARGAR USUARIO
+                    if (!string.IsNullOrEmpty(consulta.IdUsuarioAcceso))
+                    {
+                        var usuarios = _usuarioRepo.GetAllUsuarios();
+                        consulta.UsuariosAcceso = usuarios.FirstOrDefault(u => u.IdUsuario == consulta.IdUsuarioAcceso);
+                    }
                 }
 
                 return consulta;
@@ -262,7 +271,13 @@ namespace SistemaParamedicosDemo4.Data.Repositories
 				{
 					consulta.Empleado = _empleadoRepo.GetById(consulta.IdEmpleado);
 					consulta.TipoEnfermedad = _tipoEnfermedadRepo.GetById(consulta.IdTipoEnfermedad);
-				}
+                    // ⭐ CARGAR USUARIO
+                    if (!string.IsNullOrEmpty(consulta.IdUsuarioAcceso))
+                    {
+                        var usuarios = _usuarioRepo.GetAllUsuarios();
+                        consulta.UsuariosAcceso = usuarios.FirstOrDefault(u => u.IdUsuario == consulta.IdUsuarioAcceso);
+                    }
+                }
 
 				StatusMessage = $"{consultas.Count} consultas encontradas";
 				return consultas;
