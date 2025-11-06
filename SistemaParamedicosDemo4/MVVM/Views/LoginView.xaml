@@ -4,7 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:SistemaParamedicosDemo4.MVVM.ViewModels"
              Title="Iniciar Sesión"
-             BackgroundColor="#F5F7FA"
+             BackgroundColor="#0F1419"
              Shell.NavBarIsVisible="False">
 
     <ContentPage.BindingContext>
@@ -13,24 +13,26 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Colores -->
-            <Color x:Key="PrimaryColor">#2E86AB</Color>
-            <Color x:Key="DarkGray">#343A40</Color>
-            <Color x:Key="MediumGray">#6C757D</Color>
-            <Color x:Key="LightGray">#F8F9FA</Color>
-            <Color x:Key="BorderColor">#DEE2E6</Color>
+            <!-- Colores Modo Oscuro -->
+            <Color x:Key="PrimaryColor">#4A9EFF</Color>
+            <Color x:Key="BackgroundDark">#0F1419</Color>
+            <Color x:Key="CardBackground">#1A1F29</Color>
+            <Color x:Key="TextPrimary">#E8EAED</Color>
+            <Color x:Key="TextSecondary">#9BA1A6</Color>
+            <Color x:Key="BorderColor">#2D3748</Color>
+            <Color x:Key="InputBackground">#252D38</Color>
 
             <!-- Estilos -->
             <Style x:Key="TitleStyle" TargetType="Label">
                 <Setter Property="FontSize" Value="32"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
                 <Setter Property="HorizontalOptions" Value="Center"/>
             </Style>
 
             <Style x:Key="SubtitleStyle" TargetType="Label">
                 <Setter Property="FontSize" Value="16"/>
-                <Setter Property="TextColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextSecondary}"/>
                 <Setter Property="HorizontalOptions" Value="Center"/>
                 <Setter Property="Margin" Value="0,5,0,30"/>
             </Style>
@@ -38,14 +40,14 @@
             <Style x:Key="LabelStyle" TargetType="Label">
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
-                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
                 <Setter Property="Margin" Value="0,0,0,8"/>
             </Style>
 
             <Style x:Key="EntryStyle" TargetType="Entry">
                 <Setter Property="BackgroundColor" Value="Transparent"/>
-                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
-                <Setter Property="PlaceholderColor" Value="{StaticResource MediumGray}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextSecondary}"/>
                 <Setter Property="HeightRequest" Value="50"/>
                 <Setter Property="FontSize" Value="16"/>
             </Style>
@@ -70,7 +72,6 @@
                 Spacing="0">
 
                 <!-- Logo de la empresa -->
-                <!-- ⭐ CAMBIO: Ahora usamos el logo logo_trs.png en lugar del círculo con "SP" -->
                 <Image Source="logo_trs.png"
                        HeightRequest="120"
                        WidthRequest="120"
@@ -89,7 +90,7 @@
 
                 <!-- Formulario -->
                 <Border 
-                    BackgroundColor="White"
+                    BackgroundColor="{StaticResource CardBackground}"
                     StrokeThickness="1"
                     Stroke="{StaticResource BorderColor}"
                     Padding="30"
@@ -99,9 +100,9 @@
                     </Border.StrokeShape>
                     <Border.Shadow>
                         <Shadow 
-                            Brush="Gray"
-                            Opacity="0.1"
-                            Radius="10"
+                            Brush="Black"
+                            Opacity="0.3"
+                            Radius="15"
                             Offset="0,4"/>
                     </Border.Shadow>
 
@@ -111,7 +112,7 @@
                             Text="Usuario"
                             Style="{StaticResource LabelStyle}"/>
                         <Border
-                            BackgroundColor="{StaticResource LightGray}"
+                            BackgroundColor="{StaticResource InputBackground}"
                             StrokeThickness="1"
                             Stroke="{StaticResource BorderColor}"
                             Margin="0,0,0,20">
@@ -129,7 +130,7 @@
                             Text="Contraseña"
                             Style="{StaticResource LabelStyle}"/>
                         <Border
-                            BackgroundColor="{StaticResource LightGray}"
+                            BackgroundColor="{StaticResource InputBackground}"
                             StrokeThickness="1"
                             Stroke="{StaticResource BorderColor}"
                             Margin="0,0,0,0">

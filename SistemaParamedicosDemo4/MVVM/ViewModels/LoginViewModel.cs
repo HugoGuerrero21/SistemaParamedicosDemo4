@@ -1,45 +1,47 @@
 ﻿using PropertyChanged;
 using SistemaParamedicosDemo4.Data.Repositories;
+using SistemaParamedicosDemo4.MVVM.Views;
+using SistemaParamedicosDemo4.Services; // ← AGREGAR
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SistemaParamedicosDemo4.MVVM.ViewModels
 {
-	[AddINotifyPropertyChangedInterface]
-	public class LoginViewModel
-	{
-		#region Properties
-		[OnChangedMethod(nameof(OnPropertyChangedMethod))]
-		public string usuario { get; set; }
+    [AddINotifyPropertyChangedInterface]
+    public class LoginViewModel
+    {
+        #region Properties
+        [OnChangedMethod(nameof(OnPropertyChangedMethod))]
+        public string usuario { get; set; }
 
-		[OnChangedMethod(nameof(OnPropertyChangedMethod))]
-		public string password { get; set; }
+        [OnChangedMethod(nameof(OnPropertyChangedMethod))]
+        public string password { get; set; }
 
-		[OnChangedMethod(nameof(OnPropertyChangedMethod))]
-		public bool isLoading { get; set; }
-		#endregion
+        [OnChangedMethod(nameof(OnPropertyChangedMethod))]
+        public bool isLoading { get; set; }
+        #endregion
 
-		#region Commands
-		public ICommand LoginCommand { get; }
-		#endregion
+        #region Commands
+        public ICommand LoginCommand { get; }
+        #endregion
 
-		#region Repositorio
-		private UsuarioAccesoRepositories _usuariosRepository;
-		#endregion
+        #region Services
+        private AuthApiService _authApiService;
+        #endregion
 
-		public LoginViewModel()
-		{
-			_usuariosRepository = new UsuarioAccesoRepositories();
-			LoginCommand = new Command(Login, CanLogin);
-		}
+        public LoginViewModel()
+        {
+            _authApiService = new AuthApiService();
+            LoginCommand = new Command(Login, CanLogin);
+        }
 
-		private bool CanLogin()
-		{
-			return !string.IsNullOrWhiteSpace(usuario) &&
-				   !string.IsNullOrWhiteSpace(password) &&
-				   !isLoading;
-		}
+        private bool CanLogin()
+        {
+            return !string.IsNullOrWhiteSpace(usuario) &&
+                   !string.IsNullOrWhiteSpace(password) &&
+                   !isLoading;
+        }
 
         private async void Login()
         {
@@ -47,24 +49,27 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             {
                 isLoading = true;
 
-                // ⭐ OBTENER EL USUARIO COMPLETO
-                var usuarioEncontrado = _usuariosRepository.GetUsuarioByNombreUsuario(usuario);
+                // Login con API
+                var response = await _authApiService.LoginAsync(usuario, password);
 
-                if (usuarioEncontrado != null && usuarioEncontrado.Password == password)
+                if (response.Success)
                 {
-                    // ⭐ GUARDAR LA SESIÓN
-                    SesionActual.IdUsuario = usuarioEncontrado.IdUsuario;
-                    SesionActual.NombreUsuario = usuarioEncontrado.Nombre;
+                    // Guardar datos del usuario
+                    Preferences.Set("NombreUsuario", response.Usuario.Nombre);
+                    Preferences.Set("IdUsuario", response.Usuario.IdUsuarioAcc);
+                    Preferences.Set("Area", response.Usuario.Area ?? "");
+                    Preferences.Set("Puesto", response.Usuario.Puesto ?? "");
 
-                    System.Diagnostics.Debug.WriteLine($"✓ Sesión iniciada: {SesionActual.NombreUsuario} (ID: {SesionActual.IdUsuario})");
+                    System.Diagnostics.Debug.WriteLine($"✓ Login exitoso: {response.Usuario.Nombre}");
 
+                    // Navegar al AppShell
                     Application.Current.MainPage = new AppShell();
                 }
                 else
                 {
                     await Application.Current.MainPage.DisplayAlert(
                         "Error",
-                        "Usuario o contraseña incorrectos",
+                        response.Message,
                         "OK");
                 }
             }
@@ -74,6 +79,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     "Error",
                     $"Error al iniciar sesión: {ex.Message}",
                     "OK");
+
+                System.Diagnostics.Debug.WriteLine($"❌ Error login: {ex.Message}");
             }
             finally
             {
@@ -81,23 +88,9 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             }
         }
 
-        private async Task<bool> ValidarCredenciales(string usuario, string password)
-		{
-			await Task.Delay(100);
-			bool credencialesValidas = _usuariosRepository.ValidarCredenciales(usuario, password);
-			return credencialesValidas;
-		}
-
-		private void OnPropertyChangedMethod()
-		{
-			((Command)LoginCommand).ChangeCanExecute();
-		}
-	}
-}
-
-// ⭐ CLASE PARA GUARDAR LA SESIÓN ACTUAL
-public static class SesionActual
-{
-    public static string IdUsuario { get; set; }
-    public static string NombreUsuario { get; set; }
+        private void OnPropertyChangedMethod()
+        {
+            ((Command)LoginCommand).ChangeCanExecute();
+        }
+    }
 }

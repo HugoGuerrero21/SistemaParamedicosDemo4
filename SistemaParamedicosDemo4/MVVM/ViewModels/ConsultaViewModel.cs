@@ -352,7 +352,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
                 var idEmpleadoGuardado = EmpleadoSeleccionado?.IdEmpleado;
 
-                Consulta.IdUsuarioAcceso = SesionActual.IdUsuario;
+                Consulta.IdUsuarioAcceso = Preferences.Get("IdUsuario", string.Empty);
                 Consulta.IdEmpleado = EmpleadoSeleccionado.IdEmpleado;
                 Consulta.FechaConsulta = DateTime.Now;
                 Consulta.MotivoConsulta = MotivoConsulta;
