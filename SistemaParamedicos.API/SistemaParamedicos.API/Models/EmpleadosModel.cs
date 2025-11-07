@@ -16,12 +16,12 @@ namespace SistemaParamedicos.API.Models
         [MaxLength(20)]
         public string? Rfid { get; set; }
 
-        [Required] // Este campo es "No Nulo" en tu tabla
+        [Required] 
         [Column("NOMBRE")]
         [MaxLength(150)]
         public string Nombre { get; set; }
 
-        [Required] // Este campo es "No Nulo" en tu tabla
+        [Required] 
         [Column("SEXO")]
         [MaxLength(15)]
         public string Sexo { get; set; }
@@ -38,7 +38,7 @@ namespace SistemaParamedicos.API.Models
         [MaxLength(5)]
         public string? TipoSangre { get; set; }
 
-        [Required] // Este campo es "No Nulo" en tu tabla
+        [Required] 
         [Column("ID_PUESTO")]
         [MaxLength(30)]
         public string IdPuesto { get; set; }
@@ -52,9 +52,13 @@ namespace SistemaParamedicos.API.Models
         public string? IdArea { get; set; }
 
         [Column("NACIMIENTO")]
-        public DateTime? Nacimiento { get; set; } // El tipo 'date' de SQL se mapea a DateTime
+        public DateTime? Nacimiento { get; set; } 
 
         [Column("FOTO")]
-        public string? Foto { get; set; } // El tipo 'text' de SQL se mapea a string
+        public string? Foto { get; set; } 
+
+        [Column("ESTADO")]
+        [MaxLength(10)]
+        public string? Estado { get; set; }
     }
 }
