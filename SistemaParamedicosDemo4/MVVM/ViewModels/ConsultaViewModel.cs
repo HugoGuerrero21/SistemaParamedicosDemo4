@@ -22,6 +22,12 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
         #region Properties
 
+        // ⭐ NUEVAS PROPIEDADES PARA BÚSQUEDA
+        public bool MostrarBusquedaEmpleado { get; set; } = true;
+        public bool MostrarFormularioConsulta { get; set; } = false;
+        public string TextoBusqueda { get; set; }
+        public ObservableCollection<EmpleadoModel> EmpleadosFiltrados { get; set; }
+
         // Modelo principal de la consulta
         public ConsultaModel Consulta { get; set; }
         public EmpleadoModel EmpleadoSeleccionado { get; set; }
@@ -60,6 +66,11 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         public ObservableCollection<ProductoModel> Medicamentos { get; set; }
         public ObservableCollection<MovimientoDetalleModel> MedicamentosAgregados { get; set; }
 
+        // ⭐ NUEVOS COMANDOS
+        public ICommand BuscarEmpleadoCommand { get; }
+        public ICommand SeleccionarEmpleadoCommand { get; }
+        public ICommand CambiarEmpleadoCommand { get; }
+
         public ICommand AgregarMedicamentoCommand { get; }
         public ICommand EliminarMedicamentoCommand { get; }
         public ICommand GuardarCommand { get; }
@@ -82,6 +93,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             Medicamentos = new ObservableCollection<ProductoModel>();
             MedicamentosAgregados = new ObservableCollection<MovimientoDetalleModel>();
             UltimasConsultas = new ObservableCollection<ConsultaResumenModel>();
+            EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>();
 
             // Cuando cambie la colección, notificar que la propiedad calculada cambió
             MedicamentosAgregados.CollectionChanged += (s, e) =>
@@ -90,6 +102,10 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             };
 
             // Inicializar Commands
+            BuscarEmpleadoCommand = new Command(BuscarEmpleado);
+            SeleccionarEmpleadoCommand = new Command<EmpleadoModel>(SeleccionarEmpleado);
+            CambiarEmpleadoCommand = new Command(CambiarEmpleado);
+
             AgregarMedicamentoCommand = new Command(AgregarMedicamento, CanAgregarMedicamento);
             EliminarMedicamentoCommand = new Command<MovimientoDetalleModel>(EliminarMedicamento);
             GuardarCommand = new Command(Guardar, CanGuardar);
@@ -116,11 +132,107 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 {
                     ((Command)GuardarCommand).ChangeCanExecute();
                 }
+                else if (e.PropertyName == nameof(TextoBusqueda))
+                {
+                    BuscarEmpleado();
+                }
             };
 
             // Cargar datos desde SQLite
             CargarDatosDesdeBaseDatos();
+
+            // ⭐ CARGAR TODOS LOS EMPLEADOS AL INICIO
+            CargarTodosLosEmpleados();
         }
+
+        #region Métodos de Búsqueda de Empleados
+
+        private void CargarTodosLosEmpleados()
+        {
+            try
+            {
+                var empleados = _empleadoRepo.GetAll();
+                EmpleadosFiltrados.Clear();
+                foreach (var emp in empleados)
+                {
+                    EmpleadosFiltrados.Add(emp);
+                }
+                System.Diagnostics.Debug.WriteLine($"✓ {EmpleadosFiltrados.Count} empleados cargados para búsqueda");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar empleados: {ex.Message}");
+            }
+        }
+
+        private void BuscarEmpleado()
+        {
+            try
+            {
+                var empleados = _empleadoRepo.GetAll();
+                EmpleadosFiltrados.Clear();
+
+                if (string.IsNullOrWhiteSpace(TextoBusqueda))
+                {
+                    // Mostrar todos los empleados
+                    foreach (var emp in empleados)
+                    {
+                        EmpleadosFiltrados.Add(emp);
+                    }
+                }
+                else
+                {
+                    // Filtrar por nombre o ID
+                    var filtrados = empleados.Where(e =>
+                        e.Nombre.ToLower().Contains(TextoBusqueda.ToLower()) ||
+                        e.IdEmpleado.ToLower().Contains(TextoBusqueda.ToLower())
+                    ).ToList();
+
+                    foreach (var emp in filtrados)
+                    {
+                        EmpleadosFiltrados.Add(emp);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"✓ {EmpleadosFiltrados.Count} empleados filtrados");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al buscar empleados: {ex.Message}");
+            }
+        }
+
+        private void SeleccionarEmpleado(EmpleadoModel empleado)
+        {
+            if (empleado != null)
+            {
+                EmpleadoSeleccionado = empleado;
+                CalcularEdad();
+
+                // Cambiar a la vista del formulario
+                MostrarBusquedaEmpleado = false;
+                MostrarFormularioConsulta = true;
+
+                System.Diagnostics.Debug.WriteLine($"✓ Empleado seleccionado: {empleado.Nombre}");
+            }
+        }
+
+        private void CambiarEmpleado()
+        {
+            // Limpiar el formulario
+            LimpiarFormulario();
+
+            // Volver a la búsqueda
+            MostrarFormularioConsulta = false;
+            MostrarBusquedaEmpleado = true;
+            EmpleadoSeleccionado = null;
+            TextoBusqueda = string.Empty;
+
+            // Recargar todos los empleados
+            CargarTodosLosEmpleados();
+        }
+
+        #endregion
 
         private void CargarDatosDesdeBaseDatos()
         {
@@ -141,14 +253,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     Medicamentos.Add(producto);
                 }
                 System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados");
-
-                var empleados = _empleadoRepo.GetAll();
-                if (empleados.Count > 0)
-                {
-                    EmpleadoSeleccionado = empleados[0];
-                    CalcularEdad();
-                    System.Diagnostics.Debug.WriteLine($"✓ Empleado cargado: {EmpleadoSeleccionado.Nombre}");
-                }
             }
             catch (Exception ex)
             {
@@ -394,14 +498,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                         System.Diagnostics.Debug.WriteLine($"✓ Mensaje enviado para actualizar empleado {idEmpleadoGuardado}");
                     }
 
-                    LimpiarFormulario();
-
-                    Medicamentos.Clear();
-                    var productos = _productoRepo.GetProductoConsStock();
-                    foreach (var producto in productos)
-                    {
-                        Medicamentos.Add(producto);
-                    }
+                    // ⭐ DESPUÉS DE GUARDAR, VOLVER A LA BÚSQUEDA
+                    CambiarEmpleado();
                 }
                 else
                 {
@@ -442,7 +540,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     }
                 }
 
-                LimpiarFormulario();
+                // ⭐ AL CANCELAR, VOLVER A LA BÚSQUEDA
+                CambiarEmpleado();
             }
         }
 
@@ -467,8 +566,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 FechaConsulta = DateTime.Now
             };
 
-            // ⭐ REFRESCAR LAS ÚLTIMAS CONSULTAS
-            CargarUltimasConsultas();
+            UltimasConsultas.Clear();
         }
 
         #region INotifyPropertyChanged

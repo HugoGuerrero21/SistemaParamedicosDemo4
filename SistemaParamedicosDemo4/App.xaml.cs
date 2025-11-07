@@ -10,7 +10,7 @@ namespace SistemaParamedicosDemo4
 		public App()
 		{
 			// 1. PRIMERO: Eliminar la BD antigua (solo para desarrollo)
-			DatabaseManager.EliminarBaseDeDatos();
+			//DatabaseManager.EliminarBaseDeDatos();
 
 			// 2. SEGUNDO: Inicializar la conexión (crea las tablas)
 			var db = DatabaseManager.Instance;
