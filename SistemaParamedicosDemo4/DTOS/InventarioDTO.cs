@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace SistemaParamedicosDemo4.DTOS
 {
@@ -27,6 +22,25 @@ namespace SistemaParamedicosDemo4.DTOS
         [JsonPropertyName("foto")]
         public string Foto { get; set; }
 
+        public string FotoUrl
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Foto))
+                    return null;
+
+                if (Foto.StartsWith("http://") || Foto.StartsWith("https://"))
+                    return Foto;
+
+                const string BASE_URL = "https://localhost:7285";
+                var rutaLimpia = Foto.StartsWith("/") ? Foto : $"/{Foto}";
+                return $"{BASE_URL}{rutaLimpia}";
+            }
+        }
+
+        // ⭐ AGREGA ESTA PROPIEDAD QUE TE FALTABA
+        public bool TieneFoto => !string.IsNullOrEmpty(Foto);
+
         [JsonPropertyName("entrada")]
         public double Entrada { get; set; }
 
@@ -37,23 +51,19 @@ namespace SistemaParamedicosDemo4.DTOS
         public double Existencia { get; set; }
 
         public string NombreCompleto => !string.IsNullOrEmpty(Marca)
-         ? $"{NombreDelProducto} - {Marca}"
-         : NombreDelProducto;
+            ? $"{NombreDelProducto} - {Marca}"
+            : NombreDelProducto;
 
-        //Indicador de si existen inventario bajo (menor a 10 productos)
         public bool StockBajo => Existencia < 10;
-
-
-        //Indicador de producto agotado
         public bool Agotado => Existencia <= 0;
 
         public string ColorStock
         {
             get
             {
-                if (Agotado) return "#DC3545"; // Rojo
-                if (StockBajo) return "#FFC107"; // Amarillo
-                return "#28A745"; // Verde
+                if (Agotado) return "#DC3545";
+                if (StockBajo) return "#FFC107";
+                return "#28A745";
             }
         }
 

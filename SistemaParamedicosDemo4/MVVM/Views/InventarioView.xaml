@@ -67,7 +67,7 @@
 
                     <StackLayout Grid.Column="0">
                         <Label Text="Inventario de Paramédicos" Style="{StaticResource HeaderStyle}"/>
-                        <Label Text="Gestión de existencias del almacén." Style="{StaticResource BodyStyle}"/>
+                        <Label Text="Gestión de existencias del almacén ALM6" Style="{StaticResource BodyStyle}"/>
                     </StackLayout>
 
                     <!-- Botón Refrescar -->
@@ -95,7 +95,7 @@
                     <Border Grid.Column="0"
                             BackgroundColor="White"
                             StrokeThickness="1"
-                            Stroke="{StaticResource PrimaryColor}"
+                            Stroke="{StaticResource BorderColor}"
                             StrokeShape="RoundRectangle 12"
                             Padding="15,12">
                         <StackLayout Spacing="5">
@@ -304,72 +304,92 @@
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Border BackgroundColor="White"
-        StrokeThickness="1"
-        Stroke="{StaticResource BorderColor}"
-        StrokeShape="RoundRectangle 8"
-        Padding="15"
-        Margin="5">
+                StrokeThickness="1"
+                Stroke="{StaticResource BorderColor}"
+                StrokeShape="RoundRectangle 8"
+                Padding="15"
+                Margin="5">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80"/>
+                                                <!-- Foto -->
                                                 <ColumnDefinition Width="*"/>
+                                                <!-- Contenido -->
                                                 <ColumnDefinition Width="Auto"/>
+                                                <!-- Badge -->
                                             </Grid.ColumnDefinitions>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
-                                                <!-- Nombre -->
                                                 <RowDefinition Height="Auto"/>
-                                                <!-- Descripción -->
                                                 <RowDefinition Height="Auto"/>
-                                                <!-- Código/Marca -->
-                                                <RowDefinition Height="Auto"/>
-                                                <!-- Cantidades -->
                                             </Grid.RowDefinitions>
 
-                                            <!-- Nombre del producto -->
-                                            <Label Grid.Row="0" Grid.Column="0"
-                                                   Text="{Binding NombreDelProducto, StringFormat='Nombre: {0}'}"
-                                                   Style="{StaticResource SubHeaderStyle}"
-                                                   FontSize="16"/>
+                                            <!-- ⭐ IMAGEN DEL PRODUCTO CON PLACEHOLDER -->
+                                            <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
+                        BackgroundColor="{StaticResource LightGray}"
+                        StrokeThickness="1"
+                        Stroke="{StaticResource BorderColor}"
+                        StrokeShape="RoundRectangle 8"
+                        WidthRequest="70"
+                        HeightRequest="70"
+                        VerticalOptions="Start"
+                        Margin="0,0,15,0">
+                                                <Grid>
+                                                    <!-- Placeholder cuando no hay imagen -->
+                                                    <Label Text="📦"
+                               FontSize="36"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Opacity="0.3"
+                               IsVisible="{Binding TieneFoto, Converter={StaticResource InverseBoolConverter}}"/>
 
-                                            <!-- Badge de Stock -->
-                                            <Border Grid.Row="0" Grid.Column="1"
-                                                    BackgroundColor="{Binding ColorStock}"
-                                                    StrokeThickness="0"
-                                                    StrokeShape="RoundRectangle 12"
-                                                    Padding="10,5"
-                                                    VerticalOptions="Center">
-                                                <Label Text="{Binding EstadoStock}"
-                                                       TextColor="White"
-                                                       FontSize="11"
-                                                       FontAttributes="Bold"/>
+                                                    <!-- Imagen del producto -->
+                                                    <Image Source="{Binding FotoUrl, Converter={StaticResource ImageSourceConverter}}"
+                               Aspect="AspectFill"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding TieneFoto}"/>
+                                                </Grid>
                                             </Border>
 
-                                            <!-- Descripción del producto -->
-                                            <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                                   Text="{Binding Descripcion, StringFormat='Descripción: {0}'}"
-                                                   Style="{StaticResource BodyStyle}"
-                                                   FontSize="14"
-                                                   Opacity="0.8"/>
+                                            <!-- Nombre del producto -->
+                                            <Label Grid.Row="0" Grid.Column="1"
+                       Text="{Binding NombreDelProducto}"
+                       Style="{StaticResource SubHeaderStyle}"
+                       FontSize="16"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="2"/>
+
+                                            <!-- Badge de Stock -->
+                                            <Border Grid.Row="0" Grid.Column="2"
+                        BackgroundColor="{Binding ColorStock}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="10,5"
+                        VerticalOptions="Start">
+                                                <Label Text="{Binding EstadoStock}"
+                           TextColor="White"
+                           FontSize="11"
+                           FontAttributes="Bold"/>
+                                            </Border>
 
                                             <!-- Código y Marca -->
-                                            <HorizontalStackLayout Grid.Row="2" 
-                                                                   Grid.Column="0" 
-                                                                   Grid.ColumnSpan="2"
-                                                                   Spacing="15"
-                                                                   Margin="0,8,0,0">
+                                            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                                       Spacing="15"
+                                       Margin="0,8,0,0">
                                                 <Label Text="{Binding Producto, StringFormat='Código: {0}'}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"/>
+                           Style="{StaticResource BodyStyle}"
+                           FontSize="12"/>
                                                 <Label Text="{Binding Marca, StringFormat='Marca: {0}'}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"
-                                                       FontAttributes="Bold"/>
+                           Style="{StaticResource BodyStyle}"
+                           FontSize="12"
+                           FontAttributes="Bold"/>
                                             </HorizontalStackLayout>
 
                                             <!-- Cantidades -->
-                                            <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
-                                               ColumnSpacing="20"
-                                               Margin="0,10,0,0">
+                                            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                      ColumnSpacing="15"
+                      Margin="0,12,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="*"/>
@@ -378,32 +398,39 @@
 
                                                 <!-- Entradas -->
                                                 <StackLayout Grid.Column="0" Spacing="3">
-                                                    <Label Text="Entradas:" FontSize="11"/>
-                                                    <Label Text="{Binding Entrada, StringFormat='Entradas: {0}'}"
-                                                        FontSize="16" FontAttributes="Bold"
-                                                        TextColor="{StaticResource SuccessColor}"/>
+                                                    <Label Text="Entradas"
+                               Style="{StaticResource BodyStyle}"
+                               FontSize="11"/>
+                                                    <Label Text="{Binding Entrada, StringFormat='{0:F0}'}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource SuccessColor}"/>
                                                 </StackLayout>
 
                                                 <!-- Salidas -->
                                                 <StackLayout Grid.Column="1" Spacing="3">
-                                                    <Label Text="Salidas:" FontSize="11"/>
-                                                    <Label Text="{Binding Salida, StringFormat='Salidas: {0}'}"
-                                                           FontSize="16" FontAttributes="Bold"
-                                                           TextColor="{StaticResource DangerColor}"/>
+                                                    <Label Text="Salidas"
+                               Style="{StaticResource BodyStyle}"
+                               FontSize="11"/>
+                                                    <Label Text="{Binding Salida, StringFormat='{0:F0}'}"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource DangerColor}"/>
                                                 </StackLayout>
 
                                                 <!-- Existencia -->
                                                 <StackLayout Grid.Column="2" Spacing="3">
-                                                    <Label Text="Existencia:" FontSize="11"/>
-                                                    <Label Text="{Binding Existencia, StringFormat='Existencias: {0}'}"
-                                                           FontSize="18" FontAttributes="Bold"
-                                                           TextColor="{StaticResource PrimaryColor}"/>
+                                                    <Label Text="Existencia"
+                               Style="{StaticResource BodyStyle}"
+                               FontSize="11"/>
+                                                    <Label Text="{Binding Existencia, StringFormat='{0:F0}'}"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource PrimaryColor}"/>
                                                 </StackLayout>
                                             </Grid>
-
                                         </Grid>
                                     </Border>
-
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
