@@ -17,9 +17,8 @@ namespace SistemaParamedicosDemo4
 
 			// 3. TERCERO: Llenar los datos iniciales
 			InicializarDatosBase();
-
+			 
 			// 4. CUARTO: Mostrar el Login
-			// ⭐ CAMBIO: Ahora mostramos LoginView directamente (sin NavigationPage)
 			MainPage = new NavigationPage(new LoginView());
 		}
 
@@ -30,7 +29,7 @@ namespace SistemaParamedicosDemo4
 				System.Diagnostics.Debug.WriteLine("========== INICIALIZANDO DATOS BASE ==========");
 
 				// 1. Inicializar Usuarios
-				InicializarUsuarios();
+				//InicializarUsuarios();
 
 				// 2. Inicializar Tipos de Enfermedad
 				InicializarTiposEnfermedad();
@@ -39,7 +38,7 @@ namespace SistemaParamedicosDemo4
 				InicializarProductos();
 
 				// 4. Inicializar Empleados
-				InicializarEmpleados();
+				//InicializarEmpleados();
 
 				System.Diagnostics.Debug.WriteLine("========== DATOS BASE INICIALIZADOS ==========\n");
 			}
@@ -48,48 +47,6 @@ namespace SistemaParamedicosDemo4
 				System.Diagnostics.Debug.WriteLine($"❌ ERROR AL INICIALIZAR DATOS: {ex.Message}");
 			}
 		}
-
-		private void InicializarUsuarios()
-		{
-			var repositorio = new UsuarioAccesoRepositories();
-			var usuarios = repositorio.GetAllUsuarios();
-
-			if (usuarios.Count == 0)
-			{
-				System.Diagnostics.Debug.WriteLine("Insertando usuarios de prueba...");
-
-				repositorio.InsertarUsuario(new UsuariosAccesoModel
-				{
-					IdUsuario = "USR001",
-					Nombre = "Administrador",
-					Usuario = "admin",
-					Password = "admin123"
-				});
-
-				repositorio.InsertarUsuario(new UsuariosAccesoModel
-				{
-					IdUsuario = "USR002",
-					Nombre = "Juan Pérez",
-					Usuario = "paramedico",
-					Password = "para123"
-				});
-
-                repositorio.InsertarUsuario(new UsuariosAccesoModel
-                {
-                    IdUsuario = "USR003",
-                    Nombre = "Hugo Guerrero",
-                    Usuario = "hugo",
-                    Password = "para123"
-                });
-
-                System.Diagnostics.Debug.WriteLine("✓ Usuarios insertados");
-			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine($"✓ Ya existen {usuarios.Count} usuarios");
-			}
-		}
-
 		private void InicializarTiposEnfermedad()
 		{
 			var repositorio = new TipoEnfermedadRepository();
@@ -182,59 +139,6 @@ namespace SistemaParamedicosDemo4
 			else
 			{
 				System.Diagnostics.Debug.WriteLine($"✓ Ya existen {productos.Count} productos");
-			}
-		}
-
-		private void InicializarEmpleados()
-		{
-			var repositorio = new EmpleadoRepository();
-			var empleados = repositorio.GetAll();
-
-			if (empleados.Count == 0)
-			{
-				System.Diagnostics.Debug.WriteLine("Insertando empleados de prueba...");
-
-				repositorio.InsertarEmpleado(new EmpleadoModel
-				{
-					IdEmpleado = "TRSEMP001",
-					Nombre = "Juan Carlos Perez Hernandez",
-					TipoSangre = "A+",
-					Sexo = "M",
-					AlergiasSangre = "Ninguna",
-					Telefono = "6621234567",
-					FechaNacimiento = new DateTime(1990, 5, 15),
-					IdPuesto = "CHOFER"
-				});
-
-				repositorio.InsertarEmpleado(new EmpleadoModel
-				{
-					IdEmpleado = "TRSEMP002",
-					Nombre = "Maria Guadalupe Lopez Garcia",
-					TipoSangre = "O+",
-					Sexo = "F",
-					AlergiasSangre = "Penicilina",
-					Telefono = "6629876543",
-					FechaNacimiento = new DateTime(1985, 8, 22),
-					IdPuesto = "OPERADOR"
-				});
-
-				repositorio.InsertarEmpleado(new EmpleadoModel
-				{
-					IdEmpleado = "TRSEMP003",
-					Nombre = "Roberto Martinez Sanchez",
-					TipoSangre = "B+",
-					Sexo = "M",
-					AlergiasSangre = "Ninguna",
-					Telefono = "6625551234",
-					FechaNacimiento = new DateTime(1992, 3, 10),
-					IdPuesto = "MECANICO"
-				});
-
-				System.Diagnostics.Debug.WriteLine("✓ Empleados insertados");
-			}
-			else
-			{
-				System.Diagnostics.Debug.WriteLine($"✓ Ya existen {empleados.Count} empleados");
 			}
 		}
 	}

@@ -28,8 +28,12 @@ namespace SistemaParamedicosDemo4.MVVM.Models
 		[MaxLength(25)]
 		public string IdPuesto { get; set; }
 
-		// ⭐ Propiedades calculadas - NO se guardan en BD
-		[Ignore]
+        //Nombre del puesto (NO se guarda en BD)
+        [Ignore]
+        public string NombrePuesto { get; set; }
+
+        // ⭐ Propiedades calculadas - NO se guardan en BD
+        [Ignore]
 		public string Iniciales
 		{
 			get

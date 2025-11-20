@@ -13,7 +13,8 @@ namespace SistemaParamedicosDemo4
 			Routing.RegisterRoute("consulta", typeof(ConsultaView));
 			Routing.RegisterRoute("historial", typeof(HistorialConsultasView));
 			Routing.RegisterRoute("detalleConsulta", typeof(DetalleConsultaView));
-		}
+            Routing.RegisterRoute("inventario", typeof(InventarioView));
+        }
 
 		private async void OnCerrarSesionClicked(object sender, EventArgs e)
 		{

@@ -104,7 +104,7 @@
                             <Label Text="{Binding Consulta.IdEmpleado}"
                                    FontSize="15"
                                    TextColor="{StaticResource MediumGray}"/>
-                            <Label Text="{Binding Consulta.Empleado.IdPuesto}"
+                            <Label Text="{Binding Consulta.Empleado.NombrePuesto}"
                                    FontSize="14"
                                    TextColor="{StaticResource MediumGray}"
                                    FontAttributes="Bold"/>

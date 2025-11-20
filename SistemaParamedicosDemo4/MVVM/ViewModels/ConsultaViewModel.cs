@@ -1,32 +1,49 @@
 ﻿using PropertyChanged;
 using SistemaParamedicosDemo4.Data.Repositories;
 using SistemaParamedicosDemo4.MVVM.Models;
+using SistemaParamedicosDemo4.Service;
+using SistemaParamedicosDemo4.DTOS;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SistemaParamedicosDemo4.MVVM.ViewModels
 {
     [AddINotifyPropertyChangedInterface]
-    public class ConsultaViewModel : INotifyPropertyChanged
+
+    public class ConsultaViewModel : INotifyPropertyChanged, IDisposable
     {
-        #region Repositorios
+
+
+        #region Repositorios y Servicios
         private TipoEnfermedadRepository _tipoEnfermedadRepo;
         private ProductoRepository _productoRepo;
         private ConsultaRepository _consultaRepo;
         private EmpleadoRepository _empleadoRepo;
+        private EmpleadoApiService _empleadoApiService;
         #endregion
 
         #region Properties
 
-        // ⭐ NUEVAS PROPIEDADES PARA BÚSQUEDA
+
+
+        // PROPIEDADES PARA BÚSQUEDA
         public bool MostrarBusquedaEmpleado { get; set; } = true;
         public bool MostrarFormularioConsulta { get; set; } = false;
         public string TextoBusqueda { get; set; }
         public ObservableCollection<EmpleadoModel> EmpleadosFiltrados { get; set; }
+        public bool IsCargandoEmpleados { get; set; } = false;
+        public string MensajeEstado { get; set; }
+        public int TotalEmpleados { get; set; }
+
+        private List<EmpleadoModel> _todosLosEmpleados;
+        private bool _empleadosCargados = false;
+        private CancellationTokenSource _cancellationTokenSource;
 
         // Modelo principal de la consulta
         public ConsultaModel Consulta { get; set; }
@@ -47,7 +64,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         public string Tratamiento { get; set; }
         public string UltimaComida { get; set; }
 
-        // ⭐ PROPIEDADES PARA HISTORIAL
+        // PROPIEDADES PARA HISTORIAL
         public ObservableCollection<ConsultaResumenModel> UltimasConsultas { get; set; }
         public bool TieneConsultasPrevias => UltimasConsultas?.Count > 0;
         public bool HistorialExpandido { get; set; }
@@ -66,139 +83,344 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         public ObservableCollection<ProductoModel> Medicamentos { get; set; }
         public ObservableCollection<MovimientoDetalleModel> MedicamentosAgregados { get; set; }
 
-        // ⭐ NUEVOS COMANDOS
+        // COMANDOS
         public ICommand BuscarEmpleadoCommand { get; }
+        public ICommand MostrarTodosEmpleadosCommand { get; }
         public ICommand SeleccionarEmpleadoCommand { get; }
         public ICommand CambiarEmpleadoCommand { get; }
-
         public ICommand AgregarMedicamentoCommand { get; }
         public ICommand EliminarMedicamentoCommand { get; }
         public ICommand GuardarCommand { get; }
         public ICommand CancelarCommand { get; }
         public ICommand ToggleHistorialCommand { get; }
-
         #endregion
 
         public ConsultaViewModel()
         {
-            // Inicializar repositorios
-            _tipoEnfermedadRepo = new TipoEnfermedadRepository();
-            _productoRepo = new ProductoRepository();
-            _consultaRepo = new ConsultaRepository();
-            _empleadoRepo = new EmpleadoRepository();
-
-            Consulta = new ConsultaModel { FechaConsulta = DateTime.Now };
-
-            TiposEnfermedad = new ObservableCollection<TipoEnfermedadModel>();
-            Medicamentos = new ObservableCollection<ProductoModel>();
-            MedicamentosAgregados = new ObservableCollection<MovimientoDetalleModel>();
-            UltimasConsultas = new ObservableCollection<ConsultaResumenModel>();
-            EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>();
-
-            // Cuando cambie la colección, notificar que la propiedad calculada cambió
-            MedicamentosAgregados.CollectionChanged += (s, e) =>
-            {
-                this.OnPropertyChanged(nameof(TieneMedicamentosAgregados));
-            };
-
-            // Inicializar Commands
-            BuscarEmpleadoCommand = new Command(BuscarEmpleado);
-            SeleccionarEmpleadoCommand = new Command<EmpleadoModel>(SeleccionarEmpleado);
-            CambiarEmpleadoCommand = new Command(CambiarEmpleado);
-
-            AgregarMedicamentoCommand = new Command(AgregarMedicamento, CanAgregarMedicamento);
-            EliminarMedicamentoCommand = new Command<MovimientoDetalleModel>(EliminarMedicamento);
-            GuardarCommand = new Command(Guardar, CanGuardar);
-            CancelarCommand = new Command(Cancelar);
-            ToggleHistorialCommand = new Command(() => HistorialExpandido = !HistorialExpandido);
-
-            // Configurar PropertyChanged
-            PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(MedicamentoSeleccionado))
-                {
-                    ActualizarCantidadDisponible();
-                    ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
-                }
-                else if (e.PropertyName == nameof(CantidadMedicamento) ||
-                         e.PropertyName == nameof(SeUtilizoMaterial) ||
-                         e.PropertyName == nameof(CantidadDisponible))
-                {
-                    ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
-                }
-                else if (e.PropertyName == nameof(MotivoConsulta) ||
-                         e.PropertyName == nameof(Diagnostico) ||
-                         e.PropertyName == nameof(TipoEnfermedadSeleccionado))
-                {
-                    ((Command)GuardarCommand).ChangeCanExecute();
-                }
-                else if (e.PropertyName == nameof(TextoBusqueda))
-                {
-                    BuscarEmpleado();
-                }
-            };
-
-            // Cargar datos desde SQLite
-            CargarDatosDesdeBaseDatos();
-
-            // ⭐ CARGAR TODOS LOS EMPLEADOS AL INICIO
-            CargarTodosLosEmpleados();
-        }
-
-        #region Métodos de Búsqueda de Empleados
-
-        private void CargarTodosLosEmpleados()
-        {
             try
             {
-                var empleados = _empleadoRepo.GetAll();
-                EmpleadosFiltrados.Clear();
-                foreach (var emp in empleados)
+                _cancellationTokenSource = new CancellationTokenSource();
+
+                // Inicializar repositorios y servicios
+                _tipoEnfermedadRepo = new TipoEnfermedadRepository();
+                _productoRepo = new ProductoRepository();
+                _consultaRepo = new ConsultaRepository();
+                _empleadoRepo = new EmpleadoRepository();
+                _empleadoApiService = new EmpleadoApiService();
+
+                Consulta = new ConsultaModel { FechaConsulta = DateTime.Now };
+
+                TiposEnfermedad = new ObservableCollection<TipoEnfermedadModel>();
+                Medicamentos = new ObservableCollection<ProductoModel>();
+                MedicamentosAgregados = new ObservableCollection<MovimientoDetalleModel>();
+                UltimasConsultas = new ObservableCollection<ConsultaResumenModel>();
+                EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>();
+                _todosLosEmpleados = new List<EmpleadoModel>();
+
+                // Cuando cambie la colección, notificar que la propiedad calculada cambió
+                MedicamentosAgregados.CollectionChanged += (s, e) =>
                 {
-                    EmpleadosFiltrados.Add(emp);
-                }
-                System.Diagnostics.Debug.WriteLine($"✓ {EmpleadosFiltrados.Count} empleados cargados para búsqueda");
+                    this.OnPropertyChanged(nameof(TieneMedicamentosAgregados));
+                };
+
+                // Inicializar Commands
+                BuscarEmpleadoCommand = new Command(Buscar);
+                MostrarTodosEmpleadosCommand = new Command(async () => await MostrarTodosAsync());
+                SeleccionarEmpleadoCommand = new Command<EmpleadoModel>(SeleccionarEmpleado);
+                CambiarEmpleadoCommand = new Command(CambiarEmpleado);
+
+                AgregarMedicamentoCommand = new Command(AgregarMedicamento, CanAgregarMedicamento);
+                EliminarMedicamentoCommand = new Command<MovimientoDetalleModel>(EliminarMedicamento);
+                GuardarCommand = new Command(Guardar, CanGuardar);
+                CancelarCommand = new Command(Cancelar);
+                ToggleHistorialCommand = new Command(() => HistorialExpandido = !HistorialExpandido);
+
+                // Configurar PropertyChanged
+                PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(MedicamentoSeleccionado))
+                    {
+                        ActualizarCantidadDisponible();
+                        ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
+                    }
+                    else if (e.PropertyName == nameof(CantidadMedicamento) ||
+                             e.PropertyName == nameof(SeUtilizoMaterial) ||
+                             e.PropertyName == nameof(CantidadDisponible))
+                    {
+                        ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
+                    }
+                    else if (e.PropertyName == nameof(MotivoConsulta) ||
+                             e.PropertyName == nameof(Diagnostico) ||
+                             e.PropertyName == nameof(TipoEnfermedadSeleccionado))
+                    {
+                        ((Command)GuardarCommand).ChangeCanExecute();
+                    }
+                };
+
+                // Cargar datos desde SQLite (SOLO tipos de enfermedad y productos)
+                CargarDatosDesdeBaseDatos();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar empleados: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Error en constructor: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
             }
         }
 
-        private void BuscarEmpleado()
+        public async Task InicializarVistaAsync()
         {
+            System.Diagnostics.Debug.WriteLine("🚀 InicializarVistaAsync EJECUTÁNDOSE");
+
+            if (_cancellationTokenSource == null || _cancellationTokenSource.IsCancellationRequested)
+            {
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = new CancellationTokenSource();
+            }
+
             try
             {
-                var empleados = _empleadoRepo.GetAll();
-                EmpleadosFiltrados.Clear();
-
-                if (string.IsNullOrWhiteSpace(TextoBusqueda))
+                if (!_empleadosCargados)
                 {
-                    // Mostrar todos los empleados
-                    foreach (var emp in empleados)
+                    System.Diagnostics.Debug.WriteLine("🚀 Empleados no cargados, procediendo...");
+
+                    // ⭐ PROBAR CONEXIÓN PRIMERO
+                    var conexionExitosa = await _empleadoApiService.ProbarConexionAsync();
+                    if (!conexionExitosa)
                     {
-                        EmpleadosFiltrados.Add(emp);
+                        System.Diagnostics.Debug.WriteLine("⚠️ No hay conexión con la API, intentando cargar desde SQLite...");
+                        MensajeEstado = "Sin conexión - usando caché local";
                     }
+
+                    await CargarEmpleadosAsync(_cancellationTokenSource.Token);
                 }
                 else
                 {
-                    // Filtrar por nombre o ID
-                    var filtrados = empleados.Where(e =>
-                        e.Nombre.ToLower().Contains(TextoBusqueda.ToLower()) ||
-                        e.IdEmpleado.ToLower().Contains(TextoBusqueda.ToLower())
-                    ).ToList();
-
-                    foreach (var emp in filtrados)
-                    {
-                        EmpleadosFiltrados.Add(emp);
-                    }
+                    System.Diagnostics.Debug.WriteLine("⚠️ Empleados ya estaban cargados, saltando...");
                 }
-
-                System.Diagnostics.Debug.WriteLine($"✓ {EmpleadosFiltrados.Count} empleados filtrados");
+            }
+            catch (OperationCanceledException)
+            {
+                System.Diagnostics.Debug.WriteLine("⚠️ Inicialización cancelada");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Error al buscar empleados: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Error en InicializarVistaAsync: {ex.Message}");
+            }
+        }
+
+        #region Métodos de Búsqueda
+
+        /// <summary>
+        /// Carga empleados desde SQLite (IGUAL que EmpleadosListViewModel)
+        /// </summary>
+        private async Task CargarEmpleadosAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                IsCargandoEmpleados = true;
+                MensajeEstado = "Cargando empleados desde API...";
+
+                // 1. CARGAR DESDE LA API
+                var empleadosDto = await _empleadoApiService.ObtenerEmpleadosActivosAsync();
+
+                if (empleadosDto == null || empleadosDto.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("⚠️ API sin datos, cargando desde SQLite...");
+                    MensajeEstado = "Cargando desde caché local...";
+
+                    var empleadosLocal = await Task.Run(() => _empleadoRepo.GetAll(), cancellationToken);
+
+                    if (empleadosLocal.Count == 0)
+                    {
+                        MensajeEstado = "No se encontraron empleados";
+                        return;
+                    }
+
+                    _todosLosEmpleados = empleadosLocal;
+                    TotalEmpleados = _todosLosEmpleados.Count;
+                    MensajeEstado = $"{TotalEmpleados} empleados (caché local)";
+                    _empleadosCargados = true;
+
+                    await MostrarTodosAsync();
+                    return;
+                }
+
+                // 2. CONVERTIR DTOs A MODELS
+                var empleados = await Task.Run(() =>
+                    empleadosDto.Select(dto => dto.ToEmpleadoModel()).ToList(), cancellationToken
+                );
+
+                // 3. SINCRONIZAR CON SQLITE
+                await Task.Run(() => _empleadoRepo.SincronizarEmpleados(empleados), cancellationToken);
+                System.Diagnostics.Debug.WriteLine("✓ Empleados sincronizados con SQLite");
+
+                // 4. SINCRONIZAR PUESTOS (extraer de los empleados)
+                var puestosUnicos = empleadosDto
+                    .Where(e => e.Puesto != null)
+                    .Select(e => e.Puesto.ToPuestoModel())
+                    .GroupBy(p => p.IdPuesto)
+                    .Select(g => g.First())
+                    .ToList();
+
+                if (puestosUnicos.Count > 0)
+                {
+                    var puestoRepo = new PuestoRepository();
+                    await Task.Run(() => puestoRepo.SincronizarPuestos(puestosUnicos), cancellationToken);
+                    System.Diagnostics.Debug.WriteLine($"✓ {puestosUnicos.Count} puestos sincronizados con SQLite");
+                }
+
+                // 5. ACTUALIZAR VARIABLES (NO UI AÚN)
+                _todosLosEmpleados = empleados;
+                TotalEmpleados = _todosLosEmpleados.Count;
+                MensajeEstado = $"{TotalEmpleados} empleados disponibles";
+                _empleadosCargados = true;
+
+                System.Diagnostics.Debug.WriteLine($"✓ {TotalEmpleados} empleados cargados");
+
+                // 6. ACTUALIZAR UI AL FINAL (Con verificación de cancelación)
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    await MostrarTodosAsync();
+                }
+
+                System.Diagnostics.Debug.WriteLine("✓ Proceso completado sin errores");
+            }
+            catch (OperationCanceledException)
+            {
+                System.Diagnostics.Debug.WriteLine("⚠️ Carga de empleados cancelada");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+
+                // Fallback a SQLite
+                try
+                {
+                    var empleadosLocal = await Task.Run(() => _empleadoRepo.GetAll(), cancellationToken);
+
+                    _todosLosEmpleados = empleadosLocal;
+                    TotalEmpleados = _todosLosEmpleados.Count;
+                    MensajeEstado = $"Error de conexión. Usando caché: {TotalEmpleados} empleados";
+                    _empleadosCargados = true;
+
+                    await MostrarTodosAsync();
+                }
+                catch (Exception fallbackEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Error en fallback: {fallbackEx.Message}");
+                    MensajeEstado = "Error al cargar empleados";
+                }
+            }
+            finally
+            {
+                IsCargandoEmpleados = false;
+                System.Diagnostics.Debug.WriteLine("🏁 CargarEmpleadosAsync finalizado");
+            }
+        }
+
+
+        private async void Buscar()
+        {
+            if (string.IsNullOrWhiteSpace(TextoBusqueda))
+            {
+                await MostrarTodosAsync();
+                return;
+            }
+
+            // ⭐ VALIDAR QUE LOS EMPLEADOS ESTÉN CARGADOS
+            if (_todosLosEmpleados == null || _todosLosEmpleados.Count == 0)
+            {
+                MensajeEstado = "Cargando empleados...";
+                return;
+            }
+
+            IsCargandoEmpleados = true;
+
+            try
+            {
+                // ⭐ OPCIÓN 1: Buscar localmente (más rápido)
+                var busqueda = TextoBusqueda.ToLower();
+                var empleadosFiltrados = _todosLosEmpleados.Where(e =>
+                    e.Nombre.ToLower().Contains(busqueda) ||
+                    e.IdEmpleado.ToLower().Contains(busqueda) ||
+                    (e.IdPuesto?.ToLower().Contains(busqueda) ?? false)
+                ).ToList();
+
+                await ActualizarListaAsync(empleadosFiltrados);
+
+                MensajeEstado = empleadosFiltrados.Count == 0
+                    ? "No se encontraron empleados"
+                    : $"{empleadosFiltrados.Count} empleados encontrados";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error en búsqueda: {ex.Message}");
+                MensajeEstado = "Error al buscar";
+            }
+            finally
+            {
+                IsCargandoEmpleados = false;
+            }
+        }
+
+        private async Task MostrarTodosAsync()
+        {
+            if (_todosLosEmpleados == null || _todosLosEmpleados.Count == 0)
+            {
+                try
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>();
+                        OnPropertyChanged(nameof(EmpleadosFiltrados));
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Error al limpiar EmpleadosFiltrados: {ex.Message}");
+                }
+
+                MensajeEstado = "No hay empleados disponibles";
+                return;
+            }
+
+            var empleadosAMostrar = _todosLosEmpleados.Take(50).ToList();
+
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>(empleadosAMostrar);
+                    OnPropertyChanged(nameof(EmpleadosFiltrados));
+                    System.Diagnostics.Debug.WriteLine($"✓ UI actualizada con {empleadosAMostrar.Count} empleados");
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al actualizar UI: {ex.Message}");
+            }
+
+            MensajeEstado = _todosLosEmpleados.Count > 50
+                ? $"Mostrando 50 de {_todosLosEmpleados.Count} empleados. Usa la búsqueda."
+                : $"{_todosLosEmpleados.Count} empleados disponibles";
+        }
+
+        private async Task ActualizarListaAsync(List<EmpleadoModel> empleados)
+        {
+            var empleadosAMostrar = empleados.Take(50).ToList();
+
+            try
+            {
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>(empleadosAMostrar);
+                    OnPropertyChanged(nameof(EmpleadosFiltrados));
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al actualizar lista: {ex.Message}");
             }
         }
 
@@ -217,19 +439,19 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             }
         }
 
-        private void CambiarEmpleado()
+        private async void CambiarEmpleado()
         {
-            // Limpiar el formulario
             LimpiarFormulario();
 
-            // Volver a la búsqueda
             MostrarFormularioConsulta = false;
             MostrarBusquedaEmpleado = true;
             EmpleadoSeleccionado = null;
             TextoBusqueda = string.Empty;
 
-            // Recargar todos los empleados
-            CargarTodosLosEmpleados();
+            if (_empleadosCargados)
+            {
+                await MostrarTodosAsync();
+            }
         }
 
         #endregion
@@ -498,7 +720,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                         System.Diagnostics.Debug.WriteLine($"✓ Mensaje enviado para actualizar empleado {idEmpleadoGuardado}");
                     }
 
-                    // ⭐ DESPUÉS DE GUARDAR, VOLVER A LA BÚSQUEDA
                     CambiarEmpleado();
                 }
                 else
@@ -540,7 +761,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     }
                 }
 
-                // ⭐ AL CANCELAR, VOLVER A LA BÚSQUEDA
                 CambiarEmpleado();
             }
         }
@@ -579,12 +799,35 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         }
 
         #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            try
+            {
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = null;
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ya fue disposed, ignorar
+            }
+
+            _empleadoApiService = null;
+            _consultaRepo = null;
+            _productoRepo = null;
+            _tipoEnfermedadRepo = null;
+            _empleadoRepo = null;
+        }
+
+        #endregion
     }
 }
 
-// ⭐ MODELO PARA MOSTRAR RESUMEN DE CONSULTAS
 public class ConsultaResumenModel
-{
+{   
     public DateTime FechaConsulta { get; set; }
     public string MotivoConsulta { get; set; }
     public string Diagnostico { get; set; }

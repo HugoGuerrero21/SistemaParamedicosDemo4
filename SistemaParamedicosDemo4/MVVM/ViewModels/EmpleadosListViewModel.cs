@@ -45,7 +45,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             VerHistorialCommand = new Command<EmpleadoModel>(VerHistorial);
             AppearingCommand = new Command(OnAppearing); // ⭐ NUEVO
 
-            // ⭐ SUSCRIBIRSE AL MENSAJE EN EL VIEWMODEL (no en code-behind)
             MessagingCenter.Subscribe<ConsultaViewModel, string>(this, "ConsultaGuardada", (sender, idEmpleado) =>
             {
                 System.Diagnostics.Debug.WriteLine($"📩 Mensaje recibido en VM: actualizar empleado {idEmpleado}");
@@ -124,7 +123,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             var empleadosFiltrados = _todosLosEmpleados.Where(e =>
                 e.Nombre.ToLower().Contains(busqueda) ||
                 e.IdEmpleado.ToLower().Contains(busqueda) ||
-                e.IdPuesto.ToLower().Contains(busqueda)
+                (e.NombrePuesto?.ToLower().Contains(busqueda) ?? false) ||
+                (e.IdPuesto?.ToLower().Contains(busqueda) ?? false)
             ).ToList();
 
             ActualizarLista(empleadosFiltrados);
@@ -138,7 +138,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         private void FiltrarPorPuesto(string puesto)
         {
             var empleadosFiltrados = _todosLosEmpleados
-                .Where(e => e.IdPuesto.Equals(puesto, StringComparison.OrdinalIgnoreCase))
+                .Where(e => e.IdPuesto.Equals(puesto, StringComparison.OrdinalIgnoreCase) ||
+                            (e.NombrePuesto?.Equals(puesto, StringComparison.OrdinalIgnoreCase) ?? false))
                 .ToList();
 
             ActualizarLista(empleadosFiltrados);
