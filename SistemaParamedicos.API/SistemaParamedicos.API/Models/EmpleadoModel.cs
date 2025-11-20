@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-// Asegúrate de que este namespace coincida con la ubicación en tu proyecto
 namespace SistemaParamedicos.API.Models
 {
-    [Table("CORH_EMPLEADOS")]
+    [Table("CARH_EMPLEADOS")]
     public class EmpleadoModel
     {
         [Key]
@@ -16,12 +15,12 @@ namespace SistemaParamedicos.API.Models
         [MaxLength(20)]
         public string? Rfid { get; set; }
 
-        [Required] 
+        [Required]
         [Column("NOMBRE")]
         [MaxLength(150)]
         public string Nombre { get; set; }
 
-        [Required] 
+        [Required]
         [Column("SEXO")]
         [MaxLength(15)]
         public string Sexo { get; set; }
@@ -38,7 +37,7 @@ namespace SistemaParamedicos.API.Models
         [MaxLength(5)]
         public string? TipoSangre { get; set; }
 
-        [Required] 
+        [Required]
         [Column("ID_PUESTO")]
         [MaxLength(30)]
         public string IdPuesto { get; set; }
@@ -52,13 +51,17 @@ namespace SistemaParamedicos.API.Models
         public string? IdArea { get; set; }
 
         [Column("NACIMIENTO")]
-        public DateTime? Nacimiento { get; set; } 
+        public DateTime? Nacimiento { get; set; }
 
         [Column("FOTO")]
-        public string? Foto { get; set; } 
+        public string? Foto { get; set; }
 
         [Column("ESTADO")]
         [MaxLength(10)]
         public string? Estado { get; set; }
+
+        // ⭐ NUEVA: Relación con Puesto
+        [ForeignKey("IdPuesto")]
+        public PuestoModel? Puesto { get; set; }
     }
 }

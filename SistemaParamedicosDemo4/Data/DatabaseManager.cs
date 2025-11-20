@@ -24,6 +24,7 @@ namespace SistemaParamedicosDemo4.Data
                 Connection.CreateTable<ProductoModel>();
                 Connection.CreateTable<TipoEnfermedadModel>();
                 Connection.CreateTable<ConsultaModel>();
+                Connection.CreateTable<PuestoModel>();
 
                 // IMPORTANTE: Solo eliminar si es necesario (desarrollo)
                 // Comentar esta línea en producción

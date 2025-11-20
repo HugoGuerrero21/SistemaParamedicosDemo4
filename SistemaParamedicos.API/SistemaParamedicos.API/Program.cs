@@ -44,3 +44,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+app.Urls.Add("https://0.0.0.0:7285");

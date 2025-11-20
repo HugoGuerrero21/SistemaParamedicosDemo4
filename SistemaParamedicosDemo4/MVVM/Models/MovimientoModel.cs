@@ -9,7 +9,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
         public string IdMovimientDetalles { get; set; }
         public string IdMovimiento { get; set; }
         public string ClaveProducto { get; set; }
-        
+
         private double _cantidad;
         public double Cantidad
         {
@@ -20,7 +20,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
                 OnPropertyChanged();
             }
         }
-        
+
         public string IdLocacion { get; set; }
         public string PrecioFinal { get; set; }
         public byte Status { get; set; }
@@ -53,8 +53,8 @@ namespace SistemaParamedicosDemo4.MVVM.Models
         }
 
         // Propiedad calculada para mostrar en la lista
-        public string NombreMedicamento => Producto != null 
-            ? $"{Producto.Nombre} {Producto.Model}" 
+        public string NombreMedicamento => Producto != null
+            ? $"{Producto.Nombre} {Producto.Model}"
             : ClaveProducto;
 
         public event PropertyChangedEventHandler PropertyChanged;

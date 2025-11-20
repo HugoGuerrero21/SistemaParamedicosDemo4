@@ -61,6 +61,14 @@
                       Route="empleados"/>
     </FlyoutItem>
 
+    <FlyoutItem Title="Inventario" 
+            Icon="icon_inventario.png"
+            FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent Title="Inventario"
+                  ContentTemplate="{DataTemplate views:InventarioView}"
+                  Route="inventario"/>
+    </FlyoutItem>
+
     <!-- Footer del Flyout (Cerrar Sesión) -->
     <Shell.FlyoutFooter>
         <Grid BackgroundColor="#1A5F7A" Padding="20" HeightRequest="80">

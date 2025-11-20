@@ -41,7 +41,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
         [MaxLength(45)]
         public string IdDetallePadre { get; set; }
 
-        // Propiedades de navegación - NO se guardan en BD
+        // Propiedades de navegación
         private ProductoModel _producto;
         [Ignore]
         public ProductoModel Producto
@@ -55,7 +55,6 @@ namespace SistemaParamedicosDemo4.MVVM.Models
             }
         }
 
-        // Propiedad temporal - NO se guarda en BD
         private string _observaciones;
         [Ignore]
         public string Observaciones
@@ -68,7 +67,6 @@ namespace SistemaParamedicosDemo4.MVVM.Models
             }
         }
 
-        // ⭐ MEJORAR LA PROPIEDAD CALCULADA
         [Ignore]
         public string NombreMedicamento
         {

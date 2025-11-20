@@ -7,7 +7,7 @@ namespace SistemaParamedicosDemo4.Services
     public class AuthApiService
     {
         private readonly HttpClient _httpClient;
-        private const string BASE_URL = "https://localhost:7285/api"; // ← Tu puerto
+        private const string BASE_URL = "https://localhost:7285/api";
 
         public AuthApiService()
         {

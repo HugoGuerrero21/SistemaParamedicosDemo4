@@ -34,11 +34,33 @@ namespace SistemaParamedicosDemo4.Data.Repositories
         {
             try
             {
-                return Connection.Table<EmpleadoModel>().ToList();
+                var empleados = Connection.Table<EmpleadoModel>().ToList();
+
+                if (empleados.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("⚠️ No hay empleados en SQLite");
+                    return empleados;
+                }
+
+                var puestoRepo = new PuestoRepository();
+
+                // Cargar el nombre del puesto para cada empleado
+                foreach (var empleado in empleados)
+                {
+                    if (!string.IsNullOrEmpty(empleado.IdPuesto))
+                    {
+                        var puesto = puestoRepo.GetById(empleado.IdPuesto);
+                        empleado.NombrePuesto = puesto?.Nombre ?? empleado.IdPuesto;
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"✓ {empleados.Count} empleados cargados desde SQLite con puestos");
+                return empleados;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                StatusMessage = "Imposible extraer todos los empleados";
+                StatusMessage = $"Imposible extraer todos los empleados: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
                 return new List<EmpleadoModel>();
             }
         }
@@ -47,7 +69,16 @@ namespace SistemaParamedicosDemo4.Data.Repositories
         {
             try
             {
-                return Connection.Find<EmpleadoModel>(id);
+                var empleado = Connection.Find<EmpleadoModel>(id);
+
+                if (empleado != null && !string.IsNullOrEmpty(empleado.IdPuesto))
+                {
+                    var puestoRepo = new PuestoRepository();
+                    var puesto = puestoRepo.GetById(empleado.IdPuesto);
+                    empleado.NombrePuesto = puesto?.Nombre ?? empleado.IdPuesto;
+                }
+
+                return empleado;
             }
             catch (Exception ex)
             {
@@ -113,6 +144,49 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             catch (Exception ex)
             {
                 StatusMessage = $"Error al actualizar empleado: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                return false;
+            }
+        }
+
+        public bool SincronizarEmpleados(List<EmpleadoModel> empleados)
+        {
+            try
+            {
+                if (empleados == null || empleados.Count == 0)
+                {
+                    StatusMessage = "No hay empleados para sincronizar";
+                    return false;
+                }
+
+                Connection.BeginTransaction();
+
+                foreach (var empleado in empleados)
+                {
+                    // Verificar si existe
+                    var existente = Connection.Find<EmpleadoModel>(empleado.IdEmpleado);
+
+                    if (existente != null)
+                    {
+                        // Actualizar
+                        Connection.Update(empleado);
+                    }
+                    else
+                    {
+                        // Insertar
+                        Connection.Insert(empleado);
+                    }
+                }
+
+                Connection.Commit();
+                StatusMessage = $"{empleados.Count} empleados sincronizados";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                try { Connection.Rollback(); } catch { }
+                StatusMessage = $"Error al sincronizar: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
                 return false;
             }
