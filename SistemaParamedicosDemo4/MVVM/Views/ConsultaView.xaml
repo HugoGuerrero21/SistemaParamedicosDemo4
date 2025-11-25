@@ -241,7 +241,6 @@
                         </CollectionView>
                     </StackLayout>
                 </Border>
-
             </StackLayout>
         </ScrollView>
 
@@ -695,7 +694,6 @@
                         </StackLayout>
                     </StackLayout>
                 </Border>
-
                 <!-- Botones de acción -->
                 <Grid Margin="0,20,0,20">
                     <Grid.ColumnDefinitions>

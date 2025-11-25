@@ -81,6 +81,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
                 return ClaveProducto ?? "Medicamento desconocido";
             }
         }
+        
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

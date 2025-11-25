@@ -102,9 +102,7 @@
                                    FontSize="22"
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource DarkGray}"/>
-                            <Label Text="{Binding Empleado.IdEmpleado}"
-                                   FontSize="15"
-                                   TextColor="{StaticResource MediumGray}"/>
+
                             <Label Text="{Binding Empleado.NombrePuesto}"
                                    FontSize="14"
                                    TextColor="{StaticResource MediumGray}"
@@ -188,8 +186,11 @@
                    Margin="10,0,10,20"/>
 
             <!-- Lista de Consultas con Acordeón -->
-            <StackLayout BindableLayout.ItemsSource="{Binding Consultas}" Spacing="10">
-                <BindableLayout.EmptyView>
+            <CollectionView ItemsSource="{Binding Consultas}" 
+                            SelectionMode="None"
+                            SelectionChangedCommand="{Binding SeleccionarConsultaCommand}"
+                            SelectionChangedCommandParameter="{Binding SelectedItems, Source={RelativeSource Self}}">
+                <CollectionView.EmptyView>
                     <StackLayout Padding="50" VerticalOptions="Center">
                         <Label Text="📋"
                                FontSize="48"
@@ -200,16 +201,18 @@
                                HorizontalOptions="Center"
                                Margin="0,10,0,0"/>
                     </StackLayout>
-                </BindableLayout.EmptyView>
+                </CollectionView.EmptyView>
 
-                <BindableLayout.ItemTemplate>
+                <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Style="{StaticResource CardStyle}">
                             <StackLayout Spacing="0">
                                 <!-- Header de la consulta (siempre visible) -->
                                 <Grid>
                                     <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding ToggleExpandidoCommand}"/>
+                                        <TapGestureRecognizer 
+        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HistorialConsultasViewModel}}, Path=ToggleExpandidoCommand}"
+        CommandParameter="{Binding .}"/>
                                     </Grid.GestureRecognizers>
 
                                     <Grid.RowDefinitions>
@@ -360,15 +363,17 @@
                                                                 <ColumnDefinition Width="3*"/>
                                                                 <ColumnDefinition Width="*"/>
                                                             </Grid.ColumnDefinitions>
+                                                            <!-- ✅ CAMBIAR ESTA LÍNEA -->
                                                             <Label Grid.Column="0"
-                                                                   Text="{Binding NombreMedicamento}"
+                                                                   Text="{Binding Producto.Nombre}"
                                                                    FontSize="13"
                                                                    TextColor="{StaticResource DarkGray}"/>
                                                             <Label Grid.Column="1"
                                                                    Text="{Binding Cantidad, StringFormat='{0:F2}'}"
                                                                    FontSize="13"
                                                                    FontAttributes="Bold"
-                                                                   TextColor="{StaticResource PrimaryColor}"/>
+                                                                   TextColor="{StaticResource PrimaryColor}"
+                                                                   HorizontalTextAlignment="End"/>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </BindableLayout.ItemTemplate>
@@ -379,8 +384,8 @@
                             </StackLayout>
                         </Border>
                     </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </StackLayout>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
             <!-- Indicador de carga -->
             <ActivityIndicator IsRunning="{Binding IsBusy}"

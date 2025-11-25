@@ -39,7 +39,7 @@ namespace SistemaParamedicos.API.Models
 
         [Required]
         [Column("STATUS")]
-        public sbyte Status { get; set; }
+        public int Status { get; set; }
 
         [Column("CANTIDAD_UTILIZADA")]
         public float? CantidadUtilizada { get; set; }

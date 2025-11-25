@@ -43,6 +43,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
         #region Commands
         public ICommand VerDetalleCommand { get; }
+        public ICommand ToggleExpandidoCommand { get; }
         #endregion
 
         public HistorialConsultasViewModel()
@@ -52,6 +53,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             _productoRepo = new ProductoRepository(); // ⭐ INICIALIZAR
             Consultas = new ObservableCollection<ConsultaModelExtendido>();
             VerDetalleCommand = new Command<ConsultaModelExtendido>(VerDetalle);
+            ToggleExpandidoCommand = new Command<ConsultaModelExtendido>(OnToggleExpandido);
         }
 
         private void CalcularEdadEmpleado()
@@ -75,6 +77,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 IsBusy = true;
                 Consultas.Clear();
 
+                // ✅ CAMBIO: Cargar solo consultas sin medicamentos
                 var consultas = _consultaRepo.GetConsultasCompletasPorEmpleado(Empleado.IdEmpleado);
 
                 foreach (var consulta in consultas)
@@ -99,52 +102,19 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                         FechaConsulta = consulta.FechaConsulta,
                         Diagnostico = consulta.Diagnostico,
                         TieneMovimiento = !string.IsNullOrEmpty(consulta.IdMovimiento),
-                        EstaExpandido = false // ⭐ INICIALIZAR EN FALSE
+                        EstaExpandido = false,
+                        // ✅ NO cargar medicamentos aún
+                        Medicamentos = new ObservableCollection<MovimientoDetalleModel>(),
+                        TieneMedicamentos = false
                     };
 
-                    // ⭐ CARGAR MEDICAMENTOS SI TIENE MOVIMIENTO
-                    if (!string.IsNullOrEmpty(consulta.IdMovimiento))
-                    {
-                        System.Diagnostics.Debug.WriteLine($"🔍 Consulta #{consulta.IdConsulta} tiene IdMovimiento: {consulta.IdMovimiento}");
-
-                        var medicamentos = _movimientoDetalleRepo.GetDetallesByMovimiento(consulta.IdMovimiento);
-                        System.Diagnostics.Debug.WriteLine($"📦 Encontrados {medicamentos.Count} detalles de movimiento");
-
-                        // ⭐ CARGAR EL PRODUCTO PARA CADA MEDICAMENTO
-                        foreach (var medicamento in medicamentos)
-                        {
-                            var producto = _productoRepo.GetProductosById(medicamento.ClaveProducto);
-                            if (producto != null)
-                            {
-                                medicamento.Producto = producto;
-                                System.Diagnostics.Debug.WriteLine($"  ✅ Medicamento cargado: {medicamento.NombreMedicamento} - Cantidad: {medicamento.Cantidad}");
-                            }
-                            else
-                            {
-                                System.Diagnostics.Debug.WriteLine($"  ❌ No se encontró producto para clave: {medicamento.ClaveProducto}");
-                            }
-                        }
-
-                        consultaExtendida.Medicamentos = new ObservableCollection<MovimientoDetalleModel>(medicamentos);
-                        consultaExtendida.TieneMedicamentos = medicamentos.Count > 0;
-
-                        System.Diagnostics.Debug.WriteLine($"✓ {medicamentos.Count} medicamentos asignados a la consulta extendida");
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine($"⚠️ Consulta #{consulta.IdConsulta} NO tiene IdMovimiento");
-                        consultaExtendida.Medicamentos = new ObservableCollection<MovimientoDetalleModel>();
-                        consultaExtendida.TieneMedicamentos = false;
-                    }
-
-                    // ⭐ VALIDAR OBSERVACIONES
                     consultaExtendida.TieneObservaciones = !string.IsNullOrWhiteSpace(consulta.Observaciones);
 
                     Consultas.Add(consultaExtendida);
                 }
 
                 TotalConsultas = Consultas.Count;
-                System.Diagnostics.Debug.WriteLine($"✓ {TotalConsultas} consultas cargadas para {Empleado.Nombre}");
+                System.Diagnostics.Debug.WriteLine($"✓ {TotalConsultas} consultas cargadas (sin medicamentos)");
             }
             catch (Exception ex)
             {
@@ -166,6 +136,53 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             };
 
             await Shell.Current.GoToAsync("detalleConsulta", parametros);
+        }
+
+        // ✅ NUEVO COMANDO: Cargar medicamentos cuando se expande
+        private void OnToggleExpandido(ConsultaModelExtendido consulta)
+        {
+            if (consulta == null) return;
+
+            if (!consulta.EstaExpandido && !consulta.TieneMedicamentos && !string.IsNullOrEmpty(consulta.IdMovimiento))
+            {
+                // ✅ Solo cargar medicamentos cuando se expande
+                CargarMedicamentosDelayado(consulta);
+            }
+
+            consulta.EstaExpandido = !consulta.EstaExpandido;
+        }
+
+        private async void CargarMedicamentosDelayado(ConsultaModelExtendido consulta)
+        {
+            try
+            {
+                var medicamentos = _movimientoDetalleRepo.GetDetallesByMovimiento(consulta.IdMovimiento);
+
+                // ✅ Cargar el nombre del producto
+                foreach (var medicamento in medicamentos)
+                {
+                    var producto = _productoRepo.GetProductosById(medicamento.ClaveProducto);
+                    if (producto != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"✓ Producto: {producto.ProductoId} -> {producto.Nombre}");
+                        // ✅ Asignar el producto completo temporalmente
+                        medicamento.Producto = producto;
+                    }
+                }
+
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    consulta.Medicamentos = new ObservableCollection<MovimientoDetalleModel>(medicamentos);
+                    consulta.TieneMedicamentos = medicamentos.Count > 0;
+                });
+
+                System.Diagnostics.Debug.WriteLine($"✓ {medicamentos.Count} medicamentos cargados");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack: {ex.StackTrace}");
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -198,9 +215,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
         // ⭐ LISTA DE MEDICAMENTOS
         public ObservableCollection<MovimientoDetalleModel> Medicamentos { get; set; }
-
-        // ⭐ COMANDO PARA EXPANDIR/COLAPSAR
-        public ICommand ToggleExpandidoCommand => new Command(() => EstaExpandido = !EstaExpandido);
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

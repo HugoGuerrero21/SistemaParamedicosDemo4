@@ -15,6 +15,10 @@ namespace SistemaParamedicos.API.Data
         public DbSet<EmpleadoModel> Empleados { get; set; }
         public DbSet<PuestoModel> Puestos { get; set; }
 
+        public DbSet<TipoEnfermedadModel> TiposEnfermedad { get; set; }
+
+
+
         // Nuevas tablas de inventario
         public DbSet<ProductoModel> Productos { get; set; }
         public DbSet<TipoMovimientoModel> TiposMovimiento { get; set; }
@@ -124,6 +128,13 @@ namespace SistemaParamedicos.API.Data
             modelBuilder.Entity<ExistenciaParamedicoViewModel>()
                 .ToView("V_EXISTENCIAS_PARAMEDICOS")
                 .HasNoKey();
+
+            //Configuración de la tabla de tipo de enfermdad
+            modelBuilder.Entity<TipoEnfermedadModel>()
+    .ToTable("CASE_TIPOENFERMEDAD");
+            modelBuilder.Entity<TipoEnfermedadModel>()
+                .HasKey(t => t.IdTipoEnfermedad);
+
         }
     }
 }

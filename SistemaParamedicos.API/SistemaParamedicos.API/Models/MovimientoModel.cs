@@ -41,12 +41,13 @@ namespace SistemaParamedicos.API.Models
         [MaxLength(50)]
         public string? OtrosSalida { get; set; }
 
+        [Required]
         [Column("ES_TRASPASO")]
         public sbyte? EsTraspaso { get; set; }
 
         [Required]
         [Column("STATUS")]
-        public sbyte Status { get; set; }
+        public int Status { get; set; }
 
         [Required]
         [Column("ID_USUARIO")]
@@ -57,7 +58,7 @@ namespace SistemaParamedicos.API.Models
         [MaxLength(200)]
         public string? MotivoDevolucion { get; set; }
 
-        // Relaciones
+        // Relaciones   
         [ForeignKey("IdTipoMovimiento")]
         public TipoMovimientoModel? TipoMovimiento { get; set; }
 

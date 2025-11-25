@@ -78,6 +78,9 @@
 	  <MauiXaml Update="MVVM\Views\EmpleadosListView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="MVVM\Views\GestionTiposEnfermedadView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="MVVM\Views\HistorialConsultasView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

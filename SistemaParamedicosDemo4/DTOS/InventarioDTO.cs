@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using SistemaParamedicosDemo4.MVVM.Models;
+using System.Text.Json.Serialization;
 
 namespace SistemaParamedicosDemo4.DTOS
 {
@@ -75,6 +76,21 @@ namespace SistemaParamedicosDemo4.DTOS
                 if (StockBajo) return "STOCK BAJO";
                 return "DISPONIBLE";
             }
+        }
+
+        public ProductoModel ToProductoModel()
+        {
+            return new ProductoModel
+            {
+                ProductoId = this.Producto,
+                Nombre = this.NombreDelProducto,
+                Marca = this.Marca ?? string.Empty,
+                Model = string.Empty, // No viene en la vista
+                Descripcion = this.Descripcion ?? string.Empty,
+                NumeroPieza = this.NumeroDePieza ?? string.Empty,
+                Foto = this.Foto,
+                CantidadDisponible = this.Existencia
+            };
         }
     }
 }

@@ -203,5 +203,54 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 return false;
             }
         }
+
+        public bool SincronizarProductosDesdeInventario(List<ProductoModel> productos)
+        {
+            try
+            {
+                if (productos == null || productos.Count == 0)
+                {
+                    StatusMessage = "No hay productos para sincronizar";
+                    return false;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"🔄 Sincronizando {productos.Count} productos del inventario...");
+
+                foreach (var producto in productos)
+                {
+                    var existente = Connection.Find<ProductoModel>(producto.ProductoId);
+
+                    if (existente != null)
+                    {
+                        // ⭐ ACTUALIZAR producto existente (stock, nombre, etc.)
+                        existente.Nombre = producto.Nombre;
+                        existente.Marca = producto.Marca;
+                        existente.Descripcion = producto.Descripcion;
+                        existente.NumeroPieza = producto.NumeroPieza;
+                        existente.Foto = producto.Foto;
+                        existente.CantidadDisponible = producto.CantidadDisponible;
+
+                        Connection.Update(existente);
+                        System.Diagnostics.Debug.WriteLine($"  ✓ Actualizado: {producto.ProductoId}");
+                    }
+                    else
+                    {
+                        // ⭐ INSERTAR nuevo producto
+                        Connection.Insert(producto);
+                        System.Diagnostics.Debug.WriteLine($"  ✓ Insertado: {producto.ProductoId}");
+                    }
+                }
+
+                StatusMessage = $"{productos.Count} productos sincronizados";
+                System.Diagnostics.Debug.WriteLine($"✅ {StatusMessage}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error al sincronizar productos: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
+                return false;
+            }
+        }
     }
 }

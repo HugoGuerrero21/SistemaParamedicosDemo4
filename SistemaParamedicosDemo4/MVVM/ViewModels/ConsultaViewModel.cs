@@ -26,6 +26,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         private ConsultaRepository _consultaRepo;
         private EmpleadoRepository _empleadoRepo;
         private EmpleadoApiService _empleadoApiService;
+        private InventarioApiService _inventarioApiService;
         #endregion
 
         #region Properties
@@ -107,6 +108,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 _consultaRepo = new ConsultaRepository();
                 _empleadoRepo = new EmpleadoRepository();
                 _empleadoApiService = new EmpleadoApiService();
+                _inventarioApiService = new InventarioApiService();
 
                 Consulta = new ConsultaModel { FechaConsulta = DateTime.Now };
 
@@ -158,7 +160,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 };
 
                 // Cargar datos desde SQLite (SOLO tipos de enfermedad y productos)
-                CargarDatosDesdeBaseDatos();
+                //CargarDatosDesdeBaseDatos();
             }
             catch (Exception ex)
             {
@@ -171,10 +173,49 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         {
             System.Diagnostics.Debug.WriteLine("🚀 InicializarVistaAsync EJECUTÁNDOSE");
 
+            // ⭐ REINICIALIZAR CANCELLATION TOKEN SI FUE DISPOSED
             if (_cancellationTokenSource == null || _cancellationTokenSource.IsCancellationRequested)
             {
                 _cancellationTokenSource?.Dispose();
                 _cancellationTokenSource = new CancellationTokenSource();
+            }
+
+            // ⭐ REINICIALIZAR SERVICIOS SI FUERON DISPOSED
+            if (_empleadoApiService == null)
+            {
+                _empleadoApiService = new EmpleadoApiService();
+                System.Diagnostics.Debug.WriteLine("✓ EmpleadoApiService reinicializado");
+            }
+
+            if (_inventarioApiService == null)
+            {
+                _inventarioApiService = new InventarioApiService();
+                System.Diagnostics.Debug.WriteLine("✓ InventarioApiService reinicializado");
+            }
+
+            // ⭐ REINICIALIZAR REPOSITORIOS SI FUERON DISPOSED
+            if (_tipoEnfermedadRepo == null)
+            {
+                _tipoEnfermedadRepo = new TipoEnfermedadRepository();
+                System.Diagnostics.Debug.WriteLine("✓ TipoEnfermedadRepository reinicializado");
+            }
+
+            if (_productoRepo == null)
+            {
+                _productoRepo = new ProductoRepository();
+                System.Diagnostics.Debug.WriteLine("✓ ProductoRepository reinicializado");
+            }
+
+            if (_consultaRepo == null)
+            {
+                _consultaRepo = new ConsultaRepository();
+                System.Diagnostics.Debug.WriteLine("✓ ConsultaRepository reinicializado");
+            }
+
+            if (_empleadoRepo == null)
+            {
+                _empleadoRepo = new EmpleadoRepository();
+                System.Diagnostics.Debug.WriteLine("✓ EmpleadoRepository reinicializado");
             }
 
             try
@@ -183,7 +224,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 {
                     System.Diagnostics.Debug.WriteLine("🚀 Empleados no cargados, procediendo...");
 
-                    // ⭐ PROBAR CONEXIÓN PRIMERO
+                    // Probar conexión primero
                     var conexionExitosa = await _empleadoApiService.ProbarConexionAsync();
                     if (!conexionExitosa)
                     {
@@ -195,8 +236,11 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("⚠️ Empleados ya estaban cargados, saltando...");
+                    System.Diagnostics.Debug.WriteLine("⚠️ Empleados ya cargados, saltando carga...");
                 }
+
+                // ⭐ CARGAR INVENTARIO REAL
+                await CargarInventarioAsync(_cancellationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
@@ -205,8 +249,151 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"❌ Error en InicializarVistaAsync: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
             }
         }
+
+        private async Task CargarInventarioAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("📦 Cargando datos desde BD y API...");
+
+                // ⭐ VALIDAR QUE LOS REPOSITORIOS EXISTAN
+                if (_tipoEnfermedadRepo == null)
+                {
+                    _tipoEnfermedadRepo = new TipoEnfermedadRepository();
+                    System.Diagnostics.Debug.WriteLine("⚠️ TipoEnfermedadRepository era null, reinicializado");
+                }
+
+                if (_productoRepo == null)
+                {
+                    _productoRepo = new ProductoRepository();
+                    System.Diagnostics.Debug.WriteLine("⚠️ ProductoRepository era null, reinicializado");
+                }
+
+                if (_inventarioApiService == null)
+                {
+                    _inventarioApiService = new InventarioApiService();
+                    System.Diagnostics.Debug.WriteLine("⚠️ InventarioApiService era null, reinicializado");
+                }
+
+                // ⭐⭐⭐ 1. CARGAR TIPOS DE ENFERMEDAD DESDE LA BD (NO PRECARGADOS) ⭐⭐⭐
+                System.Diagnostics.Debug.WriteLine("🏥 Cargando tipos de enfermedad desde BD local...");
+                var tiposEnfermedad = await Task.Run(() => _tipoEnfermedadRepo.GetAllTypes(), cancellationToken);
+
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        TiposEnfermedad.Clear();
+                        foreach (var tipo in tiposEnfermedad)
+                        {
+                            TiposEnfermedad.Add(tipo);
+                        }
+                    });
+                    System.Diagnostics.Debug.WriteLine($"✅ {TiposEnfermedad.Count} tipos de enfermedad cargados desde BD");
+                }
+
+                // 2. CARGAR PRODUCTOS DESDE LA API
+                System.Diagnostics.Debug.WriteLine("📦 Cargando productos desde API...");
+                var inventarioDto = await _inventarioApiService.ObtenerExistenciasAsync();
+
+                if (inventarioDto == null || inventarioDto.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("⚠️ API sin productos, cargando desde SQLite...");
+
+                    // Fallback a SQLite
+                    var productosLocal = await Task.Run(() => _productoRepo.GetProductoConsStock(), cancellationToken);
+
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+                            Medicamentos.Clear();
+                            foreach (var producto in productosLocal)
+                            {
+                                Medicamentos.Add(producto);
+                            }
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados desde SQLite");
+                    return;
+                }
+
+                // 3. CONVERTIR DTOs A MODELS
+                var productos = await Task.Run(() =>
+                    inventarioDto
+                        .Where(inv => inv.Existencia > 0) // Solo productos con stock
+                        .Select(dto => dto.ToProductoModel())
+                        .ToList(),
+                    cancellationToken
+                );
+
+                // 4. SINCRONIZAR CON SQLITE
+                await Task.Run(() => _productoRepo.SincronizarProductosDesdeInventario(productos), cancellationToken);
+                System.Diagnostics.Debug.WriteLine("✓ Productos sincronizados con SQLite");
+
+                // 5. ACTUALIZAR UI
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        Medicamentos.Clear();
+                        foreach (var producto in productos)
+                        {
+                            Medicamentos.Add(producto);
+                        }
+                        System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados en UI");
+                    });
+                }
+
+                System.Diagnostics.Debug.WriteLine("✅ TODOS LOS DATOS CARGADOS EXITOSAMENTE");
+            }
+            catch (OperationCanceledException)
+            {
+                System.Diagnostics.Debug.WriteLine("⚠️ Carga de datos cancelada");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar datos: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+
+                // Fallback a SQLite en caso de error
+                try
+                {
+                    var tiposLocal = await Task.Run(() => _tipoEnfermedadRepo.GetAllTypes(), cancellationToken);
+                    var productosLocal = await Task.Run(() => _productoRepo.GetProductoConsStock(), cancellationToken);
+
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+                            TiposEnfermedad.Clear();
+                            foreach (var tipo in tiposLocal)
+                            {
+                                TiposEnfermedad.Add(tipo);
+                            }
+
+                            Medicamentos.Clear();
+                            foreach (var producto in productosLocal)
+                            {
+                                Medicamentos.Add(producto);
+                            }
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"✓ Fallback: {TiposEnfermedad.Count} tipos y {Medicamentos.Count} productos desde SQLite");
+                }
+                catch (Exception fallbackEx)
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ Error en fallback: {fallbackEx.Message}");
+                }
+            }
+        }
+
+
 
         #region Métodos de Búsqueda
 
@@ -456,31 +643,31 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
         #endregion
 
-        private void CargarDatosDesdeBaseDatos()
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("Cargando datos desde SQLite...");
+        //private void CargarDatosDesdeBaseDatos()
+        //{
+        //    try
+        //    {
+        //        System.Diagnostics.Debug.WriteLine("Cargando datos desde SQLite...");
 
-                var tiposEnfermedad = _tipoEnfermedadRepo.GetAllTypes();
-                foreach (var tipo in tiposEnfermedad)
-                {
-                    TiposEnfermedad.Add(tipo);
-                }
-                System.Diagnostics.Debug.WriteLine($"✓ {TiposEnfermedad.Count} tipos de enfermedad cargados");
+        //        var tiposEnfermedad = _tipoEnfermedadRepo.GetAllTypes();
+        //        foreach (var tipo in tiposEnfermedad)
+        //        {
+        //            TiposEnfermedad.Add(tipo);
+        //        }
+        //        System.Diagnostics.Debug.WriteLine($"✓ {TiposEnfermedad.Count} tipos de enfermedad cargados");
 
-                var productos = _productoRepo.GetProductoConsStock();
-                foreach (var producto in productos)
-                {
-                    Medicamentos.Add(producto);
-                }
-                System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar datos: {ex.Message}");
-            }
-        }
+        //        var productos = _productoRepo.GetProductoConsStock();
+        //        foreach (var producto in productos)
+        //        {
+        //            Medicamentos.Add(producto);
+        //        }
+        //        System.Diagnostics.Debug.WriteLine($"✓ {Medicamentos.Count} productos cargados");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        System.Diagnostics.Debug.WriteLine($"❌ Error al cargar datos: {ex.Message}");
+        //    }
+        //}
 
         private void CalcularEdad()
         {
@@ -499,7 +686,24 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         {
             try
             {
-                if (EmpleadoSeleccionado == null) return;
+                // ⭐ VALIDAR QUE LOS REPOSITORIOS EXISTAN
+                if (EmpleadoSeleccionado == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("⚠️ No hay empleado seleccionado");
+                    return;
+                }
+
+                if (_consultaRepo == null)
+                {
+                    _consultaRepo = new ConsultaRepository();
+                    System.Diagnostics.Debug.WriteLine("⚠️ ConsultaRepository era null, reinicializado");
+                }
+
+                if (_tipoEnfermedadRepo == null)
+                {
+                    _tipoEnfermedadRepo = new TipoEnfermedadRepository();
+                    System.Diagnostics.Debug.WriteLine("⚠️ TipoEnfermedadRepository era null, reinicializado");
+                }
 
                 UltimasConsultas.Clear();
 
@@ -528,7 +732,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar últimas consultas: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar consultas: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
             }
         }
 
@@ -603,7 +808,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 {
                     IdMovimientoDetalle = Guid.NewGuid().ToString(),
                     ClaveProducto = MedicamentoSeleccionado.ProductoId,
-                    Producto = MedicamentoSeleccionado,
+                    // ✅ NO guardar la referencia completa del producto
+                    Producto = null, // ← Evitar referencia circular
                     Cantidad = CantidadMedicamento,
                     Observaciones = string.IsNullOrWhiteSpace(ObservacionesMedicamento)
                         ? "Sin observaciones"
@@ -612,7 +818,11 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 };
 
                 MedicamentosAgregados.Add(movimientoDetalle);
-                MedicamentoSeleccionado.CantidadDisponible -= CantidadMedicamento;
+        
+                // ✅ IMPORTANTE: Crear una COPIA de la cantidad disponible
+                var cantidadOriginal = MedicamentoSeleccionado.CantidadDisponible;
+                MedicamentoSeleccionado.CantidadDisponible = Math.Max(0, cantidadOriginal - CantidadMedicamento);
+        
                 LimpiarCamposMedicamento();
 
                 await Application.Current.MainPage.DisplayAlert(
@@ -701,34 +911,75 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     }
                 }
 
+                // ✅ 1. GUARDAR EN SQLITE (LOCAL)
                 bool guardado = _consultaRepo.GuardarConsultaCompleta(
                     Consulta,
                     MedicamentosAgregados.ToList());
 
-                if (guardado)
-                {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Éxito",
-                        "Consulta guardada correctamente en la base de datos",
-                        "OK");
-
-                    System.Diagnostics.Debug.WriteLine("✓ Consulta guardada en SQLite");
-
-                    if (!string.IsNullOrEmpty(idEmpleadoGuardado))
-                    {
-                        MessagingCenter.Send(this, "ConsultaGuardada", idEmpleadoGuardado);
-                        System.Diagnostics.Debug.WriteLine($"✓ Mensaje enviado para actualizar empleado {idEmpleadoGuardado}");
-                    }
-
-                    CambiarEmpleado();
-                }
-                else
+                if (!guardado)
                 {
                     await Application.Current.MainPage.DisplayAlert(
                         "Error",
-                        $"Error al guardar: {_consultaRepo.StatusMessage}",
+                        $"Error al guardar localmente: {_consultaRepo.StatusMessage}",
                         "OK");
+                    return;
                 }
+
+                System.Diagnostics.Debug.WriteLine("✓ Consulta guardada en SQLite local");
+
+                // ✅ 2. REGISTRAR SALIDA EN LA API (SI SE USARON MEDICAMENTOS)
+                if (SeUtilizoMaterial && MedicamentosAgregados.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("📤 Registrando salida en el servidor...");
+
+                    // Convertir medicamentos a formato de la API
+                    var productosSalida = MedicamentosAgregados.Select(m => new InventarioApiService.ProductoSalidaDTO
+                    {
+                        IdProducto = m.ClaveProducto,
+                        Cantidad = m.Cantidad
+                    }).ToList();
+
+                    // Reinicializar servicio si fue disposed
+                    if (_inventarioApiService == null)
+                    {
+                        _inventarioApiService = new InventarioApiService();
+                    }
+
+                    bool salidaRegistrada = await _inventarioApiService.RegistrarSalidaAsync(
+                        EmpleadoSeleccionado.IdEmpleado,
+                        Consulta.IdUsuarioAcceso,
+                        productosSalida
+                    );
+
+                    if (!salidaRegistrada)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Advertencia",
+                            "La consulta se guardó localmente, pero no se pudo registrar la salida en el servidor. " +
+                            "Los productos se descontaron localmente pero no en el inventario real.",
+                            "OK");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("✅ Salida registrada en el servidor");
+                    }
+                }
+
+                // ✅ 3. MOSTRAR MENSAJE DE ÉXITO
+                await Application.Current.MainPage.DisplayAlert(
+                    "Éxito",
+                    "Consulta guardada correctamente",
+                    "OK");
+
+                // ✅ 4. ENVIAR MENSAJE PARA ACTUALIZAR LISTA
+                if (!string.IsNullOrEmpty(idEmpleadoGuardado))
+                {
+                    MessagingCenter.Send(this, "ConsultaGuardada", idEmpleadoGuardado);
+                    System.Diagnostics.Debug.WriteLine($"✓ Mensaje enviado para actualizar empleado {idEmpleadoGuardado}");
+                }
+
+                // ✅ 5. LIMPIAR FORMULARIO
+                CambiarEmpleado();
             }
             catch (Exception ex)
             {
@@ -737,6 +988,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     $"Error al guardar: {ex.Message}",
                     "OK");
                 System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
             }
         }
 
@@ -816,7 +1068,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             }
 
             _empleadoApiService = null;
-            _consultaRepo = null;
+            _inventarioApiService = null;
+            _consultaRepo = null;  // ← Sets to null
             _productoRepo = null;
             _tipoEnfermedadRepo = null;
             _empleadoRepo = null;

@@ -78,13 +78,14 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
                 var empleados = _empleadoRepo.GetAll();
 
+                // ✅ OPTIMIZACIÓN: Solo obtener el COUNT en lugar de todas las consultas
                 _todosLosEmpleados = empleados.Select(e =>
                 {
-                    // Cargar el total de consultas para cada empleado
-                    var consultas = _consultaRepo.GetConsultasByEmpleado(e.IdEmpleado);
-                    e.TotalConsultas = consultas.Count;
+                    // ✅ MEJOR: Solo contar, no cargar toda la lista
+                    var totalConsultas = _consultaRepo.GetConsultasByEmpleado(e.IdEmpleado).Count;
+                    e.TotalConsultas = totalConsultas;
 
-                    System.Diagnostics.Debug.WriteLine($"Empleado: {e.Nombre} - Consultas: {consultas.Count}");
+                    System.Diagnostics.Debug.WriteLine($"Empleado: {e.Nombre} - Consultas: {totalConsultas}");
 
                     return e;
                 }).ToList();
@@ -130,9 +131,14 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             ActualizarLista(empleadosFiltrados);
         }
 
+        // ✅ NUEVA PROPIEDAD: Limitar mostrados
+        private const int EMPLEADOS_POR_PAGINA = 20;
+
         private void MostrarTodos()
         {
-            ActualizarLista(_todosLosEmpleados);
+            // ✅ Solo mostrar los primeros 20 empleados
+            var empleadosAMostrar = _todosLosEmpleados.Take(EMPLEADOS_POR_PAGINA).ToList();
+            ActualizarLista(empleadosAMostrar);
         }
 
         private void FiltrarPorPuesto(string puesto)

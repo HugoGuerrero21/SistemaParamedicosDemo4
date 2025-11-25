@@ -60,20 +60,39 @@ namespace SistemaParamedicosDemo4.Data.Repositories
         {
             try
             {
-                if (Tipo == null) 
+                if (Tipo == null)
                 {
                     StatusMessage = "El tipo de enfermedad no puede ser nulo";
                     return false;
                 }
 
+                // ⭐ AGREGAR LOG PARA DEBUG
+                System.Diagnostics.Debug.WriteLine($"Intentando insertar: {Tipo.NombreEnfermedad}");
+
                 int result = Connection.Insert(Tipo);
-                StatusMessage = "Tipo de enfermedad ingresada con exito";
+                StatusMessage = "Tipo de enfermedad ingresada con éxito";
+
+                // ⭐ OBTENER EL ID GENERADO
+                if (result > 0)
+                {
+                    var insertado = Connection.Table<TipoEnfermedadModel>()
+                        .OrderByDescending(t => t.IdTipoEnfermedad)
+                        .FirstOrDefault();
+
+                    if (insertado != null)
+                    {
+                        Tipo.IdTipoEnfermedad = insertado.IdTipoEnfermedad;
+                        System.Diagnostics.Debug.WriteLine($"✅ Tipo insertado con ID: {Tipo.IdTipoEnfermedad}");
+                    }
+                }
+
                 return result > 0;
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 StatusMessage = $"Error al insertar tipo: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
                 return false;
             }
         }
@@ -98,6 +117,51 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 StatusMessage = $"Error al insertar tipo de enfermedades iniciales: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
                 return false;
+            }
+        }
+
+        /// Sincroniza los tipos de enfermedad desde la API
+        public void SincronizarTiposEnfermedad(List<TipoEnfermedadModel> tiposDesdeApi)
+        {
+            try
+            {
+                Connection.BeginTransaction();
+
+                foreach (var tipoApi in tiposDesdeApi)
+                {
+                    // Verificar si el tipo ya existe en la BD local
+                    var tipoExistente = Connection.Find<TipoEnfermedadModel>(tipoApi.IdTipoEnfermedad);
+
+                    if (tipoExistente == null)
+                    {
+                        // No existe, insertar
+                        Connection.Insert(tipoApi);
+                        System.Diagnostics.Debug.WriteLine($"✓ Tipo insertado: {tipoApi.NombreEnfermedad}");
+                    }
+                    else if (tipoExistente.NombreEnfermedad != tipoApi.NombreEnfermedad)
+                    {
+                        // Existe pero el nombre cambió, actualizar
+                        tipoExistente.NombreEnfermedad = tipoApi.NombreEnfermedad;
+                        tipoExistente.ID_USUARIO_ACC = tipoApi.ID_USUARIO_ACC;
+                        Connection.Update(tipoExistente);
+                        System.Diagnostics.Debug.WriteLine($"✓ Tipo actualizado: {tipoApi.NombreEnfermedad}");
+                    }
+                }
+
+                Connection.Commit();
+                StatusMessage = "Tipos de enfermedad sincronizados correctamente";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    Connection.Rollback();
+                }
+                catch { }
+
+                StatusMessage = $"Error al sincronizar tipos: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
             }
         }
     }

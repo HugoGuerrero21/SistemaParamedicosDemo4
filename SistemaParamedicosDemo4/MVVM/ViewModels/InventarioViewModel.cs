@@ -44,6 +44,22 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         // Control de cancelación
         private CancellationTokenSource _cancellationTokenSource;
         private bool _datosCargados = false;
+
+        // ✅ NUEVA CONSTANTE
+        private const int PRODUCTOS_POR_PAGINA = 50;
+        private int _paginaActual = 1;
+
+        public int PaginaActual
+        {
+            get => _paginaActual;
+            set
+            {
+                _paginaActual = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool HayMasPaginas { get; set; }
         #endregion
 
         #region Commands
@@ -52,6 +68,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         public ICommand RefrescarCommand { get; }
         public ICommand AplicarFiltroCommand { get; }
         public ICommand LimpiarBusquedaCommand { get; }
+        // ✅ NUEVO COMANDO: Para cargar más
+        public ICommand CargarMasCommand { get; }
         #endregion
 
         public InventarioViewModel()
@@ -83,6 +101,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 RefrescarCommand = new Command(async () => await RefrescarInventarioAsync());
                 AplicarFiltroCommand = new Command<string>(AplicarFiltro);
                 LimpiarBusquedaCommand = new Command(LimpiarBusqueda);
+                // ✅ COMANDO INICIALIZADO
+                CargarMasCommand = new Command(CargarMas);
 
                 // Suscribirse a cambios de propiedades
                 PropertyChanged += (s, e) =>
@@ -178,7 +198,26 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 // Actualizar UI
                 if (!cancellationToken.IsCancellationRequested)
                 {
-                    await ActualizarListaAsync(_todosLosProductos);
+                    // ✅ OPTIMIZACIÓN: Cargar solo la página actual
+                    var productosPaginados = _todosLosProductos
+                        .Skip((_paginaActual - 1) * PRODUCTOS_POR_PAGINA)
+                        .Take(PRODUCTOS_POR_PAGINA)
+                        .ToList();
+
+                    HayMasPaginas = _todosLosProductos.Count > (_paginaActual * PRODUCTOS_POR_PAGINA);
+
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        ProductosInventario.Clear();
+                        foreach (var producto in productosPaginados)
+                        {
+                            ProductosInventario.Add(producto);
+                        }
+                        OnPropertyChanged(nameof(ProductosInventario));
+                        System.Diagnostics.Debug.WriteLine(
+                            $"✓ UI actualizada con {productosPaginados.Count} productos (página {_paginaActual})");
+                    });
+
                     MensajeEstado = $"{TotalProductos} productos cargados";
                     TieneProductos = true;
                 }
@@ -338,15 +377,24 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         {
             try
             {
+                // ✅ OPTIMIZACIÓN: Cargar solo la página actual
+                var productosPaginados = productos
+                    .Skip((_paginaActual - 1) * PRODUCTOS_POR_PAGINA)
+                    .Take(PRODUCTOS_POR_PAGINA)
+                    .ToList();
+
+                HayMasPaginas = productos.Count > (_paginaActual * PRODUCTOS_POR_PAGINA);
+
                 await MainThread.InvokeOnMainThreadAsync(() =>
                 {
                     ProductosInventario.Clear();
-                    foreach (var producto in productos)
+                    foreach (var producto in productosPaginados)
                     {
                         ProductosInventario.Add(producto);
                     }
                     OnPropertyChanged(nameof(ProductosInventario));
-                    System.Diagnostics.Debug.WriteLine($"✓ UI actualizada con {productos.Count} productos");
+                    System.Diagnostics.Debug.WriteLine(
+                        $"✓ UI actualizada con {productosPaginados.Count} productos (página {_paginaActual})");
                 });
             }
             catch (Exception ex)
@@ -397,5 +445,35 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             _inventarioApiService = null;
         }
         #endregion
+
+        /// <summary>
+        /// Carga más productos en la lista (paginación)
+        /// </summary>
+        private async void CargarMas()
+        {
+            if (HayMasPaginas)
+            {
+                PaginaActual++;
+                // Si hay búsqueda activa, filtra la lista
+                if (!string.IsNullOrWhiteSpace(TextoBusqueda))
+                {
+                    var busqueda = TextoBusqueda.ToLower();
+                    var productosFiltrados = _todosLosProductos.Where(p =>
+                        p.NombreDelProducto.ToLower().Contains(busqueda) ||
+                        p.Producto.ToLower().Contains(busqueda) ||
+                        (p.Marca?.ToLower().Contains(busqueda) ?? false) ||
+                        (p.Descripcion?.ToLower().Contains(busqueda) ?? false)
+                    ).ToList();
+
+                    productosFiltrados = AplicarFiltroALista(productosFiltrados, FiltroSeleccionado);
+                    await ActualizarListaAsync(productosFiltrados);
+                }
+                else
+                {
+                    var productosFiltrados = AplicarFiltroALista(_todosLosProductos, FiltroSeleccionado);
+                    await ActualizarListaAsync(productosFiltrados);
+                }
+            }
+        }
     }
 }

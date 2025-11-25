@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SistemaParamedicosDemo4.Service
@@ -12,6 +13,7 @@ namespace SistemaParamedicosDemo4.Service
     {
         private readonly HttpClient _httpClient;
         private const string BASE_URL = "https://localhost:7285/api";
+        public string StatusMessage { get; set; }
 
         // ⭐ USA ESTA SI ESTÁS EN EMULADOR ANDROID
         // private const string BASE_URL = "https://10.0.2.2:7285/api";
@@ -104,6 +106,67 @@ namespace SistemaParamedicosDemo4.Service
                 System.Diagnostics.Debug.WriteLine($"❌ Error al buscar: {ex.Message}");
                 return new List<InventarioDTO>();
             }
+        }
+
+
+        //Registrar salidas del servidor
+        public async Task<bool> RegistrarSalidaAsync(string idEmpleado, string idUsuario, List<ProductoSalidaDTO> productos)
+        {
+            try
+            {
+                var request = new
+                {
+                    idEmpleado = idEmpleado,
+                    idUsuario = idUsuario,
+                    productos = productos.Select(p => new
+                    {
+                        idProducto = p.IdProducto,
+                        cantidad = (float)p.Cantidad  // ← Cast a float
+                    }).ToList()
+                };
+
+                var jsonContent = JsonSerializer.Serialize(request);
+                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                System.Diagnostics.Debug.WriteLine($"📤 Registrando salida en API para empleado: {idEmpleado}");
+                System.Diagnostics.Debug.WriteLine($"📦 Productos: {productos.Count}");
+                System.Diagnostics.Debug.WriteLine($"📡 JSON enviado: {jsonContent}");  
+
+                var url = $"{BASE_URL}/inventario/salida";  
+                System.Diagnostics.Debug.WriteLine($"📡 URL: {url}");  
+
+                var response = await _httpClient.PostAsync(url, content);  
+
+                System.Diagnostics.Debug.WriteLine($"📡 Status: {response.StatusCode}");  
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var resultado = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"✅ Salida registrada: {resultado}");
+                    return true;
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"❌ Error al registrar salida: {error}");
+                    StatusMessage = $"Error al registrar salida: {error}";
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Excepción: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");  // ← AÑADE ESTO
+                StatusMessage = $"Error: {ex.Message}";
+                return false;
+            }
+        }
+
+        // ⭐ CLASE AUXILIAR PARA LA SALIDA
+        public class ProductoSalidaDTO
+        {
+            public string IdProducto { get; set; }
+            public double Cantidad { get; set; }
         }
 
         //Probar conexión
