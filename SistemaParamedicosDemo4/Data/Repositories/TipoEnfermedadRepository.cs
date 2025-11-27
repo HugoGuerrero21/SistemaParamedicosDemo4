@@ -142,7 +142,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                     {
                         // Existe pero el nombre cambió, actualizar
                         tipoExistente.NombreEnfermedad = tipoApi.NombreEnfermedad;
-                        tipoExistente.ID_USUARIO_ACC = tipoApi.ID_USUARIO_ACC;
+                        tipoExistente.IdUsuarioAcc = tipoApi.IdUsuarioAcc;
                         Connection.Update(tipoExistente);
                         System.Diagnostics.Debug.WriteLine($"✓ Tipo actualizado: {tipoApi.NombreEnfermedad}");
                     }

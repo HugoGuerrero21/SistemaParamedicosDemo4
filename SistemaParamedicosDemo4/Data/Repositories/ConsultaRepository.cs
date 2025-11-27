@@ -71,10 +71,10 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                     consulta.TipoEnfermedad = _tipoEnfermedadRepo.GetById(consulta.IdTipoEnfermedad);
 
                     // ⭐ CARGAR USUARIO
-                    if (!string.IsNullOrEmpty(consulta.IdUsuarioAcceso))
+                    if (!string.IsNullOrEmpty(consulta.IdUsuarioAcc))
                     {
                         var usuarios = _usuarioRepo.GetAllUsuarios();
-                        consulta.UsuariosAcceso = usuarios.FirstOrDefault(u => u.IdUsuario == consulta.IdUsuarioAcceso);
+                        consulta.UsuariosAcceso = usuarios.FirstOrDefault(u => u.IdUsuario == consulta.IdUsuarioAcc);
                     }
                 }
 
@@ -272,10 +272,10 @@ namespace SistemaParamedicosDemo4.Data.Repositories
 					consulta.Empleado = _empleadoRepo.GetById(consulta.IdEmpleado);
 					consulta.TipoEnfermedad = _tipoEnfermedadRepo.GetById(consulta.IdTipoEnfermedad);
                     // ⭐ CARGAR USUARIO
-                    if (!string.IsNullOrEmpty(consulta.IdUsuarioAcceso))
+                    if (!string.IsNullOrEmpty(consulta.IdUsuarioAcc))
                     {
                         var usuarios = _usuarioRepo.GetAllUsuarios();
-                        consulta.UsuariosAcceso = usuarios.FirstOrDefault(u => u.IdUsuario == consulta.IdUsuarioAcceso);
+                        consulta.UsuariosAcceso = usuarios.FirstOrDefault(u => u.IdUsuario == consulta.IdUsuarioAcc);
                     }
                 }
 

@@ -14,9 +14,8 @@ namespace SistemaParamedicos.API.Data
         public DbSet<UsuarioAccesoModel> Usuarios { get; set; }
         public DbSet<EmpleadoModel> Empleados { get; set; }
         public DbSet<PuestoModel> Puestos { get; set; }
-
         public DbSet<TipoEnfermedadModel> TiposEnfermedad { get; set; }
-
+        public DbSet<ConsultaModel> Consultas { get; set; }
 
 
         // Nuevas tablas de inventario
@@ -24,9 +23,8 @@ namespace SistemaParamedicos.API.Data
         public DbSet<TipoMovimientoModel> TiposMovimiento { get; set; }
         public DbSet<MovimientoModel> Movimientos { get; set; }
         public DbSet<MovimientoDetalleModel> MovimientosDetalle { get; set; }
-
-        // Vista de existencias
         public DbSet<ExistenciaParamedicoViewModel> ExistenciasParamedicos { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -134,6 +132,42 @@ namespace SistemaParamedicos.API.Data
     .ToTable("CASE_TIPOENFERMEDAD");
             modelBuilder.Entity<TipoEnfermedadModel>()
                 .HasKey(t => t.IdTipoEnfermedad);
+
+            // ⭐ AGREGAR ESTA CONFIGURACIÓN en OnModelCreating
+
+            // Configuración de Consultas
+            modelBuilder.Entity<ConsultaModel>()
+                .ToTable("MOSE_CONSULTAS");
+
+            modelBuilder.Entity<ConsultaModel>()
+                .HasKey(c => c.IdConsulta);
+
+            // Relaciones
+            modelBuilder.Entity<ConsultaModel>()
+                .HasOne(c => c.Empleado)
+                .WithMany()
+                .HasForeignKey(c => c.IdEmpleado)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ConsultaModel>()
+                .HasOne(c => c.TipoEnfermedad)
+                .WithMany()
+                .HasForeignKey(c => c.IdTipoEnfermedad)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ConsultaModel>()
+                .HasOne(c => c.Usuario)
+                .WithMany()
+                .HasForeignKey(c => c.IdUsuarioAcc)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ⭐ RELACIÓN OPCIONAL CON MOVIMIENTO
+            modelBuilder.Entity<ConsultaModel>()
+                .HasOne(c => c.Movimiento)
+                .WithMany()
+                .HasForeignKey(c => c.IdMovimiento)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false); // ← ESTO ES CLAVE
 
         }
     }

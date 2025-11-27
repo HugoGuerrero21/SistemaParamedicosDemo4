@@ -10,9 +10,7 @@ namespace SistemaParamedicosDemo4.DTOS
         public string IdUsuarioAcc { get; set; }
     }
 
-
     // DTO para crear un nuevo tipo de enfermedad
-
     public class CrearTipoEnfermedadDto
     {
         public string NombreEnfermedad { get; set; }
@@ -22,26 +20,29 @@ namespace SistemaParamedicosDemo4.DTOS
     // Extensiones para convertir entre DTOs y Models
     public static class TipoEnfermedadExtensions
     {
-
-        // Convierte un DTO de la API a un Model de SQLite
+        /// <summary>
+        /// Convierte un DTO de la API a un Model de SQLite
+        /// </summary>
         public static TipoEnfermedadModel ToModel(this TipoEnfermedadDto dto)
         {
             return new TipoEnfermedadModel
             {
                 IdTipoEnfermedad = dto.IdTipoEnfermedad,
                 NombreEnfermedad = dto.NombreEnfermedad,
-                ID_USUARIO_ACC = dto.IdUsuarioAcc
+                IdUsuarioAcc = dto.IdUsuarioAcc // ⭐ CORREGIDO: PascalCase
             };
         }
 
-        // Convierte un Model de SQLite a un DTO
+        /// <summary>
+        /// Convierte un Model de SQLite a un DTO
+        /// </summary>
         public static TipoEnfermedadDto ToDto(this TipoEnfermedadModel model)
         {
             return new TipoEnfermedadDto
             {
                 IdTipoEnfermedad = model.IdTipoEnfermedad,
                 NombreEnfermedad = model.NombreEnfermedad,
-                IdUsuarioAcc = model.ID_USUARIO_ACC
+                IdUsuarioAcc = model.IdUsuarioAcc // ⭐ CORREGIDO: PascalCase
             };
         }
     }
