@@ -11,33 +11,51 @@ namespace SistemaParamedicosDemo4.Data
         public SQLiteConnection Connection { get; private set; }
         public string StatusMessage { get; set; }
 
-
         private DatabaseManager()
         {
             try
             {
                 Connection = new SQLiteConnection(Constants.DataBasePath, Constants.Flags);
 
-                // Crear todas las tablas necesarias
-                Connection.CreateTable<UsuariosAccesoModel>();  // ⭐ AGREGAR ESTA LÍNEA
-                Connection.CreateTable<EmpleadoModel>();
-                Connection.CreateTable<ProductoModel>();
-                Connection.CreateTable<TipoEnfermedadModel>();
-                Connection.CreateTable<ConsultaModel>();
-                Connection.CreateTable<PuestoModel>();
+                System.Diagnostics.Debug.WriteLine("📦 Inicializando base de datos...");
 
-                // IMPORTANTE: Solo eliminar si es necesario (desarrollo)
-                // Comentar esta línea en producción
-                //Connection.DropTable<MovimientoDetalleModel>();
+                // ⭐ TABLAS DE CATÁLOGOS (primero porque son referencias)
+                Connection.CreateTable<AlmacenModel>();
+                Connection.CreateTable<PuestoModel>();
+                Connection.CreateTable<TipoEnfermedadModel>();
+                Connection.CreateTable<ProductoModel>();
+                System.Diagnostics.Debug.WriteLine("✓ Tablas de catálogos creadas");
+
+                // ⭐ TABLAS DE USUARIOS Y EMPLEADOS
+                Connection.CreateTable<UsuariosAccesoModel>();
+                Connection.CreateTable<EmpleadoModel>();
+                System.Diagnostics.Debug.WriteLine("✓ Tablas de usuarios y empleados creadas");
+
+                // ⭐ TABLAS DE MOVIMIENTOS
                 Connection.CreateTable<MovimientoDetalleModel>();
+                System.Diagnostics.Debug.WriteLine("✓ Tabla de movimientos creada");
+
+                // ⭐ TABLAS DE TRASPASOS
+                Connection.CreateTable<TraspasoModel>();
+                Connection.CreateTable<TraspasoDetalleModel>();
+                System.Diagnostics.Debug.WriteLine("✓ Tablas de traspasos creadas");
+
+                // ⭐ TABLA DE CONSULTAS (última porque depende de todo lo anterior)
+                Connection.CreateTable<ConsultaModel>();
+                System.Diagnostics.Debug.WriteLine("✓ Tabla de consultas creada");
 
                 StatusMessage = "Base de datos inicializada correctamente";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                System.Diagnostics.Debug.WriteLine($"✅ {StatusMessage}");
+
+                // Verificar tablas creadas
+                var tablas = Connection.TableMappings.Count();
+                System.Diagnostics.Debug.WriteLine($"📊 Total de tablas en BD: {tablas}");
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Error al inicializar base de datos: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
             }
         }
 
@@ -59,37 +77,88 @@ namespace SistemaParamedicosDemo4.Data
             }
         }
 
-        //public void ResetearTablaMovimientos()
-        //{
-        //    try
-        //    {
-        //        Connection.DropTable<MovimientoDetalleModel>();
-        //        Connection.CreateTable<MovimientoDetalleModel>();
-        //        StatusMessage = "Tabla de movimientos reseteada";
-        //        System.Diagnostics.Debug.WriteLine(StatusMessage);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        StatusMessage = $"Error al resetear tabla: {ex.Message}";
-        //        System.Diagnostics.Debug.WriteLine(StatusMessage);
-        //    }
-        //}
 
-        public static void EliminarBaseDeDatos()
+        //Reinicia completamente la base de datos
+        //⚠️ USAR SOLO EN DESARROLLO - ELIMINA TODOS LOS DATOS
+      
+        public void ReiniciarBaseDeDatos()
         {
             try
             {
-                if (File.Exists(Constants.DataBasePath))
-                {
-                    File.Delete(Constants.DataBasePath);
-                    System.Diagnostics.Debug.WriteLine("✅ Base de datos eliminada");
-                }
+                System.Diagnostics.Debug.WriteLine("⚠️ Reiniciando base de datos...");
 
-                _instance = null; // Resetear la instancia
+                // Eliminar todas las tablas en orden inverso (para evitar problemas de FK)
+                Connection.DropTable<ConsultaModel>();
+                Connection.DropTable<TraspasoDetalleModel>();
+                Connection.DropTable<TraspasoModel>();
+                Connection.DropTable<MovimientoDetalleModel>();
+                Connection.DropTable<EmpleadoModel>();
+                Connection.DropTable<UsuariosAccesoModel>();
+                Connection.DropTable<ProductoModel>();
+                Connection.DropTable<TipoEnfermedadModel>();
+                Connection.DropTable<PuestoModel>();
+                Connection.DropTable<AlmacenModel>();
+
+                System.Diagnostics.Debug.WriteLine("✓ Todas las tablas eliminadas");
+
+                // Recrear todas las tablas
+                Connection.CreateTable<AlmacenModel>();
+                Connection.CreateTable<PuestoModel>();
+                Connection.CreateTable<TipoEnfermedadModel>();
+                Connection.CreateTable<ProductoModel>();
+                Connection.CreateTable<UsuariosAccesoModel>();
+                Connection.CreateTable<EmpleadoModel>();
+                Connection.CreateTable<MovimientoDetalleModel>();
+                Connection.CreateTable<TraspasoModel>();
+                Connection.CreateTable<TraspasoDetalleModel>();
+                Connection.CreateTable<ConsultaModel>();
+
+                System.Diagnostics.Debug.WriteLine("✅ Base de datos reiniciada correctamente");
+                StatusMessage = "Base de datos reiniciada";
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Error al eliminar BD: {ex.Message}");
+                StatusMessage = $"Error al reiniciar BD: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
+            }
+        }
+
+        // Elimina solo las tablas de traspasos
+        // Útil si necesitas recrearlas sin afectar los demás datos
+        
+        public void ResetearTablasTraspaso()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("🔄 Reseteando tablas de traspaso...");
+
+                Connection.DropTable<TraspasoDetalleModel>();
+                Connection.DropTable<TraspasoModel>();
+
+                Connection.CreateTable<TraspasoModel>();
+                Connection.CreateTable<TraspasoDetalleModel>();
+
+                System.Diagnostics.Debug.WriteLine("✅ Tablas de traspaso reseteadas");
+                StatusMessage = "Tablas de traspaso reseteadas";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error al resetear tablas de traspaso: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
+            }
+        }
+
+        /// Cierra la conexión de la base de datos
+        public void Cerrar()
+        {
+            try
+            {
+                Connection?.Close();
+                System.Diagnostics.Debug.WriteLine("✓ Conexión a BD cerrada");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cerrar conexión: {ex.Message}");
             }
         }
     }

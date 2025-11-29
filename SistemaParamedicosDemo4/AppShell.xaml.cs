@@ -17,6 +17,7 @@ namespace SistemaParamedicosDemo4
 
             // ⭐ REGISTRAR LA NUEVA RUTA
             Routing.RegisterRoute("tiposEnfermedad", typeof(GestionTiposEnfermedadView));
+            Routing.RegisterRoute("traspaso", typeof(TraspasoView));
         }
 
         private async void OnCerrarSesionClicked(object sender, EventArgs e)

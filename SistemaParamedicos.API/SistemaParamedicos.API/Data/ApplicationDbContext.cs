@@ -16,6 +16,8 @@ namespace SistemaParamedicos.API.Data
         public DbSet<PuestoModel> Puestos { get; set; }
         public DbSet<TipoEnfermedadModel> TiposEnfermedad { get; set; }
         public DbSet<ConsultaModel> Consultas { get; set; }
+        public DbSet<MovimientoTraspaso> Traspasos { get; set; }
+        public DbSet<MovimientoTraspasoDetalle> TraspasosDetalle { get; set; }
 
 
         // Nuevas tablas de inventario
@@ -168,6 +170,56 @@ namespace SistemaParamedicos.API.Data
                 .HasForeignKey(c => c.IdMovimiento)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false); // ← ESTO ES CLAVE
+
+            // Configuración de Traspasos
+            modelBuilder.Entity<MovimientoTraspaso>()
+                .ToTable("MOAD_TRASPALMACEN");
+
+            modelBuilder.Entity<MovimientoTraspaso>()
+                .HasKey(t => t.IdTraspaso);
+
+            // Relación Traspaso -> Empleado
+            modelBuilder.Entity<MovimientoTraspaso>()
+                .HasOne(t => t.Empleado)
+                .WithMany()
+                .HasForeignKey(t => t.IdEmpleado)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación Traspaso -> Usuario Origen
+            modelBuilder.Entity<MovimientoTraspaso>()
+                .HasOne(t => t.UsuarioOrigen)
+                .WithMany()
+                .HasForeignKey(t => t.IdUsuarioo)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación Traspaso -> Usuario Destino
+            modelBuilder.Entity<MovimientoTraspaso>()
+                .HasOne(t => t.UsuarioDestino)
+                .WithMany()
+                .HasForeignKey(t => t.IdUsuarioD)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            // Configuración de Traspasos Detalle
+            modelBuilder.Entity<MovimientoTraspasoDetalle>()
+                .ToTable("MDAD_TRASPALMACEN");
+
+            modelBuilder.Entity<MovimientoTraspasoDetalle>()
+                .HasKey(td => td.IdTraspasoDetalle);
+
+            // Relación TraspasoDetalle -> Traspaso
+            modelBuilder.Entity<MovimientoTraspasoDetalle>()
+                .HasOne(td => td.Traspaso)
+                .WithMany(t => t.Detalles)
+                .HasForeignKey(td => td.IdTraspaso)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación TraspasoDetalle -> Producto
+            modelBuilder.Entity<MovimientoTraspasoDetalle>()
+                .HasOne(td => td.Producto)
+                .WithMany()
+                .HasForeignKey(td => td.IdProducto)
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
     }

@@ -289,11 +289,10 @@
                             </Border>
 
                             <!-- Info básica -->
-                            <StackLayout Grid.Column="1" Spacing="2" Margin="15,0,0,0">
+                            <StackLayout Grid.Column="1" Spacing="2" Margin="15,3,100,10">
                                 <Label Text="{Binding EmpleadoSeleccionado.Nombre}" 
                                        Style="{StaticResource SubHeaderStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.IdEmpleado}" 
-                                       Style="{StaticResource BodyStyle}"/>
+
                             </StackLayout>
 
                             <!-- Status -->
@@ -533,7 +532,7 @@
                             <Entry Text="{Binding MotivoConsulta}" Placeholder="Describe el motivo..." Style="{StaticResource EntryStyle}"/>
 
                             <Label Text="Diagnóstico:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding Diagnostico}" Placeholder="Diagnóstico médico..." Style="{StaticResource EntryStyle}"/>
+                            <Entry Text="{Binding Diagnostico}" Placeholder="Diagnóstico del paramédico..." Style="{StaticResource EntryStyle}"/>
 
                             <Label Text="Clasificación:" Style="{StaticResource FieldLabelStyle}"/>
                             <Picker ItemsSource="{Binding TiposEnfermedad}"

@@ -1,7 +1,7 @@
 ﻿using PropertyChanged;
 using SistemaParamedicosDemo4.Data.Repositories;
 using SistemaParamedicosDemo4.MVVM.Views;
-using SistemaParamedicosDemo4.Services; // ← AGREGAR
+using SistemaParamedicosDemo4.Services; 
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;

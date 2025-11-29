@@ -69,13 +69,20 @@
                       Route="inventario"/>
     </FlyoutItem>
 
-    <!-- ⭐ NUEVA OPCIÓN: Gestión de Tipos de Enfermedad -->
     <FlyoutItem Title="Configuración" 
                 Icon="icon_settings.png"
                 FlyoutDisplayOptions="AsMultipleItems">
         <ShellContent Title="Tipos de Enfermedad"
                       ContentTemplate="{DataTemplate views:GestionTiposEnfermedadView}"
                       Route="tiposEnfermedad"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Recibir traspaso" 
+                Icon="icon_settings.png"
+                FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent Title="Recibir traspaso"
+                      ContentTemplate="{DataTemplate views:TraspasoView}"
+                      Route="traspasos"/>
     </FlyoutItem>
 
     <!-- Footer del Flyout (Cerrar Sesión) -->
