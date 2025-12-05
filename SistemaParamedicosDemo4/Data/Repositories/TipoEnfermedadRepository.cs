@@ -48,7 +48,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             {
                 return Connection.Find<TipoEnfermedadModel>(id);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 StatusMessage = $"Error al obtener tipo de enfermedad: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
@@ -107,7 +107,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                     StatusMessage = ("Ya existen valores insertados");
                     return false;
                 }
-                Connection.InsertAll(tipos); 
+                Connection.InsertAll(tipos);
                 StatusMessage = $"{tipos.Count} tipos de enfermedades insertados";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
                 return true;

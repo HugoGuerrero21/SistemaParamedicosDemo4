@@ -1,7 +1,17 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SistemaParamedicos.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ⭐ CONFIGURAR URLs ANTES DE CONSTRUIR LA APP
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(7285, listenOptions =>
+    {
+        listenOptions.UseHttps();
+    });
+    serverOptions.ListenAnyIP(5269); // HTTP
+});
 
 // Configurar MySQL
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -18,7 +28,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configurar CORS (para que MAUI pueda acceder)
+// Configurar CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -39,10 +49,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll"); //Habilitar CORS
+app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
-
-app.Urls.Add("https://0.0.0.0:7285");
+app.Run(); // ← ESTO DEBE SER LO ÚLTIMO

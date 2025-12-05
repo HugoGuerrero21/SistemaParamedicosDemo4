@@ -7,21 +7,19 @@
              Title="Lista de Empleados"
              BackgroundColor="#F5F7FA">
 
-    <!-- ⭐ BEHAVIOR PARA MANEJAR OnAppearing -->
     <ContentPage.Behaviors>
         <behaviors:PageAppearingBehavior Command="{Binding AppearingCommand}"/>
     </ContentPage.Behaviors>
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Colores -->
             <Color x:Key="PrimaryColor">#2E86AB</Color>
             <Color x:Key="DarkGray">#343A40</Color>
             <Color x:Key="MediumGray">#6C757D</Color>
             <Color x:Key="LightGray">#F8F9FA</Color>
             <Color x:Key="BorderColor">#DEE2E6</Color>
+            <Color x:Key="SuccessColor">#28A745</Color>
 
-            <!-- Estilos -->
             <Style x:Key="HeaderStyle" TargetType="Label">
                 <Setter Property="FontSize" Value="24"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
@@ -56,6 +54,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -67,8 +66,43 @@
                    FontSize="14"/>
         </StackLayout>
 
+        <!-- ⭐ INDICADOR DE SINCRONIZACIÓN -->
+        <Border Grid.Row="1"
+                BackgroundColor="#E3F2FD"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 8"
+                Padding="12,8"
+                Margin="0,0,0,10"
+                IsVisible="{Binding IsBusy}">
+            <HorizontalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   Color="{StaticResource PrimaryColor}"
+                                   WidthRequest="20"
+                                   HeightRequest="20"/>
+                <Label Text="{Binding MensajeEstado}"
+                       FontSize="13"
+                       TextColor="{StaticResource PrimaryColor}"
+                       VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Mensaje de estado (cuando no está cargando) -->
+        <Label Grid.Row="1"
+               Text="{Binding MensajeEstado}"
+               FontSize="12"
+               TextColor="{StaticResource SuccessColor}"
+               HorizontalOptions="Center"
+               Margin="0,0,0,10"
+               IsVisible="{Binding MensajeEstado}">
+            <Label.Triggers>
+                <DataTrigger TargetType="Label" Binding="{Binding IsBusy}" Value="True">
+                    <Setter Property="IsVisible" Value="False"/>
+                </DataTrigger>
+            </Label.Triggers>
+        </Label>
+
         <!-- Barra de búsqueda -->
-        <SearchBar Grid.Row="1"
+        <SearchBar Grid.Row="2"
                    Placeholder="Buscar por nombre, ID o puesto..."
                    Text="{Binding TextoBusqueda}"
                    SearchCommand="{Binding BuscarCommand}"
@@ -76,7 +110,7 @@
                    Margin="0,0,0,10"/>
 
         <!-- Filtros rápidos -->
-        <HorizontalStackLayout Grid.Row="2" Spacing="10" Margin="0,0,0,15">
+        <HorizontalStackLayout Grid.Row="3" Spacing="10" Margin="0,0,0,15">
             <Button Text="Todos"
                     Command="{Binding MostrarTodosCommand}"
                     BackgroundColor="{StaticResource PrimaryColor}"
@@ -105,7 +139,7 @@
         </HorizontalStackLayout>
 
         <!-- Lista de empleados -->
-        <CollectionView Grid.Row="3"
+        <CollectionView Grid.Row="4"
                         ItemsSource="{Binding EmpleadosFiltrados}"
                         SelectionMode="None">
 
@@ -184,13 +218,5 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
-        <!-- Indicador de carga -->
-        <ActivityIndicator Grid.Row="3"
-                           IsRunning="{Binding IsBusy}"
-                           IsVisible="{Binding IsBusy}"
-                           Color="{StaticResource PrimaryColor}"
-                           VerticalOptions="Center"
-                           HorizontalOptions="Center"/>
     </Grid>
 </ContentPage>

@@ -1,4 +1,5 @@
 ﻿using SistemaParamedicosDemo4.DTOS;
+using SistemaParamedicosDemo4.Services;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -11,21 +12,12 @@ namespace SistemaParamedicosDemo4.Service
         private readonly string _baseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
 
+
         public ConsultaApiService()
         {
-            // ⭐⭐⭐ CAMBIO CRÍTICO: Usar HTTPS y puerto 7285 (igual que TipoEnfermedadApiService)
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
-
-            _httpClient = new HttpClient(handler)
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
-
-            // ⭐ USAR LA MISMA URL QUE TipoEnfermedadApiService
-            _baseUrl = "https://localhost:7285/api"; // Era http://localhost:5269/api ❌
+            // ⭐ USAR ApiConfiguration
+            _httpClient = ApiConfiguration.CreateHttpClient();
+            _baseUrl = ApiConfiguration.BaseUrl;
 
             _jsonOptions = new JsonSerializerOptions
             {

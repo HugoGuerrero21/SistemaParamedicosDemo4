@@ -80,7 +80,7 @@ namespace SistemaParamedicosDemo4.Data
 
         //Reinicia completamente la base de datos
         //⚠️ USAR SOLO EN DESARROLLO - ELIMINA TODOS LOS DATOS
-      
+
         public void ReiniciarBaseDeDatos()
         {
             try
@@ -125,7 +125,7 @@ namespace SistemaParamedicosDemo4.Data
 
         // Elimina solo las tablas de traspasos
         // Útil si necesitas recrearlas sin afectar los demás datos
-        
+
         public void ResetearTablasTraspaso()
         {
             try

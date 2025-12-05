@@ -252,25 +252,25 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             }
         }
 
-		// Agregar estos métodos a tu ConsultaRepository existente:
+        // Agregar estos métodos a tu ConsultaRepository existente:
 
-		/// <summary>
-		/// Obtiene todas las consultas de un empleado con sus relaciones cargadas
-		/// </summary>
-		public List<ConsultaModel> GetConsultasCompletasPorEmpleado(string idEmpleado)
-		{
-			try
-			{
-				var consultas = Connection.Table<ConsultaModel>()
-					.Where(c => c.IdEmpleado == idEmpleado)
-					.OrderByDescending(c => c.FechaConsulta)
-					.ToList();
+        /// <summary>
+        /// Obtiene todas las consultas de un empleado con sus relaciones cargadas
+        /// </summary>
+        public List<ConsultaModel> GetConsultasCompletasPorEmpleado(string idEmpleado)
+        {
+            try
+            {
+                var consultas = Connection.Table<ConsultaModel>()
+                    .Where(c => c.IdEmpleado == idEmpleado)
+                    .OrderByDescending(c => c.FechaConsulta)
+                    .ToList();
 
-				// Cargar las relaciones para cada consulta
-				foreach (var consulta in consultas)
-				{
-					consulta.Empleado = _empleadoRepo.GetById(consulta.IdEmpleado);
-					consulta.TipoEnfermedad = _tipoEnfermedadRepo.GetById(consulta.IdTipoEnfermedad);
+                // Cargar las relaciones para cada consulta
+                foreach (var consulta in consultas)
+                {
+                    consulta.Empleado = _empleadoRepo.GetById(consulta.IdEmpleado);
+                    consulta.TipoEnfermedad = _tipoEnfermedadRepo.GetById(consulta.IdTipoEnfermedad);
                     // ⭐ CARGAR USUARIO
                     if (!string.IsNullOrEmpty(consulta.IdUsuarioAcc))
                     {
@@ -279,67 +279,67 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                     }
                 }
 
-				StatusMessage = $"{consultas.Count} consultas encontradas";
-				return consultas;
-			}
-			catch (Exception ex)
-			{
-				StatusMessage = $"Error al obtener consultas: {ex.Message}";
-				System.Diagnostics.Debug.WriteLine(StatusMessage);
-				return new List<ConsultaModel>();
-			}
-		}
+                StatusMessage = $"{consultas.Count} consultas encontradas";
+                return consultas;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error al obtener consultas: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                return new List<ConsultaModel>();
+            }
+        }
 
-		/// <summary>
-		/// Obtiene una consulta completa con todos sus detalles y medicamentos
-		/// </summary>
-		public ConsultaDetalleCompleto GetConsultaCompleta(int idConsulta)
-		{
-			try
-			{
-				var consulta = GetConsultaById(idConsulta, cargarRelaciones: true);
-				if (consulta == null)
-				{
-					StatusMessage = "Consulta no encontrada";
-					return null;
-				}
+        /// <summary>
+        /// Obtiene una consulta completa con todos sus detalles y medicamentos
+        /// </summary>
+        public ConsultaDetalleCompleto GetConsultaCompleta(int idConsulta)
+        {
+            try
+            {
+                var consulta = GetConsultaById(idConsulta, cargarRelaciones: true);
+                if (consulta == null)
+                {
+                    StatusMessage = "Consulta no encontrada";
+                    return null;
+                }
 
-				var detalleCompleto = new ConsultaDetalleCompleto
-				{
-					Consulta = consulta,
-					Medicamentos = new List<MovimientoDetalleModel>()
-				};
+                var detalleCompleto = new ConsultaDetalleCompleto
+                {
+                    Consulta = consulta,
+                    Medicamentos = new List<MovimientoDetalleModel>()
+                };
 
-				// Si la consulta tiene movimiento, cargar los medicamentos
-				if (!string.IsNullOrEmpty(consulta.IdMovimiento))
-				{
-					var detalles = _movimientoDetalleRepo.GetDetallesByMovimiento(consulta.IdMovimiento);
+                // Si la consulta tiene movimiento, cargar los medicamentos
+                if (!string.IsNullOrEmpty(consulta.IdMovimiento))
+                {
+                    var detalles = _movimientoDetalleRepo.GetDetallesByMovimiento(consulta.IdMovimiento);
 
-					// Cargar la información del producto para cada detalle
-					foreach (var detalle in detalles)
-					{
-						detalle.Producto = _productoRepo.GetProductosById(detalle.ClaveProducto);
-					}
+                    // Cargar la información del producto para cada detalle
+                    foreach (var detalle in detalles)
+                    {
+                        detalle.Producto = _productoRepo.GetProductosById(detalle.ClaveProducto);
+                    }
 
-					detalleCompleto.Medicamentos = detalles;
-				}
+                    detalleCompleto.Medicamentos = detalles;
+                }
 
-				StatusMessage = "Consulta completa obtenida";
-				return detalleCompleto;
-			}
-			catch (Exception ex)
-			{
-				StatusMessage = $"Error al obtener consulta completa: {ex.Message}";
-				System.Diagnostics.Debug.WriteLine(StatusMessage);
-				return null;
-			}
-		}
+                StatusMessage = "Consulta completa obtenida";
+                return detalleCompleto;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error al obtener consulta completa: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                return null;
+            }
+        }
 
-		// Clase auxiliar para devolver consulta con sus medicamentos
-		public class ConsultaDetalleCompleto
-		{
-			public ConsultaModel Consulta { get; set; }
-			public List<MovimientoDetalleModel> Medicamentos { get; set; }
-		}
-	}
+        // Clase auxiliar para devolver consulta con sus medicamentos
+        public class ConsultaDetalleCompleto
+        {
+            public ConsultaModel Consulta { get; set; }
+            public List<MovimientoDetalleModel> Medicamentos { get; set; }
+        }
+    }
 }

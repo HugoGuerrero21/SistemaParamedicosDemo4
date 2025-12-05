@@ -214,7 +214,7 @@
                                     CornerRadius="6"
                                     Padding="15,0"
                                     Margin="10,0,0,0"
-                                    IsVisible="{Binding TextoBusqueda, Converter={StaticResource StringToBoolConverter}}"/>
+                                    IsVisible="{Binding TextoBusqueda}"/>
                         </Grid>
 
                         <!-- Filtros -->
@@ -341,10 +341,10 @@
                                HorizontalOptions="Center"
                                VerticalOptions="Center"
                                Opacity="0.3"
-                               IsVisible="{Binding TieneFoto, Converter={StaticResource InverseBoolConverter}}"/>
+                               IsVisible="{Binding TieneFoto}"/>
 
                                                     <!-- Imagen del producto -->
-                                                    <Image Source="{Binding FotoUrl, Converter={StaticResource ImageSourceConverter}}"
+                                                    <Image Source="{Binding FotoUrl}"
                                Aspect="AspectFill"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"

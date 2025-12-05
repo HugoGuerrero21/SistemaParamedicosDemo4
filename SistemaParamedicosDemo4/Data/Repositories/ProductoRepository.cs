@@ -26,7 +26,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             catch (Exception ex)
             {
                 StatusMessage = $"Error al inicializar la tabla{ex.Message}";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);  
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
             }
         }
 
@@ -36,7 +36,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             {
                 return Connection.Table<ProductoModel>().ToList();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 StatusMessage = "Imposible extraer todos los productos";
                 return new List<ProductoModel>();
@@ -47,7 +47,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
         {
             try
             {
-               
+
                 return Connection.Table<ProductoModel>().Where(stock => stock.CantidadDisponible > 0).ToList();
             }
 
@@ -98,7 +98,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
 
                 int result = Connection.Insert(producto);
 
-                if (result > 0) 
+                if (result > 0)
                 {
                     StatusMessage = $"Producto insertado correctamente (ID: {producto.ProductoId})";
 
@@ -107,14 +107,14 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 else
                 {
                     StatusMessage = "Error no se pudo ingresar el producto";
-                    System.Diagnostics.Debug.WriteLine (StatusMessage);
+                    System.Diagnostics.Debug.WriteLine(StatusMessage);
                     return null;
                 }
             }
             catch (Exception ex)
             {
                 StatusMessage = $"No se pudo ingresar el producto{ex.Message}";
-                System.Diagnostics.Debug.WriteLine (StatusMessage); 
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
                 return null;
             }
         }

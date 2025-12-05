@@ -78,7 +78,7 @@ namespace SistemaParamedicos.API.DTOs
     {
         public bool Exito { get; set; }
         public string Mensaje { get; set; }
-        public string? IdMovimiento { get; set; }
+        public string? IdMovimiento { get; set; }   
         public Dictionary<string, string>? DetallesEntrada { get; set; }
     }
 

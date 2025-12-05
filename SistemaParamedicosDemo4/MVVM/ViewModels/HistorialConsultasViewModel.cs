@@ -23,27 +23,27 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
         #region Properties
         private EmpleadoModel _empleado;
-public EmpleadoModel Empleado
-{
-    get => _empleado;
-    set
-    {
-        _empleado = value;
-        OnPropertyChanged();
-        if (value != null)
+        public EmpleadoModel Empleado
         {
-            System.Diagnostics.Debug.WriteLine($"🔍 Empleado recibido: {value.IdEmpleado} - {value.Nombre}");
-            CalcularEdadEmpleado();
-            
-            // ⭐ PRIMERO SINCRONIZAR, LUEGO CARGAR
-            Task.Run(async () =>
+            get => _empleado;
+            set
             {
-                await SincronizarConsultasAsync();
-                await MainThread.InvokeOnMainThreadAsync(() => CargarConsultas());
-            });
+                _empleado = value;
+                OnPropertyChanged();
+                if (value != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"🔍 Empleado recibido: {value.IdEmpleado} - {value.Nombre}");
+                    CalcularEdadEmpleado();
+
+                    // ⭐ PRIMERO SINCRONIZAR, LUEGO CARGAR
+                    Task.Run(async () =>
+                    {
+                        await SincronizarConsultasAsync();
+                        await MainThread.InvokeOnMainThreadAsync(() => CargarConsultas());
+                    });
+                }
+            }
         }
-    }
-}
 
         public ObservableCollection<ConsultaModelExtendido> Consultas { get; set; }
         public int TotalConsultas { get; set; }

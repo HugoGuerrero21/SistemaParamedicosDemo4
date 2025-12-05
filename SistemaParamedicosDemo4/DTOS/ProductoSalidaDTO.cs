@@ -8,7 +8,7 @@ namespace SistemaParamedicosDemo4.DTOS
 {
     public class ProductoSalidaDTO
     {
-        public string IdProducto {  get; set; }
+        public string IdProducto { get; set; }
         public string Cantidad { get; set; }
     }
 }

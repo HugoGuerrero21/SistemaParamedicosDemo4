@@ -90,11 +90,11 @@
 
                 <!-- Selector de Vista (Tabs) -->
                 <Border BackgroundColor="White"
-        StrokeThickness="1"
-        Stroke="#DEE2E6"
-        StrokeShape="RoundRectangle 10"
-        Padding="5"
-        Margin="0,0,0,15">
+                        StrokeThickness="1"
+                        Stroke="#DEE2E6"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="5"
+                        Margin="0,0,0,15">
                     <Grid ColumnSpacing="5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -126,7 +126,7 @@
                 </Border>
 
                 <!-- Tarjetas de Estadísticas -->
-                <Grid ColumnSpacing="10" Margin="0,0,0,20">
+                <Grid ColumnSpacing="10" Margin="0,0,0,20" IsVisible="{Binding MostrandoPendientes}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -150,7 +150,7 @@
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource PrimaryColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Traspasos"
+                            <Label Text="Traspasos pendientes"
                                    FontSize="13"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
@@ -173,7 +173,7 @@
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource PrimaryColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Productos"
+                            <Label Text="Productos totales"
                                    FontSize="13"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
@@ -196,7 +196,7 @@
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource SuccessColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Recibidos"
+                            <Label Text="Productos Recibidos"
                                    FontSize="13"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
@@ -219,7 +219,7 @@
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource WarningColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Pendientes"
+                            <Label Text="Productos Pendientes"
                                    FontSize="13"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
@@ -233,7 +233,7 @@
                        FontSize="12"
                        HorizontalOptions="Center"
                        Margin="0,0,0,10"
-                       IsVisible="{Binding MensajeEstado, Converter={StaticResource StringToBoolConverter}}"/>
+                       IsVisible="{Binding MensajeEstado}"/>
 
                 <!-- Indicador de Carga -->
                 <ActivityIndicator IsRunning="{Binding IsCargando}"
@@ -592,15 +592,12 @@
                                                 </CollectionView>
                                             </Grid>
                                         </Border>
-
                                     </StackLayout>
-
                                 </StackLayout>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
             </StackLayout>
         </ScrollView>
     </Grid>

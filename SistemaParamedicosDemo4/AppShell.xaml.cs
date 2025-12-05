@@ -14,10 +14,9 @@ namespace SistemaParamedicosDemo4
             Routing.RegisterRoute("historial", typeof(HistorialConsultasView));
             Routing.RegisterRoute("detalleConsulta", typeof(DetalleConsultaView));
             Routing.RegisterRoute("inventario", typeof(InventarioView));
-
-            // ⭐ REGISTRAR LA NUEVA RUTA
             Routing.RegisterRoute("tiposEnfermedad", typeof(GestionTiposEnfermedadView));
             Routing.RegisterRoute("traspaso", typeof(TraspasoView));
+            Routing.RegisterRoute("historicoMovimiento", typeof(HistorialConsultasView));
         }
 
         private async void OnCerrarSesionClicked(object sender, EventArgs e)

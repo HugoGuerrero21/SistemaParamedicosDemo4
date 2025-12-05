@@ -85,6 +85,8 @@
                       Route="traspasos"/>
     </FlyoutItem>
 
+
+
     <!-- Footer del Flyout (Cerrar Sesión) -->
     <Shell.FlyoutFooter>
         <Grid BackgroundColor="#1A5F7A" Padding="20" HeightRequest="80">

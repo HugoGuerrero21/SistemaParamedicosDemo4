@@ -1,32 +1,22 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using SistemaParamedicosDemo4.DTOS;
+using SistemaParamedicosDemo4.Services;
 
 namespace SistemaParamedicosDemo4.Service
 {
     public class TipoEnfermedadApiService
     {
         private readonly HttpClient _httpClient;
-
-        // ⭐ USAR LOCALHOST SI ESTÁS EN WINDOWS
-        private const string BASE_URL = "https://localhost:7285/api";
-
-        // ⭐ USA ESTA SI ESTÁS EN EMULADOR ANDROID
-        // private const string BASE_URL = "https://10.0.2.2:7285/api";
+        private readonly string _baseUrl;
 
         public TipoEnfermedadApiService()
         {
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
+            // ⭐ USAR ApiConfiguration
+            _httpClient = ApiConfiguration.CreateHttpClient();
+            _baseUrl = ApiConfiguration.BaseUrl;
 
-            _httpClient = new HttpClient(handler)
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
-
-            System.Diagnostics.Debug.WriteLine($"✓ TipoEnfermedadApiService inicializado con URL: {BASE_URL}");
+            System.Diagnostics.Debug.WriteLine($"✓ TipoEnfermedadApiService inicializado con URL: {_baseUrl}");
         }
 
         /// <summary>
@@ -36,7 +26,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var url = $"{BASE_URL}/TipoEnfermedad";
+                var url = $"{_baseUrl}/TipoEnfermedad";
                 System.Diagnostics.Debug.WriteLine($"📡 Llamando a URL: {url}");
 
                 var response = await _httpClient.GetAsync(url);
@@ -84,7 +74,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var url = $"{BASE_URL}/TipoEnfermedad";
+                var url = $"{_baseUrl}/TipoEnfermedad";
                 System.Diagnostics.Debug.WriteLine($"📡 POST: {url}");
                 System.Diagnostics.Debug.WriteLine($"📤 Datos: {JsonSerializer.Serialize(dto)}");
 
@@ -134,7 +124,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var url = $"{BASE_URL}/TipoEnfermedad/verificar/{Uri.EscapeDataString(nombre)}";
+                var url = $"{_baseUrl}/TipoEnfermedad/verificar/{Uri.EscapeDataString(nombre)}";
                 System.Diagnostics.Debug.WriteLine($"📡 Verificando nombre: {url}");
 
                 var response = await _httpClient.GetAsync(url);
@@ -164,7 +154,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var url = $"{BASE_URL}/TipoEnfermedad/test";
+                var url = $"{_baseUrl}/TipoEnfermedad/test";
                 System.Diagnostics.Debug.WriteLine($"📡 Probando conexión: {url}");
 
                 var response = await _httpClient.GetAsync(url);

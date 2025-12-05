@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using SistemaParamedicosDemo4.Services;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -18,17 +19,9 @@ namespace SistemaParamedicosDemo4.Service
 
         public TraspasoApiService()
         {
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
-
-            _httpClient = new HttpClient(handler)
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
-
-            _baseUrl = "https://localhost:7285/api";
+            // ⭐ USAR ApiConfiguration
+            _httpClient = ApiConfiguration.CreateHttpClient();
+            _baseUrl = ApiConfiguration.BaseUrl;
 
             _jsonOptions = new JsonSerializerOptions
             {

@@ -90,11 +90,11 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 CargarTraspasosCommand = new Command(async () => await CargarTraspasosAsync());
                 RefrescarCommand = new Command(async () => await RefrescarTraspasosAsync());
                 ToggleDetalleCommand = new Command<TraspasoPendienteDto>(ToggleDetalle);
-                CompletarDetalleCommand = new Command<TraspasoDetalleDto>(async (detalle) => await CompletarDetalleAsync(detalle),(detalle) => CanCompletarDetalle(detalle));
-                CompletarTodoCommand = new Command<TraspasoPendienteDto>(async (traspaso) => await CompletarTodoTraspasoAsync(traspaso),(traspaso) => CanCompletarTodo(traspaso));
+                CompletarDetalleCommand = new Command<TraspasoDetalleDto>(async (detalle) => await CompletarDetalleAsync(detalle), (detalle) => CanCompletarDetalle(detalle));
+                CompletarTodoCommand = new Command<TraspasoPendienteDto>(async (traspaso) => await CompletarTodoTraspasoAsync(traspaso), (traspaso) => CanCompletarTodo(traspaso));
                 AutocompletarCantidadesCommand = new Command<TraspasoPendienteDto>(AutocompletarCantidades);
-                ConfirmarRecepcionCommand = new Command<TraspasoDetalleDto>(async (detalle) => await ConfirmarRecepcionAsync(detalle),(detalle) => detalle?.Completada == 0);
-                RechazarRecepcionCommand = new Command<TraspasoDetalleDto>(async (detalle) => await RechazarRecepcionAsync(detalle),(detalle) => detalle?.Completada == 0);
+                ConfirmarRecepcionCommand = new Command<TraspasoDetalleDto>(async (detalle) => await ConfirmarRecepcionAsync(detalle), (detalle) => detalle?.Completada == 0);
+                RechazarRecepcionCommand = new Command<TraspasoDetalleDto>(async (detalle) => await RechazarRecepcionAsync(detalle), (detalle) => detalle?.Completada == 0);
                 CambiarVistaPendientesCommand = new Command(CambiarVistaPendientes);
                 CambiarVistaHistorialCommand = new Command(CambiarVistaHistorial);
 

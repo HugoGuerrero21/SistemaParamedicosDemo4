@@ -1,35 +1,28 @@
-﻿using System;
+﻿using SistemaParamedicosDemo4.DTOS;
+using SistemaParamedicosDemo4.Services;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
-using SistemaParamedicosDemo4.DTOS;
 
 namespace SistemaParamedicosDemo4.Service
 {
     public class EmpleadoApiService
     {
         private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
+        private readonly JsonSerializerOptions _jsonOptions;
 
-        // ⭐ USAR LOCALHOST SI ESTÁS EN WINDOWS
-        private const string BASE_URL = "https://localhost:7285/api";
-
-        // ⭐ USA ESTA SI ESTÁS EN EMULADOR ANDROID
-        // private const string BASE_URL = "https://10.0.2.2:7285/api";
+        public string StatusMessage { get; set; }
 
         public EmpleadoApiService()
         {
-            var handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-            };
+            _httpClient = ApiConfiguration.CreateHttpClient();
+            _baseUrl = ApiConfiguration.BaseUrl;
 
-            _httpClient = new HttpClient(handler)
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
-
-            System.Diagnostics.Debug.WriteLine($"✓ EmpleadoApiService inicializado con URL: {BASE_URL}");
+            System.Diagnostics.Debug.WriteLine($"✓ EmpleadoApiService inicializado con URL: {_baseUrl}");
         }
 
         /// <summary>
@@ -39,7 +32,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var url = $"{BASE_URL}/Empleados/activos";
+                var url = $"{_baseUrl}/Empleados/activos";
                 System.Diagnostics.Debug.WriteLine($"📡 Llamando a URL: {url}");
 
                 var response = await _httpClient.GetAsync(url);
@@ -86,7 +79,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{BASE_URL}/Puestos");
+                var response = await _httpClient.GetAsync($"{_baseUrl}/Puestos");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -110,7 +103,7 @@ namespace SistemaParamedicosDemo4.Service
             try
             {
                 // ⭐ CORREGIDO: Usar query parameter en lugar de ruta
-                var url = $"{BASE_URL}/Empleados/buscar?texto={Uri.EscapeDataString(textoBusqueda)}";
+                var url = $"{_baseUrl}/Empleados/buscar?texto={Uri.EscapeDataString(textoBusqueda)}";
                 System.Diagnostics.Debug.WriteLine($"📡 Buscando en: {url}");
 
                 var response = await _httpClient.GetAsync(url);
@@ -139,7 +132,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var url = $"{BASE_URL}/Empleados/{idEmpleado}";
+                var url = $"{_baseUrl}/Empleados/{idEmpleado}";
                 System.Diagnostics.Debug.WriteLine($"📡 Obteniendo empleado: {url}");
 
                 var response = await _httpClient.GetAsync(url);
@@ -168,7 +161,7 @@ namespace SistemaParamedicosDemo4.Service
         {
             try
             {
-                var url = $"{BASE_URL}/Empleados/test";
+                var url = $"{_baseUrl}/Empleados/test";
                 System.Diagnostics.Debug.WriteLine($"📡 Probando conexión: {url}");
 
                 var response = await _httpClient.GetAsync(url);

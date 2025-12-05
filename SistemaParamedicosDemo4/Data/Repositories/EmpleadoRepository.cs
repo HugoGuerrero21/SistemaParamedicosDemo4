@@ -13,7 +13,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
         private SQLiteConnection Connection;
         public string StatusMessage { get; set; }
 
-        public EmpleadoRepository() 
+        public EmpleadoRepository()
         {
             try
             {
@@ -21,9 +21,9 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 Connection = DatabaseManager.Instance.Connection;
                 StatusMessage = "Repositorio de movimientos inicializado";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
-            } 
-            
-            catch (Exception ex) 
+            }
+
+            catch (Exception ex)
             {
                 StatusMessage = $"Error al crear la tabla de empleados{ex.Message}";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);
@@ -103,7 +103,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             }
         }
 
-        public bool InsertarEmpleado(EmpleadoModel Empleado) 
+        public bool InsertarEmpleado(EmpleadoModel Empleado)
         {
             try
             {
@@ -119,7 +119,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                     return result > 0;
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 StatusMessage = $"Error al insertar empleado: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine(StatusMessage);

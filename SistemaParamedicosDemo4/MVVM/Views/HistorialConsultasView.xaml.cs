@@ -1,4 +1,4 @@
-using SistemaParamedicosDemo4.MVVM.ViewModels;
+﻿using SistemaParamedicosDemo4.MVVM.ViewModels;
 
 namespace SistemaParamedicosDemo4.MVVM.Views
 {
