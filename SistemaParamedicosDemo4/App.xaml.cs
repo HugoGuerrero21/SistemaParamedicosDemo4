@@ -15,9 +15,6 @@ namespace SistemaParamedicosDemo4
 
         public App()
         {
-
-
-
             // 1) Suscribir manejadores globales antes de inicializar demás componentes
             SubscribeGlobalExceptionHandlers();
 

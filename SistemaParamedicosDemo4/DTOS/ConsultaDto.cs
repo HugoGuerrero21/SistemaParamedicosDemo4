@@ -139,6 +139,21 @@ namespace SistemaParamedicosDemo4.DTOS
         [JsonPropertyName("nombreEmpleado")]
         public string NombreEmpleado { get; set; }
 
+        [JsonPropertyName("idUsuarioAcc")]
+        public string IdUsuarioAcc { get; set; }
+
+        [JsonPropertyName("nombreUsuario")]
+        public string NombreUsuario { get; set; }
+
+        [JsonPropertyName("idTipoEnfermedad")]
+        public int IdTipoEnfermedad { get; set; }
+
+        [JsonPropertyName("nombreTipoEnfermedad")]
+        public string NombreTipoEnfermedad { get; set; }
+
+        [JsonPropertyName("idMovimiento")]
+        public string IdMovimiento { get; set; }
+
         [JsonPropertyName("motivoConsulta")]
         public string MotivoConsulta { get; set; }
 
@@ -150,6 +165,28 @@ namespace SistemaParamedicosDemo4.DTOS
 
         [JsonPropertyName("fechaConsulta")]
         public DateTime FechaConsulta { get; set; }
+
+        [JsonPropertyName("frecuenciaRespiratoria")]
+        public byte? FrecuenciaRespiratoria { get; set; }
+
+        [JsonPropertyName("frecuenciaCardiaca")]
+        public short? FrecuenciaCardiaca { get; set; }
+
+        [JsonPropertyName("temperatura")]
+        public decimal? Temperatura { get; set; }
+
+        [JsonPropertyName("presionArterial")]
+        public string PresionArterial { get; set; }
+
+        [JsonPropertyName("observaciones")]
+        public string Observaciones { get; set; }
+
+        [JsonPropertyName("ultimaComida")]
+        public string UltimaComida { get; set; }
+
+        // ⭐ CAMBIAR A List<MedicamentoConsultaDto>
+        [JsonPropertyName("medicamentos")]
+        public List<MedicamentoConsultaDto> Medicamentos { get; set; }
     }
 
     // ============================================

@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:SistemaParamedicosDemo4.MVVM.ViewModels"
              xmlns:behaviors="clr-namespace:SistemaParamedicosDemo4.Behaviors"
+             xmlns:controls="clr-namespace:SistemaParamedicosDemo4.Controls"
              Title="Lista de Empleados"
              BackgroundColor="#F5F7FA">
 
@@ -26,13 +27,6 @@
                 <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
             </Style>
 
-            <Style x:Key="SearchBarStyle" TargetType="SearchBar">
-                <Setter Property="BackgroundColor" Value="White"/>
-                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
-                <Setter Property="PlaceholderColor" Value="{StaticResource MediumGray}"/>
-                <Setter Property="CancelButtonColor" Value="{StaticResource PrimaryColor}"/>
-            </Style>
-
             <Style x:Key="CardStyle" TargetType="Border">
                 <Setter Property="BackgroundColor" Value="White"/>
                 <Setter Property="StrokeThickness" Value="1"/>
@@ -45,6 +39,11 @@
                         <Shadow Brush="Gray" Opacity="0.1" Radius="8" Offset="0,2"/>
                     </Setter.Value>
                 </Setter>
+            </Style>
+
+            <Style x:Key="BodyStyle" TargetType="Label">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="TextColor" Value="{StaticResource MediumGray}"/>
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
@@ -66,7 +65,7 @@
                    FontSize="14"/>
         </StackLayout>
 
-        <!-- ⭐ INDICADOR DE SINCRONIZACIÓN -->
+        <!-- Indicador de Sincronización -->
         <Border Grid.Row="1"
                 BackgroundColor="#E3F2FD"
                 StrokeThickness="0"
@@ -86,27 +85,14 @@
             </HorizontalStackLayout>
         </Border>
 
-        <!-- Mensaje de estado (cuando no está cargando) -->
-        <Label Grid.Row="1"
-               Text="{Binding MensajeEstado}"
-               FontSize="12"
-               TextColor="{StaticResource SuccessColor}"
-               HorizontalOptions="Center"
-               Margin="0,0,0,10"
-               IsVisible="{Binding MensajeEstado}">
-            <Label.Triggers>
-                <DataTrigger TargetType="Label" Binding="{Binding IsBusy}" Value="True">
-                    <Setter Property="IsVisible" Value="False"/>
-                </DataTrigger>
-            </Label.Triggers>
-        </Label>
-
         <!-- Barra de búsqueda -->
         <SearchBar Grid.Row="2"
                    Placeholder="Buscar por nombre, ID o puesto..."
                    Text="{Binding TextoBusqueda}"
                    SearchCommand="{Binding BuscarCommand}"
-                   Style="{StaticResource SearchBarStyle}"
+                   BackgroundColor="White"
+                   TextColor="{StaticResource DarkGray}"
+                   PlaceholderColor="{StaticResource MediumGray}"
                    Margin="0,0,0,10"/>
 
         <!-- Filtros rápidos -->
@@ -172,20 +158,12 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Avatar -->
-                            <Border Grid.Column="0"
-                                    BackgroundColor="{StaticResource PrimaryColor}"
-                                    StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 25"
-                                    WidthRequest="50"
-                                    HeightRequest="50">
-                                <Label Text="{Binding Iniciales}"
-                                       TextColor="White"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center"/>
-                            </Border>
+                            <!-- ⭐ Avatar con Custom Control -->
+                            <controls:AvatarView Grid.Column="0"
+                                                FotoUrl="{Binding Foto}"
+                                                Iniciales="{Binding Iniciales}"
+                                                Tamaño="50"
+                                                ColorFondo="#2E86AB"/>
 
                             <!-- Información -->
                             <StackLayout Grid.Column="1" Spacing="4" Margin="15,0,0,0">
@@ -194,9 +172,9 @@
                                        FontAttributes="Bold"
                                        TextColor="{StaticResource DarkGray}"/>
                                 <HorizontalStackLayout Spacing="8">
-                                    <Label Text="{Binding NombrePuesto}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource MediumGray}"/>
+                                    <Label Text="{Binding NombrePuesto, StringFormat='Puesto: {0}'}" 
+                                           Style="{StaticResource BodyStyle}"
+                                           FontSize="12"/>
                                     <Label Text="•"
                                            FontSize="12"
                                            TextColor="{StaticResource MediumGray}"/>

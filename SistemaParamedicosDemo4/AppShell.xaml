@@ -56,7 +56,7 @@
     <FlyoutItem Title="Empleados" 
                 Icon="icon_empleados.png"
                 FlyoutDisplayOptions="AsMultipleItems">
-        <ShellContent Title="Lista de Empleados"
+        <ShellContent Title="Historial de consultas"
                       ContentTemplate="{DataTemplate views:EmpleadosListView}"
                       Route="empleados"/>
     </FlyoutItem>

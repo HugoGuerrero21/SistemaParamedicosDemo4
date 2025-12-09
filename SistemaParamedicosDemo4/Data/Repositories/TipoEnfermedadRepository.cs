@@ -127,16 +127,19 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             {
                 Connection.BeginTransaction();
 
+                int insertados = 0;
+                int actualizados = 0;
+
                 foreach (var tipoApi in tiposDesdeApi)
                 {
-                    // Verificar si el tipo ya existe en la BD local
                     var tipoExistente = Connection.Find<TipoEnfermedadModel>(tipoApi.IdTipoEnfermedad);
 
                     if (tipoExistente == null)
                     {
                         // No existe, insertar
                         Connection.Insert(tipoApi);
-                        System.Diagnostics.Debug.WriteLine($"✓ Tipo insertado: {tipoApi.NombreEnfermedad}");
+                        insertados++;
+                        System.Diagnostics.Debug.WriteLine($"✓ Tipo insertado: {tipoApi.IdTipoEnfermedad} - {tipoApi.NombreEnfermedad}");
                     }
                     else if (tipoExistente.NombreEnfermedad != tipoApi.NombreEnfermedad)
                     {
@@ -144,13 +147,14 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                         tipoExistente.NombreEnfermedad = tipoApi.NombreEnfermedad;
                         tipoExistente.IdUsuarioAcc = tipoApi.IdUsuarioAcc;
                         Connection.Update(tipoExistente);
-                        System.Diagnostics.Debug.WriteLine($"✓ Tipo actualizado: {tipoApi.NombreEnfermedad}");
+                        actualizados++;
+                        System.Diagnostics.Debug.WriteLine($"✓ Tipo actualizado: {tipoApi.IdTipoEnfermedad} - {tipoApi.NombreEnfermedad}");
                     }
                 }
 
                 Connection.Commit();
-                StatusMessage = "Tipos de enfermedad sincronizados correctamente";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                StatusMessage = $"Tipos sincronizados: {insertados} nuevos, {actualizados} actualizados";
+                System.Diagnostics.Debug.WriteLine($"✅ {StatusMessage}");
             }
             catch (Exception ex)
             {
@@ -161,7 +165,7 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 catch { }
 
                 StatusMessage = $"Error al sincronizar tipos: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
             }
         }
     }

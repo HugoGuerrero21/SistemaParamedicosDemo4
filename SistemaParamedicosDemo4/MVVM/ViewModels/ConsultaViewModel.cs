@@ -369,7 +369,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     .Where(e =>
                         e.Nombre.ToLower().Contains(busqueda) ||
                         e.IdEmpleado.ToLower().Contains(busqueda) ||
-                        (e.IdPuesto?.ToLower().Contains(busqueda) ?? false)
+                        (e.NombrePuesto?.ToLower().Contains(busqueda) ?? false)
                     )
                     .ToList();
 
@@ -404,6 +404,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             });
         }
 
+        // 1️⃣ CAMBIAR SeleccionarEmpleado para ESPERAR la carga
         private async void SeleccionarEmpleado(EmpleadoModel empleado)
         {
             if (empleado == null) return;
@@ -411,11 +412,139 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             EmpleadoSeleccionado = empleado;
             CalcularEdad();
 
+            // ⭐ PRIMERO CARGAR LAS CONSULTAS
+            System.Diagnostics.Debug.WriteLine($"🔍 Cargando historial de {empleado.IdEmpleado}...");
+            await CargarUltimasConsultasAsync(empleado.IdEmpleado);
+
+            // ⭐ LUEGO MOSTRAR EL FORMULARIO
             MostrarBusquedaEmpleado = false;
             MostrarFormularioConsulta = true;
 
-            // ⭐ CARGAR EN BACKGROUND SIN BLOQUEAR
-            await CargarUltimasConsultasAsync(empleado.IdEmpleado);
+            System.Diagnostics.Debug.WriteLine($"✅ Formulario mostrado con {UltimasConsultas.Count} consultas previas");
+        }
+
+        // 2️⃣ ASEGURAR QUE CargarUltimasConsultasAsync actualice la UI correctamente
+        private async Task CargarUltimasConsultasAsync(string idEmpleado)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"📋 Buscando consultas de {idEmpleado}...");
+
+                // ⭐ VERIFICAR CACHÉ
+                if (_cacheConsultas.TryGetValue(idEmpleado, out var consultasEnCache))
+                {
+                    System.Diagnostics.Debug.WriteLine($"✅ {consultasEnCache.Count} consultas encontradas en caché");
+
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        UltimasConsultas.Clear();
+                        foreach (var c in consultasEnCache)
+                            UltimasConsultas.Add(c);
+                        OnPropertyChanged(nameof(TieneConsultasPrevias));
+                        OnPropertyChanged(nameof(UltimasConsultas));
+                    });
+                    return;
+                }
+
+                // ⭐ CARGAR DESDE BD
+                var consultas = _consultaRepo.GetConsultasByEmpleado(idEmpleado)
+                    .OrderByDescending(c => c.FechaConsulta)
+                    .Take(5)
+                    .ToList();
+
+                System.Diagnostics.Debug.WriteLine($"📋 {consultas.Count} consultas encontradas en BD");
+
+                if (consultas.Count == 0)
+                {
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                    {
+                        UltimasConsultas.Clear();
+                        OnPropertyChanged(nameof(TieneConsultasPrevias));
+                    });
+                    System.Diagnostics.Debug.WriteLine("⚠️ No hay consultas previas");
+                    return;
+                }
+
+                // ⭐ CARGAR TIPOS DE ENFERMEDAD CON MANEJO DE IDs FALTANTES
+                var tiposEnfermedadMap = new Dictionary<int, string>();
+                var tiposUnicos = consultas.Select(c => c.IdTipoEnfermedad).Distinct().ToList();
+                var tiposDisponibles = _tipoEnfermedadRepo.GetAllTypes();
+
+                System.Diagnostics.Debug.WriteLine($"🔍 IDs de tipos en consultas: {string.Join(", ", tiposUnicos)}");
+                System.Diagnostics.Debug.WriteLine($"📦 Tipos disponibles en BD: {string.Join(", ", tiposDisponibles.Select(t => $"{t.IdTipoEnfermedad}={t.NombreEnfermedad}"))}");
+
+                foreach (var idTipo in tiposUnicos)
+                {
+                    var tipo = tiposDisponibles.FirstOrDefault(t => t.IdTipoEnfermedad == idTipo);
+
+                    if (tipo != null)
+                    {
+                        tiposEnfermedadMap[idTipo] = tipo.NombreEnfermedad;
+                        System.Diagnostics.Debug.WriteLine($"  ✅ Tipo {idTipo}: {tipo.NombreEnfermedad}");
+                    }
+                    else
+                    {
+                        // ⭐ INTENTAR CARGAR DESDE LA API SI NO EXISTE LOCALMENTE
+                        tiposEnfermedadMap[idTipo] = "⚠️ Tipo no encontrado";
+                        System.Diagnostics.Debug.WriteLine($"  ❌ Tipo {idTipo} NO EXISTE en BD local");
+
+                        // OPCIONAL: Intentar sincronizar desde API
+                        try
+                        {
+                            var tiposDto = await _tipoEnfermedadApiService.ObtenerTiposEnfermedadAsync();
+                            var tipoFaltante = tiposDto?.FirstOrDefault(t => t.IdTipoEnfermedad == idTipo);
+
+                            if (tipoFaltante != null)
+                            {
+                                var tipoModel = tipoFaltante.ToModel();
+                                _tipoEnfermedadRepo.InsertarTipo(tipoModel);
+                                tiposEnfermedadMap[idTipo] = tipoModel.NombreEnfermedad;
+                                System.Diagnostics.Debug.WriteLine($"  ✅ Tipo {idTipo} descargado y guardado: {tipoModel.NombreEnfermedad}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"  ⚠️ No se pudo sincronizar tipo {idTipo}: {ex.Message}");
+                        }
+                    }
+                }
+
+                // ⭐ CREAR RESÚMENES
+                var resumenes = consultas
+                    .Select(c => new ConsultaResumenModel
+                    {
+                        FechaConsulta = c.FechaConsulta,
+                        MotivoConsulta = c.MotivoConsulta,
+                        Diagnostico = c.Diagnostico,
+                        TipoEnfermedad = tiposEnfermedadMap.TryGetValue(c.IdTipoEnfermedad, out var nombreTipo)
+                            ? nombreTipo
+                            : $"ID {c.IdTipoEnfermedad} (No encontrado)"
+                    }).ToList();
+
+                _cacheConsultas.Add(idEmpleado, resumenes);
+
+                // ⭐ ACTUALIZAR UI EN MAIN THREAD
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    UltimasConsultas.Clear();
+                    foreach (var r in resumenes)
+                    {
+                        UltimasConsultas.Add(r);
+                        System.Diagnostics.Debug.WriteLine($"  📄 Consulta: {r.TipoEnfermedad} - {r.MotivoConsulta}");
+                    }
+
+                    OnPropertyChanged(nameof(TieneConsultasPrevias));
+                    OnPropertyChanged(nameof(UltimasConsultas));
+
+                    System.Diagnostics.Debug.WriteLine($"✅ {UltimasConsultas.Count} consultas agregadas a la UI");
+                    System.Diagnostics.Debug.WriteLine($"✅ TieneConsultasPrevias = {TieneConsultasPrevias}");
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar consultas: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+            }
         }
 
         private async void CambiarEmpleado()
@@ -441,76 +570,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 if (EmpleadoSeleccionado.FechaNacimiento.Date > hoy.AddYears(-edad))
                     edad--;
                 Edad = edad;
-            }
-        }
-
-        private async Task CargarUltimasConsultasAsync(string idEmpleado)
-        {
-            try
-            {
-                // ⭐ VERIFICAR CACHÉ
-                if (_cacheConsultas.TryGetValue(idEmpleado, out var consultasEnCache))
-                {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        UltimasConsultas.Clear();
-                        foreach (var c in consultasEnCache)
-                            UltimasConsultas.Add(c);
-                        OnPropertyChanged(nameof(TieneConsultasPrevias));
-                    });
-                    return;
-                }
-
-                var consultas = _consultaRepo.GetConsultasByEmpleado(idEmpleado)
-                    .OrderByDescending(c => c.FechaConsulta)
-                    .Take(5)
-                    .ToList();
-
-                if (consultas.Count == 0)
-                {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        UltimasConsultas.Clear();
-                        OnPropertyChanged(nameof(TieneConsultasPrevias));
-                    });
-                    return;
-                }
-
-                var tiposEnfermedadMap = new Dictionary<int, string>();
-                var tiposUnicos = consultas.Select(c => c.IdTipoEnfermedad).Distinct().ToList();
-
-                foreach (var idTipo in tiposUnicos)
-                {
-                    var tipo = _tipoEnfermedadRepo.GetById(idTipo);
-                    if (tipo != null)
-                        tiposEnfermedadMap[idTipo] = tipo.NombreEnfermedad;
-                }
-
-                var resumenes = consultas
-                    .Select(c => new ConsultaResumenModel
-                    {
-                        FechaConsulta = c.FechaConsulta,
-                        MotivoConsulta = c.MotivoConsulta,
-                        Diagnostico = c.Diagnostico,
-                        TipoEnfermedad = tiposEnfermedadMap.TryGetValue(c.IdTipoEnfermedad, out var nombre)
-                            ? nombre
-                            : "Sin clasificar"
-                    })
-                    .ToList();
-
-                _cacheConsultas.Add(idEmpleado, resumenes);
-
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    UltimasConsultas.Clear();
-                    foreach (var r in resumenes)
-                        UltimasConsultas.Add(r);
-                    OnPropertyChanged(nameof(TieneConsultasPrevias));
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
             }
         }
 
@@ -603,6 +662,32 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     return;
                 }
 
+                // ⭐ NUEVO: Verificar que el tipo existe, si no, sincronizar
+                if (TipoEnfermedadSeleccionado != null)
+                {
+                    var tipoExiste = _tipoEnfermedadRepo.GetById(TipoEnfermedadSeleccionado.IdTipoEnfermedad);
+
+                    if (tipoExiste == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"⚠️ Tipo {TipoEnfermedadSeleccionado.IdTipoEnfermedad} no existe en BD, sincronizando...");
+
+                        // Sincronizar tipos antes de continuar
+                        await SincronizarTiposEnfermedadAsync();
+
+                        // Verificar de nuevo
+                        tipoExiste = _tipoEnfermedadRepo.GetById(TipoEnfermedadSeleccionado.IdTipoEnfermedad);
+
+                        if (tipoExiste == null)
+                        {
+                            await Application.Current.MainPage.DisplayAlert(
+                                "Error",
+                                "No se pudo guardar el tipo de enfermedad. Intente de nuevo.",
+                                "OK");
+                            return;
+                        }
+                    }
+                }
+
                 var idEmpleado = EmpleadoSeleccionado.IdEmpleado;
 
                 var consultaDto = new CrearConsultaDto
@@ -634,7 +719,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 if (respuesta != null)
                 {
                     await Application.Current.MainPage.DisplayAlert("Éxito", "Consulta guardada", "OK");
-                    _cacheConsultas.Remove(idEmpleado); // ⭐ Limpiar caché
+                    _cacheConsultas.Remove(idEmpleado);
                 }
                 else
                 {
@@ -649,6 +734,30 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
         }
+
+        private async Task SincronizarTiposEnfermedadAsync()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("🔄 Sincronizando tipos de enfermedad...");
+
+                var tiposDto = await _tipoEnfermedadApiService.ObtenerTiposEnfermedadAsync();
+
+                if (tiposDto != null && tiposDto.Count > 0)
+                {
+                    var tiposModels = tiposDto.Select(dto => dto.ToModel()).ToList();
+                    _tipoEnfermedadRepo.SincronizarTiposEnfermedad(tiposModels);
+
+                    System.Diagnostics.Debug.WriteLine($"✅ {tiposModels.Count} tipos sincronizados");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error sincronizando tipos: {ex.Message}");
+            }
+        }
+
+
 
         private async void Cancelar()
         {

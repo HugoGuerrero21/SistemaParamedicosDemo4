@@ -2,15 +2,19 @@
 <ContentPage x:Class="SistemaParamedicosDemo4.MVVM.Views.ConsultaView"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:SistemaParamedicosDemo4.Converters"
              xmlns:behaviors="clr-namespace:SistemaParamedicosDemo4.Behaviors"
+             xmlns:controls="clr-namespace:SistemaParamedicosDemo4.Controls"
              xmlns:viewModels="clr-namespace:SistemaParamedicosDemo4.MVVM.ViewModels"
              Title="Vista de paramedicos"
              BackgroundColor="#F5F7FA">
 
-
-
     <ContentPage.Resources>
         <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBool"/>
+            <converters:UrlToImageSourceConverter x:Key="UrlToImage"/>
+            <converters:HasValidPhotoConverter x:Key="HasValidPhoto"/>
+
             <!-- Colores -->
             <Color x:Key="PrimaryColor">#2E86AB</Color>
             <Color x:Key="SecondaryColor">#17A2B8</Color>
@@ -28,7 +32,7 @@
                 <Setter Property="StrokeThickness" Value="1"/>
                 <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
                 <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
-                <Setter Property="Padding" Value="20"/>
+                <Setter Property="Padding" Value="15"/>
                 <Setter Property="Margin" Value="5"/>
                 <Setter Property="Shadow">
                     <Setter.Value>
@@ -45,7 +49,7 @@
             </Style>
 
             <Style x:Key="SubHeaderStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontSize" Value="16"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
                 <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
                 <Setter Property="Margin" Value="0"/>
@@ -109,15 +113,6 @@
                 <Setter Property="FontSize" Value="12"/>
             </Style>
 
-            <Style x:Key="AvatarStyle" TargetType="Border">
-                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}"/>
-                <Setter Property="StrokeThickness" Value="0"/>
-                <Setter Property="StrokeShape" Value="RoundRectangle 25"/>
-                <Setter Property="WidthRequest" Value="50"/>
-                <Setter Property="HeightRequest" Value="50"/>
-                <Setter Property="Padding" Value="0"/>
-            </Style>
-
             <Style x:Key="StatusBadgeStyle" TargetType="Border">
                 <Setter Property="BackgroundColor" Value="{StaticResource SuccessColor}"/>
                 <Setter Property="StrokeThickness" Value="0"/>
@@ -130,7 +125,7 @@
     <Grid>
         <!-- ⭐ PANTALLA DE BÚSQUEDA DE EMPLEADOS -->
         <ScrollView IsVisible="{Binding MostrarBusquedaEmpleado}">
-            <StackLayout Padding="20">
+            <StackLayout Padding="15">
 
                 <!-- Header Búsqueda -->
                 <Label Text="Buscar Empleado" 
@@ -145,27 +140,25 @@
                 <Border Style="{StaticResource CardStyle}">
                     <StackLayout>
                         <Label Text="🔍 Buscar por nombre o ID:" 
-               Style="{StaticResource FieldLabelStyle}"/>
+                               Style="{StaticResource FieldLabelStyle}"/>
                         <SearchBar Text="{Binding TextoBusqueda}"
-           Placeholder="Buscar por nombre, ID o puesto..."
-           SearchCommand="{Binding BuscarEmpleadoCommand}"
-           BackgroundColor="White"
-           TextColor="{StaticResource DarkGray}"
-           PlaceholderColor="{StaticResource MediumGray}"
-           Margin="0,0,0,10"/>
+                                   Placeholder="Buscar por nombre, ID o puesto..."
+                                   SearchCommand="{Binding BuscarEmpleadoCommand}"
+                                   BackgroundColor="White"
+                                   TextColor="{StaticResource DarkGray}"
+                                   PlaceholderColor="{StaticResource MediumGray}"
+                                   Margin="0,0,0,10"/>
 
-                        <!-- ✅ AGREGAR MENSAJE DE ESTADO -->
                         <Label Text="{Binding MensajeEstado}"
-               Style="{StaticResource BodyStyle}"
-               FontSize="12"
-               HorizontalOptions="Center"
-               Margin="0,5,0,0"/>
+                               Style="{StaticResource BodyStyle}"
+                               FontSize="12"
+                               HorizontalOptions="Center"
+                               Margin="0,5,0,0"/>
 
-                        <!-- ✅ AGREGAR INDICADOR DE CARGA -->
                         <ActivityIndicator IsRunning="{Binding IsCargandoEmpleados}"
-                          IsVisible="{Binding IsCargandoEmpleados}"
-                          Color="{StaticResource PrimaryColor}"
-                          Margin="0,10,0,0"/>
+                                          IsVisible="{Binding IsCargandoEmpleados}"
+                                          Color="{StaticResource PrimaryColor}"
+                                          Margin="0,10,0,0"/>
                     </StackLayout>
                 </Border>
 
@@ -184,7 +177,7 @@
                                             StrokeThickness="1"
                                             Stroke="{StaticResource BorderColor}"
                                             StrokeShape="RoundRectangle 8"
-                                            Padding="15"
+                                            Padding="12"
                                             Margin="5">
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer 
@@ -192,40 +185,27 @@
                                                 CommandParameter="{Binding .}"/>
                                         </Border.GestureRecognizers>
 
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="60"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                                             <!-- Avatar -->
-                                            <Border Grid.Column="0" 
-                                                    BackgroundColor="{StaticResource PrimaryColor}"
-                                                    StrokeThickness="0"
-                                                    StrokeShape="RoundRectangle 25"
-                                                    WidthRequest="50"
-                                                    HeightRequest="50">
-                                                <Label Text="{Binding Iniciales}" 
-                                                       TextColor="White"
-                                                       FontSize="18"
-                                                       FontAttributes="Bold"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"/>
-                                            </Border>
+                                            <controls:AvatarView Grid.Column="0"
+                                                                FotoUrl="{Binding Foto}"
+                                                                Iniciales="{Binding Iniciales}"
+                                                                Tamaño="50"
+                                                                ColorFondo="#2E86AB"/>
 
                                             <!-- Info -->
                                             <StackLayout Grid.Column="1" 
-                                                         Spacing="3" 
-                                                         Margin="15,0,0,0"
-                                                         VerticalOptions="Center">
+                                                        Spacing="3" 
+                                                        VerticalOptions="Center">
                                                 <Label Text="{Binding Nombre}" 
                                                        Style="{StaticResource SubHeaderStyle}"
-                                                       FontSize="16"/>
+                                                       FontSize="15"
+                                                       LineBreakMode="TailTruncation"/>
 
                                                 <Label Text="{Binding NombrePuesto, StringFormat='Puesto: {0}'}" 
                                                        Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"/>
+                                                       FontSize="12"
+                                                       LineBreakMode="TailTruncation"/>
                                             </StackLayout>
 
                                             <!-- Icono -->
@@ -246,129 +226,130 @@
 
         <!-- ⭐ PANTALLA DE FORMULARIO DE CONSULTA -->
         <ScrollView IsVisible="{Binding MostrarFormularioConsulta}">
-            <StackLayout Padding="20">
+            <StackLayout Padding="15">
 
-                <!-- Header -->
-                <Grid Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackLayout Grid.Column="0">
+                <!-- Header Responsivo -->
+                <VerticalStackLayout Spacing="10" Margin="0,0,0,20">
+                    <StackLayout Spacing="2">
                         <Label Text="Nueva consulta" Style="{StaticResource HeaderStyle}"/>
-                        <Label Text="A continuación se muestra el formulario para hacer registro de una nueva consulta médica." 
+                        <Label Text="Registre los datos de la nueva consulta." 
                                Style="{StaticResource BodyStyle}"/>
+                        <Label Text="{Binding Consulta.FechaConsulta, StringFormat='📅 {0:dd/MM/yyyy HH:mm}'}"
+                               FontSize="13"
+                               TextColor="{StaticResource PrimaryColor}"
+                               FontAttributes="Bold"
+                               Margin="0,5,0,0"/>
                     </StackLayout>
 
-                    <Label Grid.Column="1" 
-                           Text="{Binding Consulta.FechaConsulta, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
-                           Style="{StaticResource BodyStyle}"
-                           VerticalOptions="Start"/>
-                </Grid>
+                    <Button Text="← Regresar"
+                            Command="{Binding CambiarEmpleadoCommand}"
+                            BackgroundColor="{StaticResource SecondaryColor}"
+                            TextColor="White"
+                            CornerRadius="8"
+                            HeightRequest="40"
+                            FontSize="13"
+                            HorizontalOptions="Start"/>
+                </VerticalStackLayout>
 
                 <!-- Información del Paciente -->
                 <Border Style="{StaticResource CardStyle}">
-                    <StackLayout>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                    <StackLayout Spacing="15">
+                        <!-- Avatar y nombre -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                            <controls:AvatarView Grid.Column="0"
+                                                FotoUrl="{Binding EmpleadoSeleccionado.Foto}"
+                                                Iniciales="{Binding EmpleadoSeleccionado.Iniciales}"
+                                                Tamaño="70"
+                                                ColorFondo="#2E86AB"/>
 
-                            <!-- Avatar -->
-                            <Border Grid.Column="0" Style="{StaticResource AvatarStyle}">
-                                <Label Text="{Binding EmpleadoSeleccionado.Iniciales}" 
-                                       TextColor="White"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center"/>
-                            </Border>
-
-                            <!-- Info básica -->
-                            <StackLayout Grid.Column="1" Spacing="2" Margin="15,3,100,10">
+                            <StackLayout Grid.Column="1" 
+                                        Spacing="5" 
+                                        VerticalOptions="Center">
                                 <Label Text="{Binding EmpleadoSeleccionado.Nombre}" 
-                                       Style="{StaticResource SubHeaderStyle}"/>
-
+                                       Style="{StaticResource SubHeaderStyle}"
+                                       FontSize="16"
+                                       LineBreakMode="WordWrap"/>
                             </StackLayout>
 
-                            <!-- Status -->
-                            <Border Grid.Column="2" Style="{StaticResource StatusBadgeStyle}" Margin="0,0,10,0">
+                            <Border Grid.Column="2" 
+                                    Style="{StaticResource StatusBadgeStyle}"
+                                    VerticalOptions="Start">
                                 <Label Text="● Activo" 
                                        TextColor="White"
-                                       FontSize="12"
+                                       FontSize="11"
                                        FontAttributes="Bold"/>
                             </Border>
-
-                            <!-- Botón Cambiar Empleado -->
-                            <Button Grid.Column="3"
-                                    Text="Cambiar"
-                                    Command="{Binding CambiarEmpleadoCommand}"
-                                    BackgroundColor="{StaticResource SecondaryColor}"
-                                    TextColor="White"
-                                    CornerRadius="6"
-                                    Padding="15,8"
-                                    FontSize="12"/>
                         </Grid>
 
                         <!-- Información General -->
-                        <Label Text="Información General" Style="{StaticResource SectionHeaderStyle}" Margin="0,20,0,10"/>
+                        <Label Text="Información General" 
+                               Style="{StaticResource SectionHeaderStyle}" 
+                               Margin="0,10,0,5"/>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                        <!-- Info en formato vertical para móvil -->
+                        <VerticalStackLayout Spacing="12">
+                            <!-- Fila 1 -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <StackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Id Empleado:" Style="{StaticResource FieldLabelStyle}"/>
+                                    <Label Text="{Binding EmpleadoSeleccionado.IdEmpleado}" 
+                                           Style="{StaticResource BodyStyle}" 
+                                           FontAttributes="Bold"
+                                           LineBreakMode="TailTruncation"/>
+                                </StackLayout>
 
-                            <StackLayout Grid.Column="0" Grid.Row="0" Spacing="2">
-                                <Label Text="Id Empleado:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.IdEmpleado}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
-                            </StackLayout>
+                                <StackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="Teléfono:" Style="{StaticResource FieldLabelStyle}"/>
+                                    <Label Text="{Binding EmpleadoSeleccionado.Telefono}" 
+                                           Style="{StaticResource BodyStyle}" 
+                                           FontAttributes="Bold"/>
+                                </StackLayout>
+                            </Grid>
 
-                            <StackLayout Grid.Column="1" Grid.Row="0" Spacing="2">
-                                <Label Text="Nombre:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.Nombre}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
-                            </StackLayout>
+                            <!-- Fila 2 -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <StackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Edad:" Style="{StaticResource FieldLabelStyle}"/>
+                                    <Label Text="{Binding Edad}" 
+                                           Style="{StaticResource BodyStyle}" 
+                                           FontAttributes="Bold"/>
+                                </StackLayout>
 
-                            <StackLayout Grid.Column="2" Grid.Row="0" Spacing="2">
-                                <Label Text="Teléfono:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.Telefono}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
-                            </StackLayout>
+                                <StackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="Sexo:" Style="{StaticResource FieldLabelStyle}"/>
+                                    <Label Text="{Binding EmpleadoSeleccionado.Sexo}" 
+                                           Style="{StaticResource BodyStyle}" 
+                                           FontAttributes="Bold"/>
+                                </StackLayout>
+                            </Grid>
 
-                            <StackLayout Grid.Column="3" Grid.Row="0" Spacing="2">
-                                <Label Text="Alergias:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.AlergiasSangre}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
-                            </StackLayout>
-
-                            <StackLayout Grid.Column="0" Grid.Row="1" Spacing="2">
-                                <Label Text="Edad:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding Edad}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
-                            </StackLayout>
-
-                            <StackLayout Grid.Column="1" Grid.Row="1" Spacing="2">
-                                <Label Text="Sexo:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.Sexo}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
-                            </StackLayout>
-
-                            <StackLayout Grid.Column="2" Grid.Row="1" Spacing="2">
+                            <!-- Fila 3 -->
+                            <StackLayout Spacing="2">
                                 <Label Text="Puesto:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.NombrePuesto}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
+                                <Label Text="{Binding EmpleadoSeleccionado.NombrePuesto}" 
+                                       Style="{StaticResource BodyStyle}" 
+                                       FontAttributes="Bold"
+                                       LineBreakMode="WordWrap"/>
                             </StackLayout>
 
-                            <StackLayout Grid.Column="3" Grid.Row="1" Spacing="2">
-                                <Label Text="Tipo de sangre:" Style="{StaticResource FieldLabelStyle}"/>
-                                <Label Text="{Binding EmpleadoSeleccionado.TipoSangre}" Style="{StaticResource BodyStyle}" FontAttributes="Bold"/>
-                            </StackLayout>
-                        </Grid>
+                            <!-- Fila 4 -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <StackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Tipo de sangre:" Style="{StaticResource FieldLabelStyle}"/>
+                                    <Label Text="{Binding EmpleadoSeleccionado.TipoSangre}" 
+                                           Style="{StaticResource BodyStyle}" 
+                                           FontAttributes="Bold"/>
+                                </StackLayout>
+
+                                <StackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="Alergias:" Style="{StaticResource FieldLabelStyle}"/>
+                                    <Label Text="{Binding EmpleadoSeleccionado.AlergiasSangre}" 
+                                           Style="{StaticResource BodyStyle}" 
+                                           FontAttributes="Bold"
+                                           LineBreakMode="WordWrap"/>
+                                </StackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
                     </StackLayout>
                 </Border>
 
@@ -377,7 +358,6 @@
                         IsVisible="{Binding TieneConsultasPrevias}"
                         BackgroundColor="White">
                     <StackLayout>
-                        <!-- Header clickeable -->
                         <Grid>
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ToggleHistorialCommand}"/>
@@ -390,22 +370,22 @@
                             </Grid.ColumnDefinitions>
 
                             <Label Grid.Column="0"
-                                    Text="📋"
-                                    FontSize="18"
-                                    VerticalOptions="Center"
-                                    Margin="0,0,10,0"/>
+                                   Text="📋"
+                                   FontSize="18"
+                                   VerticalOptions="Center"
+                                   Margin="0,0,10,0"/>
 
                             <Label Grid.Column="1"
-                                    Text="Últimas 5 consultas" 
-                                    Style="{StaticResource SectionHeaderStyle}"
-                                    TextColor="Black"
-                                    VerticalOptions="Center"
-                                    Margin="0"/>
+                                   Text="Últimas 5 consultas" 
+                                   Style="{StaticResource SectionHeaderStyle}"
+                                   TextColor="Black"
+                                   VerticalOptions="Center"
+                                   Margin="0"/>
 
                             <Label Grid.Column="2"
-                                    FontSize="24"
-                                    TextColor="Green"
-                                    VerticalOptions="Center">
+                                   FontSize="24"
+                                   TextColor="Green"
+                                   VerticalOptions="Center">
                                 <Label.Triggers>
                                     <DataTrigger TargetType="Label" Binding="{Binding HistorialExpandido}" Value="True">
                                         <Setter Property="Text" Value="▼"/>
@@ -417,11 +397,10 @@
                             </Label>
                         </Grid>
 
-                        <!-- Contenido expandible -->
                         <StackLayout IsVisible="{Binding HistorialExpandido}" Margin="0,10,0,0">
                             <CollectionView ItemsSource="{Binding UltimasConsultas}"
-                                SelectionMode="None"
-                                HeightRequest="250">
+                                            SelectionMode="None"
+                                            HeightRequest="250">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
                                         <Border BackgroundColor="#F5FFFE"
@@ -432,31 +411,31 @@
                                                 Margin="0,5">
                                             <StackLayout Spacing="6">
                                                 <Label Text="{Binding FechaFormateada}"
-                                                        FontSize="11"
-                                                        TextColor="Black"
-                                                        FontAttributes="Bold"/>
+                                                       FontSize="11"
+                                                       TextColor="Black"
+                                                       FontAttributes="Bold"/>
 
-                                                <HorizontalStackLayout Spacing="5">
+                                                <StackLayout Spacing="3">
                                                     <Label Text="Motivo:"
-                                                            FontSize="12"
-                                                            TextColor="{StaticResource MediumGray}"
-                                                            FontAttributes="Bold"/>
+                                                           FontSize="12"
+                                                           TextColor="{StaticResource MediumGray}"
+                                                           FontAttributes="Bold"/>
                                                     <Label Text="{Binding MotivoConsulta}"
-                                                            FontSize="12"
-                                                            TextColor="{StaticResource DarkGray}"
-                                                            LineBreakMode="TailTruncation"/>
-                                                </HorizontalStackLayout>
+                                                           FontSize="12"
+                                                           TextColor="{StaticResource DarkGray}"
+                                                           LineBreakMode="WordWrap"/>
+                                                </StackLayout>
 
-                                                <HorizontalStackLayout Spacing="5">
-                                                    <Label Text="Diagnóstico:"
-                                                            FontSize="12"
-                                                            TextColor="{StaticResource MediumGray}"
-                                                            FontAttributes="Bold"/>
+                                                <StackLayout Spacing="3">
+                                                    <Label Text="Valoración del paramédico:"
+                                                           FontSize="12"
+                                                           TextColor="{StaticResource MediumGray}"
+                                                           FontAttributes="Bold"/>
                                                     <Label Text="{Binding Diagnostico}"
-                                                            FontSize="12"
-                                                            TextColor="{StaticResource DarkGray}"
-                                                            LineBreakMode="TailTruncation"/>
-                                                </HorizontalStackLayout>
+                                                           FontSize="12"
+                                                           TextColor="{StaticResource DarkGray}"
+                                                           LineBreakMode="WordWrap"/>
+                                                </StackLayout>
 
                                                 <Border BackgroundColor="White"
                                                         StrokeThickness="0"
@@ -477,213 +456,199 @@
                     </StackLayout>
                 </Border>
 
-                <!-- Signos vitales y Consulta -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <!-- Signos vitales -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackLayout>
+                        <Label Text="Signos vitales" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <!-- Signos vitales -->
-                    <Border Grid.Column="0" Style="{StaticResource CardStyle}">
-                        <StackLayout>
-                            <Label Text="Signos vitales" Style="{StaticResource SectionHeaderStyle}"/>
+                        <Label Text="Tensión arterial:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Text="{Binding TensionArterial}" 
+                               Placeholder="120/80" 
+                               Style="{StaticResource EntryStyle}">
+                            <Entry.Behaviors>
+                                <behaviors:TensionArterialBehavior/>
+                            </Entry.Behaviors>
+                        </Entry>
 
-                            <Label Text="Tensión arterial:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding TensionArterial}" Placeholder="120/80" Style="{StaticResource EntryStyle}">
-                                <Entry.Behaviors>
-                                    <behaviors:TensionArterialBehavior/>
-                                </Entry.Behaviors>
-                            </Entry>
+                        <Grid ColumnDefinitions="*,10,*" ColumnSpacing="0">
+                            <StackLayout Grid.Column="0">
+                                <Label Text="Temperatura:" Style="{StaticResource FieldLabelStyle}"/>
+                                <Entry Text="{Binding Temperatura}" 
+                                       Placeholder="36.5" 
+                                       Keyboard="Numeric" 
+                                       Style="{StaticResource EntryStyle}">
+                                    <Entry.Behaviors>
+                                        <behaviors:DecimalValidationBehavior/>
+                                    </Entry.Behaviors>
+                                </Entry>
+                            </StackLayout>
 
-                            <Label Text="Temperatura:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding Temperatura}" Placeholder="36.5" Keyboard="Numeric" Style="{StaticResource EntryStyle}">
-                                <Entry.Behaviors>
-                                    <behaviors:DecimalValidationBehavior/>
-                                </Entry.Behaviors>
-                            </Entry>
+                            <StackLayout Grid.Column="2">
+                                <Label Text="Frecuencia Cardíaca:" Style="{StaticResource FieldLabelStyle}"/>
+                                <Entry Text="{Binding FrecuenciaCardiaca}" 
+                                       Placeholder="72" 
+                                       Keyboard="Numeric" 
+                                       Style="{StaticResource EntryStyle}">
+                                    <Entry.Behaviors>
+                                        <behaviors:NumericValidationBehavior/>
+                                    </Entry.Behaviors>
+                                </Entry>
+                            </StackLayout>
+                        </Grid>
 
-                            <Label Text="Frecuencia Cardíaca:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding FrecuenciaCardiaca}" Placeholder="72" Keyboard="Numeric" Style="{StaticResource EntryStyle}">
-                                <Entry.Behaviors>
-                                    <behaviors:NumericValidationBehavior/>
-                                </Entry.Behaviors>
-                            </Entry>
+                        <Label Text="Frecuencia Respiratoria:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Text="{Binding FrecuenciaRespiratoria}" 
+                               Placeholder="16" 
+                               Keyboard="Numeric" 
+                               Style="{StaticResource EntryStyle}">
+                            <Entry.Behaviors>
+                                <behaviors:NumericValidationBehavior/>
+                            </Entry.Behaviors>
+                        </Entry>
 
-                            <Label Text="Frecuencia Respiratoria:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding FrecuenciaRespiratoria}" Placeholder="16" Keyboard="Numeric" Style="{StaticResource EntryStyle}">
-                                <Entry.Behaviors>
-                                    <behaviors:NumericValidationBehavior/>
-                                </Entry.Behaviors>
-                            </Entry>
+                        <Label Text="Observaciones:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Text="{Binding ObservacionesSignos}" 
+                               Placeholder="Observaciones adicionales..." 
+                               Style="{StaticResource EntryStyle}"/>
+                    </StackLayout>
+                </Border>
 
-                            <Label Text="Observaciones:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding ObservacionesSignos}" Placeholder="Observaciones adicionales..." Style="{StaticResource EntryStyle}"/>
-                        </StackLayout>
-                    </Border>
+                <!-- Consulta -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackLayout>
+                        <Label Text="Consulta" Style="{StaticResource SectionHeaderStyle}"/>
 
-                    <!-- Consulta -->
-                    <Border Grid.Column="2" Style="{StaticResource CardStyle}">
-                        <StackLayout>
-                            <Label Text="Consulta" Style="{StaticResource SectionHeaderStyle}"/>
+                        <Label Text="Motivo de Consulta:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Text="{Binding MotivoConsulta}" 
+                               Placeholder="Describe el motivo..." 
+                               Style="{StaticResource EntryStyle}"/>
 
-                            <Label Text="Motivo de Consulta:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding MotivoConsulta}" Placeholder="Describe el motivo..." Style="{StaticResource EntryStyle}"/>
+                        <Label Text="Valoración del paramédico:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Text="{Binding Diagnostico}" 
+                               Placeholder="Valoración y observaciones del paramédico..." 
+                               Style="{StaticResource EntryStyle}"/>
 
-                            <Label Text="Diagnóstico:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding Diagnostico}" Placeholder="Diagnóstico del paramédico..." Style="{StaticResource EntryStyle}"/>
+                        <Label Text="Clasificación:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Picker ItemsSource="{Binding TiposEnfermedad}"
+                                ItemDisplayBinding="{Binding NombreEnfermedad}"
+                                SelectedItem="{Binding TipoEnfermedadSeleccionado}"
+                                Title="Seleccionar clasificación" 
+                                Style="{StaticResource PickerStyle}"/>
 
-                            <Label Text="Clasificación:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Picker ItemsSource="{Binding TiposEnfermedad}"
-                                    ItemDisplayBinding="{Binding NombreEnfermedad}"
-                                    SelectedItem="{Binding TipoEnfermedadSeleccionado}"
-                                    Title="Seleccionar clasificación" 
-                                    Style="{StaticResource PickerStyle}"/>
+                        <Label Text="Recomendaciones:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Text="{Binding Tratamiento}" 
+                               Placeholder="Recomendacion por el paramedico" 
+                               Style="{StaticResource EntryStyle}"/>
 
-                            <Label Text="Recomendaciones:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding Tratamiento}" Placeholder="Recomendacion por el paramedico" Style="{StaticResource EntryStyle}"/>
+                        <Label Text="Última comida:" Style="{StaticResource FieldLabelStyle}"/>
+                        <Entry Text="{Binding UltimaComida}" 
+                               Placeholder="¿Cuándo fue la última comida?" 
+                               Style="{StaticResource EntryStyle}"/>
 
-                            <Label Text="Última comida:" Style="{StaticResource FieldLabelStyle}"/>
-                            <Entry Text="{Binding UltimaComida}" Placeholder="¿Cuándo fue la última comida?" Style="{StaticResource EntryStyle}"/>
-
-                            <!-- Checkbox de control -->
-                            <HorizontalStackLayout Spacing="10" Margin="0,20,0,0">
-                                <CheckBox IsChecked="{Binding SeUtilizoMaterial}"
-                                          Color="{StaticResource PrimaryColor}"
-                                          VerticalOptions="Center"/>
-                                <Label Text="Se utilizó material o medicamento"
-                                       Style="{StaticResource BodyStyle}"
-                                       VerticalOptions="Center"/>
-                            </HorizontalStackLayout>
-                        </StackLayout>
-                    </Border>
-                </Grid>
+                        <HorizontalStackLayout Spacing="10" Margin="0,10,0,0">
+                            <CheckBox IsChecked="{Binding SeUtilizoMaterial}"
+                                      Color="{StaticResource PrimaryColor}"
+                                      VerticalOptions="Center"/>
+                            <Label Text="Se utilizó material o medicamento"
+                                   Style="{StaticResource BodyStyle}"
+                                   VerticalOptions="Center"
+                                   LineBreakMode="WordWrap"/>
+                        </HorizontalStackLayout>
+                    </StackLayout>
+                </Border>
 
                 <!-- Material utilizado -->
                 <Border Style="{StaticResource CardStyle}"
                         IsVisible="{Binding SeUtilizoMaterial}">
                     <StackLayout>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                        <Label Text="Material utilizado" Style="{StaticResource SectionHeaderStyle}"/>
 
-                            <Label Grid.Column="0" Text="Material utilizado" Style="{StaticResource SectionHeaderStyle}"/>
-                        </Grid>
+                        <StackLayout Margin="0,10,0,0" Spacing="10">
+                            <!-- Medicamento Picker -->
+                            <StackLayout>
+                                <Label Text="Medicamento/Material:" Style="{StaticResource FieldLabelStyle}"/>
+                                <Picker ItemsSource="{Binding Medicamentos}"
+                                        ItemDisplayBinding="{Binding NombreCompleto}"
+                                        SelectedItem="{Binding MedicamentoSeleccionado}"
+                                        Title="Seleccionar medicamento o material" 
+                                        Style="{StaticResource PickerStyle}"/>
+                            </StackLayout>
 
-                        <StackLayout x:Name="PanelMedicamentos" Margin="0,15,0,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
+                            <!-- Disponible y Cantidad -->
+                            <Grid ColumnDefinitions="*,10,*" ColumnSpacing="0">
                                 <StackLayout Grid.Column="0">
-                                    <Label Text="Medicamento/Material:" Style="{StaticResource FieldLabelStyle}"/>
-                                    <Picker x:Name="PickerMedicamento"
-                                            ItemsSource="{Binding Medicamentos}"
-                                            ItemDisplayBinding="{Binding NombreCompleto}"
-                                            SelectedItem="{Binding MedicamentoSeleccionado}"
-                                            Title="Seleccionar medicamento o material" 
-                                            Style="{StaticResource PickerStyle}"/>
-                                </StackLayout>
-
-                                <StackLayout Grid.Column="2">
                                     <Label Text="Disponible:" Style="{StaticResource FieldLabelStyle}"/>
                                     <Label Text="{Binding CantidadDisponible, StringFormat='{0:F2}'}" 
                                            Style="{StaticResource BodyStyle}" 
                                            FontAttributes="Bold"
-                                           VerticalOptions="Center"
-                                           Margin="0,8,0,0"/>
+                                           FontSize="16"
+                                           Margin="0,5,0,0"/>
                                 </StackLayout>
 
-                                <StackLayout Grid.Column="4">
+                                <StackLayout Grid.Column="2">
                                     <Label Text="Cantidad:" Style="{StaticResource FieldLabelStyle}"/>
-                                    <Entry x:Name="EntryCantidad"
-                                           Text="{Binding CantidadMedicamento}"
+                                    <Entry Text="{Binding CantidadMedicamento}"
                                            Placeholder="0" 
                                            Keyboard="Numeric"
                                            Style="{StaticResource EntryStyle}"/>
                                 </StackLayout>
-
-                                <Button Grid.Column="6"
-                                        Text="+ AGREGAR"
-                                        Command="{Binding AgregarMedicamentoCommand}"
-                                        Style="{StaticResource IconButtonStyle}"
-                                        VerticalOptions="End"
-                                        Margin="0,0,0,15"/>
                             </Grid>
 
+                            <!-- Botón agregar -->
+                            <Button Text="+ AGREGAR MEDICAMENTO"
+                                    Command="{Binding AgregarMedicamentoCommand}"
+                                    Style="{StaticResource IconButtonStyle}"
+                                    Padding="15,12"
+                                    FontSize="13"/>
+
                             <!-- Lista de medicamentos agregados -->
-                            <StackLayout x:Name="PanelListaMedicamentos" 
-                                         IsVisible="{Binding TieneMedicamentosAgregados}">
+                            <StackLayout IsVisible="{Binding TieneMedicamentosAgregados}" 
+                                        Margin="0,10,0,0">
                                 <Label Text="Material/Medicamentos agregados:" 
                                        Style="{StaticResource FieldLabelStyle}" 
-                                       Margin="0,10,0,5"/>
+                                       Margin="0,0,0,10"/>
 
                                 <Border BackgroundColor="{StaticResource LightGray}" 
                                         StrokeThickness="0" 
-                                        Padding="15,10">
+                                        Padding="10">
                                     <StackLayout>
-                                        <!-- Header -->
-                                        <Grid Margin="0,0,0,10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="4*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Label Grid.Column="0" 
-                                                   Text="Medicamento/Material" 
-                                                   FontAttributes="Bold" 
-                                                   Style="{StaticResource BodyStyle}"/>
-                                            <Label Grid.Column="1" 
-                                                   Text="Cantidad" 
-                                                   FontAttributes="Bold" 
-                                                   Style="{StaticResource BodyStyle}"/>
-                                            <Label Grid.Column="2" 
-                                                   Text="Acción" 
-                                                   FontAttributes="Bold" 
-                                                   Style="{StaticResource BodyStyle}"/>
-                                        </Grid>
-
-                                        <!-- Items -->
                                         <CollectionView ItemsSource="{Binding MedicamentosAgregados}">
                                             <CollectionView.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Grid Padding="0,5">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="4*"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
+                                                    <Border BackgroundColor="White"
+                                                            StrokeThickness="1"
+                                                            Stroke="{StaticResource BorderColor}"
+                                                            StrokeShape="RoundRectangle 6"
+                                                            Padding="10"
+                                                            Margin="0,5">
+                                                        <Grid ColumnDefinitions="*,Auto,Auto" 
+                                                              ColumnSpacing="10">
+                                                            <StackLayout Grid.Column="0" 
+                                                                        Spacing="2"
+                                                                        VerticalOptions="Center">
+                                                                <Label Text="{Binding NombreMedicamento}" 
+                                                                       Style="{StaticResource BodyStyle}"
+                                                                       FontAttributes="Bold"
+                                                                       LineBreakMode="WordWrap"/>
+                                                                <Label Text="{Binding Cantidad, StringFormat='Cantidad: {0:F2}'}" 
+                                                                       Style="{StaticResource BodyStyle}"
+                                                                       FontSize="12"/>
+                                                            </StackLayout>
 
-                                                        <Label Grid.Column="0" 
-                                                               Text="{Binding NombreMedicamento}" 
-                                                               Style="{StaticResource BodyStyle}"/>
-                                                        <Label Grid.Column="1" 
-                                                               Text="{Binding Cantidad, StringFormat='{0:F2}'}" 
-                                                               Style="{StaticResource BodyStyle}"/>
-                                                        <Button Grid.Column="2"
-                                                                Text="✕"
-                                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EliminarMedicamentoCommand}"
-                                                                CommandParameter="{Binding .}"
-                                                                BackgroundColor="{StaticResource DangerColor}"
-                                                                TextColor="White"
-                                                                WidthRequest="35"
-                                                                HeightRequest="35"
-                                                                CornerRadius="4"
-                                                                Padding="0"
-                                                                FontSize="16"
-                                                                FontAttributes="Bold"/>
-                                                    </Grid>
+                                                            <Button Grid.Column="2"
+                                                                    Text="✕"
+                                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EliminarMedicamentoCommand}"
+                                                                    CommandParameter="{Binding .}"
+                                                                    BackgroundColor="{StaticResource DangerColor}"
+                                                                    TextColor="White"
+                                                                    WidthRequest="40"
+                                                                    HeightRequest="40"
+                                                                    CornerRadius="6"
+                                                                    Padding="0"
+                                                                    FontSize="18"
+                                                                    FontAttributes="Bold"/>
+                                                        </Grid>
+                                                    </Border>
                                                 </DataTemplate>
                                             </CollectionView.ItemTemplate>
                                         </CollectionView>
@@ -693,25 +658,19 @@
                         </StackLayout>
                     </StackLayout>
                 </Border>
+
                 <!-- Botones de acción -->
-                <Grid Margin="0,20,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="15"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Grid.Column="0"
-                            Text="CANCELAR"
-                            Style="{StaticResource DangerButtonStyle}"
-                            Command="{Binding CancelarCommand}"/>
-
-                    <Button Grid.Column="2"
-                            Text="GUARDAR"
+                <VerticalStackLayout Spacing="10" Margin="0,20,0,20">
+                    <Button Text="GUARDAR"
                             Style="{StaticResource PrimaryButtonStyle}"
-                            Command="{Binding GuardarCommand}"/>
-                </Grid>
+                            Command="{Binding GuardarCommand}"
+                            HeightRequest="45"/>
 
+                    <Button Text="CANCELAR"
+                            Style="{StaticResource DangerButtonStyle}"
+                            Command="{Binding CancelarCommand}"
+                            HeightRequest="45"/>
+                </VerticalStackLayout>
             </StackLayout>
         </ScrollView>
     </Grid>

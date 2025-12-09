@@ -56,7 +56,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
         }
 
         private string _observaciones;
-        [Ignore]
+        
         public string Observaciones
         {
             get => _observaciones;

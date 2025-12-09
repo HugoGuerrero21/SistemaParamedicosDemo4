@@ -103,6 +103,41 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             }
         }
 
+        public List<EmpleadoModel> GetEmpleadosActivos()
+        {
+            try
+            {
+                // 1. Filtrar solo los que tengan estatus ACTIVO (Ajusta el string según tu BD: "ACTIVO", "A", "Active", etc.)
+                var empleados = Connection.Table<EmpleadoModel>()
+                                          .Where(e => e.Estatus == "ALTA")
+                                          .ToList();
+
+                if (empleados.Count == 0)
+                {
+                    return new List<EmpleadoModel>();
+                }
+
+                var puestoRepo = new PuestoRepository();
+
+                // 2. Rellenar los nombres de los puestos (Igual que hacías en GetAll)
+                foreach (var empleado in empleados)
+                {
+                    if (!string.IsNullOrEmpty(empleado.IdPuesto))
+                    {
+                        var puesto = puestoRepo.GetById(empleado.IdPuesto);
+                        empleado.NombrePuesto = puesto?.Nombre ?? empleado.IdPuesto;
+                    }
+                }
+
+                return empleados;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error al obtener empleados activos: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine(StatusMessage);
+                return new List<EmpleadoModel>();
+            }
+        }
         public bool InsertarEmpleado(EmpleadoModel Empleado)
         {
             try

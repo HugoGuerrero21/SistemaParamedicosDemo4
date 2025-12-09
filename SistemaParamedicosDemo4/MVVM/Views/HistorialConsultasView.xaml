@@ -3,6 +3,7 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:SistemaParamedicosDemo4.MVVM.ViewModels"
+             xmlns:controls="clr-namespace:SistemaParamedicosDemo4.Controls"
              Title="Historial de Consultas"
              BackgroundColor="#F5F7FA">
 
@@ -78,20 +79,12 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Avatar grande -->
-                        <Border Grid.Column="0"
-                                BackgroundColor="{StaticResource PrimaryColor}"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 40"
-                                WidthRequest="80"
-                                HeightRequest="80">
-                            <Label Text="{Binding Empleado.Iniciales}"
-                                   TextColor="White"
-                                   FontSize="32"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
+                        <!-- ⭐ Avatar grande con Custom Control -->
+                        <controls:AvatarView Grid.Column="0"
+                                            FotoUrl="{Binding Empleado.Foto}"
+                                            Iniciales="{Binding Empleado.Iniciales}"
+                                            Tamaño="80"
+                                            ColorFondo="#2E86AB"/>
 
                         <!-- Info del empleado -->
                         <StackLayout Grid.Column="1" 
@@ -211,8 +204,8 @@
                                 <Grid>
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer 
-        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HistorialConsultasViewModel}}, Path=ToggleExpandidoCommand}"
-        CommandParameter="{Binding .}"/>
+                                           Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:HistorialConsultasViewModel}},        Path=ToggleExpandidoCommand}"
+                                           CommandParameter="{Binding .}"/>
                                     </Grid.GestureRecognizers>
 
                                     <Grid.RowDefinitions>
@@ -351,7 +344,7 @@
 
                                     <!-- Medicamentos -->
                                     <StackLayout IsVisible="{Binding TieneMedicamentos}" Margin="0,15,0,0">
-                                        <Label Text="Medicamentos Utilizados" Style="{StaticResource SectionHeaderStyle}"/>
+                                        <Label Text="Insumos Utilizados" Style="{StaticResource SectionHeaderStyle}"/>
                                         <Border BackgroundColor="{StaticResource LightGray}"
                                                 StrokeThickness="0"
                                                 Padding="10">
@@ -386,7 +379,6 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
             <!-- Indicador de carga -->
             <ActivityIndicator IsRunning="{Binding IsBusy}"
                                IsVisible="{Binding IsBusy}"

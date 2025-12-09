@@ -167,7 +167,7 @@ namespace SistemaParamedicosDemo4.Services
                     IdUsuario = usuario.IdUsuarioAcc,
                     Nombre = usuario.Nombre,
                     Usuario = usuario.Usuario,
-                    Password = password, // ⚠️ En producción, deberías encriptar esto
+                    Password = password, 
 
                 };
 

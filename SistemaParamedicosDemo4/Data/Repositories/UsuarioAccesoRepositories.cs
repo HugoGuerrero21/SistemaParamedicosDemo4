@@ -162,37 +162,5 @@ namespace SistemaParamedicosDemo4.Data.Repositories
                 return false;
             }
         }
-        public bool EliminarUsuario(string idUsuario)
-        {
-            try
-            {
-                var usuario = Connection.Find<UsuariosAccesoModel>(idUsuario);
-
-                if (usuario == null)
-                {
-                    StatusMessage = "Usuario no encontrado";
-                    return false;
-                }
-
-                int result = Connection.Delete(usuario);
-
-                if (result > 0)
-                {
-                    StatusMessage = "Usuario eliminado correctamente";
-                    return true;
-                }
-                else
-                {
-                    StatusMessage = "Error al eliminar usuario";
-                    return false;
-                }
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Error al eliminar usuario: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine(StatusMessage);
-                return false;
-            }
-        }
     }
 }

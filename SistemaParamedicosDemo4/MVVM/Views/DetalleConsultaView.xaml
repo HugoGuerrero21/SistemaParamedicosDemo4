@@ -2,11 +2,17 @@
 <ContentPage x:Class="SistemaParamedicosDemo4.MVVM.Views.DetalleConsultaView"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:SistemaParamedicosDemo4.Converters"
+             xmlns:controls="clr-namespace:SistemaParamedicosDemo4.Controls"
+
              Title="Detalle de Consulta"
              BackgroundColor="#F5F7FA">
 
     <ContentPage.Resources>
         <ResourceDictionary>
+            <converters:InverseBooleanConverter x:Key="InverseBool"/>
+            <converters:UrlToImageSourceConverter x:Key="UrlToImage"/>
+            <converters:HasValidPhotoConverter x:Key="HasValidPhoto"/>
             <Color x:Key="PrimaryColor">#2E86AB</Color>
             <Color x:Key="DarkGray">#343A40</Color>
             <Color x:Key="MediumGray">#6C757D</Color>
@@ -60,11 +66,11 @@
 
             <!-- Header con Información del Empleado (como tu imagen) -->
             <Border BackgroundColor="White"
-                    StrokeThickness="1"
-                    Stroke="{StaticResource BorderColor}"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="20"
-                    Margin="0,0,0,20">
+        StrokeThickness="1"
+        Stroke="{StaticResource BorderColor}"
+        StrokeShape="RoundRectangle 12"
+        Padding="20"
+        Margin="0,0,0,20">
                 <Border.Shadow>
                     <Shadow Brush="Gray" Opacity="0.1" Radius="8" Offset="0,2"/>
                 </Border.Shadow>
@@ -73,41 +79,33 @@
                     <!-- Avatar y nombre -->
                     <Grid Margin="0,0,0,20">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Avatar grande -->
-                        <Border Grid.Column="0"
-                                BackgroundColor="{StaticResource PrimaryColor}"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 40"
-                                WidthRequest="80"
-                                HeightRequest="80">
-                            <Label Text="{Binding Consulta.Empleado.Iniciales}"
-                                   TextColor="White"
-                                   FontSize="32"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
+                        <!-- ⭐ Avatar grande con Custom Control -->
+                        <controls:AvatarView Grid.Column="0"
+                        FotoUrl="{Binding Consulta.Empleado.Foto}"
+                        Iniciales="{Binding Consulta.Empleado.Iniciales}"
+                        Tamaño="80"
+                        ColorFondo="#2E86AB"/>
 
                         <!-- Info del empleado -->
                         <StackLayout Grid.Column="1" 
-                                     Spacing="6" 
-                                     Margin="20,0,0,0"
-                                     VerticalOptions="Center">
+                 Spacing="6" 
+                 Margin="20,0,0,0"
+                 VerticalOptions="Center">
                             <Label Text="{Binding Consulta.Empleado.Nombre}"
-                                   FontSize="22"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource DarkGray}"/>
+               FontSize="22"
+               FontAttributes="Bold"
+               TextColor="{StaticResource DarkGray}"/>
                             <Label Text="{Binding Consulta.IdEmpleado}"
-                                   FontSize="15"
-                                   TextColor="{StaticResource MediumGray}"/>
+               FontSize="15"
+               TextColor="{StaticResource MediumGray}"/>
                             <Label Text="{Binding Consulta.Empleado.NombrePuesto}"
-                                   FontSize="14"
-                                   TextColor="{StaticResource MediumGray}"
-                                   FontAttributes="Bold"/>
+               FontSize="14"
+               TextColor="{StaticResource MediumGray}"
+               FontAttributes="Bold"/>
                         </StackLayout>
                     </Grid>
 
@@ -121,58 +119,58 @@
 
                         <!-- Consultas -->
                         <Border Grid.Column="0"
-                                BackgroundColor="#E3F2FD"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 8"
-                                Padding="15,10">
+                    BackgroundColor="#E3F2FD"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="15,10">
                             <StackLayout Spacing="4">
                                 <Label Text="{Binding TotalConsultasEmpleado}"
-                                       FontSize="28"
-                                       FontAttributes="Bold"
-                                       TextColor="#2196F3"
-                                       HorizontalOptions="Center"/>
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#2196F3"
+                           HorizontalOptions="Center"/>
                                 <Label Text="Consultas"
-                                       FontSize="13"
-                                       TextColor="{StaticResource MediumGray}"
-                                       HorizontalOptions="Center"/>
+                           FontSize="13"
+                           TextColor="{StaticResource MediumGray}"
+                           HorizontalOptions="Center"/>
                             </StackLayout>
                         </Border>
 
                         <!-- Edad -->
                         <Border Grid.Column="1"
-                                BackgroundColor="#FFF3E0"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 8"
-                                Padding="15,10">
+                    BackgroundColor="#FFF3E0"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="15,10">
                             <StackLayout Spacing="4">
                                 <Label Text="{Binding EdadEmpleado}"
-                                       FontSize="28"
-                                       FontAttributes="Bold"
-                                       TextColor="#FF9800"
-                                       HorizontalOptions="Center"/>
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#FF9800"
+                           HorizontalOptions="Center"/>
                                 <Label Text="Años"
-                                       FontSize="13"
-                                       TextColor="{StaticResource MediumGray}"
-                                       HorizontalOptions="Center"/>
+                           FontSize="13"
+                           TextColor="{StaticResource MediumGray}"
+                           HorizontalOptions="Center"/>
                             </StackLayout>
                         </Border>
 
                         <!-- Tipo de Sangre -->
                         <Border Grid.Column="2"
-                                BackgroundColor="#E8F5E9"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 8"
-                                Padding="15,10">
+                    BackgroundColor="#E8F5E9"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 8"
+                    Padding="15,10">
                             <StackLayout Spacing="4">
                                 <Label Text="{Binding Consulta.Empleado.TipoSangre}"
-                                       FontSize="28"
-                                       FontAttributes="Bold"
-                                       TextColor="#4CAF50"
-                                       HorizontalOptions="Center"/>
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#4CAF50"
+                           HorizontalOptions="Center"/>
                                 <Label Text="Tipo Sangre"
-                                       FontSize="13"
-                                       TextColor="{StaticResource MediumGray}"
-                                       HorizontalOptions="Center"/>
+                           FontSize="13"
+                           TextColor="{StaticResource MediumGray}"
+                           HorizontalOptions="Center"/>
                             </StackLayout>
                         </Border>
                     </Grid>

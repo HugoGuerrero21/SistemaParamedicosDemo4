@@ -23,10 +23,16 @@ namespace SistemaParamedicosDemo4.MVVM.Models
         [MaxLength(12)]
         public string Telefono { get; set; }
 
+        [MaxLength(20)]
+        public string Estatus { get; set; }
+
         public DateTime FechaNacimiento { get; set; }
 
         [MaxLength(25)]
         public string IdPuesto { get; set; }
+
+        [MaxLength(500)]
+        public string Foto { get; set; }
 
         //Nombre del puesto (NO se guarda en BD)
         [Ignore]
@@ -52,8 +58,16 @@ namespace SistemaParamedicosDemo4.MVVM.Models
             }
         }
 
-        // ⭐ NUEVA PROPIEDAD: Total de consultas del empleado
+        [Ignore]
+        public bool TieneFoto => !string.IsNullOrWhiteSpace(Foto) &&
+                         (Foto.StartsWith("http://") || Foto.StartsWith("https://"));
+
+        [Ignore]
+        public string FotoUrl => TieneFoto ? Foto : null;
+
         [Ignore]
         public int TotalConsultas { get; set; }
+
+
     }
 }

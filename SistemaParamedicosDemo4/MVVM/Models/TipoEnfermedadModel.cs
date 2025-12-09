@@ -5,7 +5,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
     [Table("CASE_TIPOENFERMEDAD")]
     public class TipoEnfermedadModel
     {
-        [PrimaryKey, AutoIncrement]
+        [PrimaryKey]
         [Column("ID_TIPO_ENFERMEDAD")]
         public int IdTipoEnfermedad { get; set; }
 

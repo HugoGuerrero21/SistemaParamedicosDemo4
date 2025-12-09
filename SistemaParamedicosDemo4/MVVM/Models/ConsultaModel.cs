@@ -57,7 +57,7 @@ namespace SistemaParamedicosDemo4.MVVM.Models
         [Column("ULTIMA_COMIDA")]
         public string UltimaComida { get; set; }
 
-        [MaxLength(500)] // ⭐ Aumentar a 500 como en la API
+        [MaxLength(500)]
         [Column("MOTIVO_CONSULTA")]
         public string MotivoConsulta { get; set; }
 

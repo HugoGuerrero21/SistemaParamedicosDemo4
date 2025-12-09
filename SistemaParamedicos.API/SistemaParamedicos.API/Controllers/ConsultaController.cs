@@ -28,25 +28,132 @@ namespace SistemaParamedicos.API.Controllers
                 var consultas = await _context.Consultas
                     .Include(c => c.Empleado)
                     .Include(c => c.TipoEnfermedad)
+                    .Include(c => c.Usuario)
                     .OrderByDescending(c => c.FechaConsulta)
-                    .Select(c => new ConsultaResumenDto
+                    .ToListAsync();
+
+                // ⭐ CARGAR MEDICAMENTOS MANUALMENTE
+                var consultasDto = new List<ConsultaResumenDto>();
+
+                foreach (var c in consultas)
+                {
+                    // Obtener medicamentos si hay movimiento
+                    List<MedicamentoConsultaDto> medicamentos = null;
+
+                    if (!string.IsNullOrEmpty(c.IdMovimiento))
+                    {
+                        medicamentos = await _context.MovimientosDetalle
+                            .Include(d => d.Producto)
+                            .Where(d => d.IdMovimiento == c.IdMovimiento && d.Status == 1)
+                            .Select(d => new MedicamentoConsultaDto
+                            {
+                                IdProducto = d.IdProducto,
+                                Cantidad = d.Cantidad,
+                                Observaciones = d.Producto != null ? d.Producto.Nombre : null
+                            })
+                            .ToListAsync();
+                    }
+
+                    consultasDto.Add(new ConsultaResumenDto
                     {
                         IdConsulta = c.IdConsulta,
                         IdEmpleado = c.IdEmpleado,
-                        NombreEmpleado = c.Empleado.Nombre,
+                        NombreEmpleado = c.Empleado?.Nombre,
+                        IdUsuarioAcc = c.IdUsuarioAcc,
+                        NombreUsuario = c.Usuario?.Usuario,
+                        IdTipoEnfermedad = c.IdTipoEnfermedad,
+                        NombreTipoEnfermedad = c.TipoEnfermedad?.NombreEnfermedad,
+                        TipoEnfermedad = c.TipoEnfermedad?.NombreEnfermedad,
+                        IdMovimiento = c.IdMovimiento,
                         MotivoConsulta = c.MotivoConsulta,
                         Diagnostico = c.Diagnostico,
-                        TipoEnfermedad = c.TipoEnfermedad.NombreEnfermedad,
-                        FechaConsulta = c.FechaConsulta
-                    })
-                    .ToListAsync();
+                        FechaConsulta = c.FechaConsulta,
+                        FrecuenciaRespiratoria = c.FrecuenciaRespiratoria,
+                        FrecuenciaCardiaca = c.FrecuenciaCardiaca,
+                        Temperatura = c.Temperatura,
+                        PresionArterial = c.PresionArterial,
+                        Observaciones = c.Observaciones,
+                        UltimaComida = c.UltimaComida,
+                        Medicamentos = medicamentos // ⭐ AGREGAR MEDICAMENTOS
+                    });
+                }
 
-                _logger.LogInformation($"✓ {consultas.Count} consultas recuperadas");
-                return Ok(consultas);
+                _logger.LogInformation($"✓ {consultasDto.Count} consultas recuperadas con medicamentos");
+                return Ok(consultasDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"❌ Error al obtener consultas: {ex.Message}");
+                return StatusCode(500, new { error = "Error interno del servidor", detalle = ex.Message });
+            }
+        }
+
+        // GET: api/Consultas/empleado/{idEmpleado}
+        [HttpGet("empleado/{idEmpleado}")]
+        public async Task<ActionResult<IEnumerable<ConsultaResumenDto>>> GetConsultasPorEmpleado(string idEmpleado)
+        {
+            try
+            {
+                var consultas = await _context.Consultas
+                    .Include(c => c.Empleado)
+                    .Include(c => c.TipoEnfermedad)
+                    .Include(c => c.Usuario)
+                    .Where(c => c.IdEmpleado == idEmpleado)
+                    .OrderByDescending(c => c.FechaConsulta)
+                    .ToListAsync();
+
+                // ⭐ CARGAR MEDICAMENTOS MANUALMENTE
+                var consultasDto = new List<ConsultaResumenDto>();
+
+                foreach (var c in consultas)
+                {
+                    // Obtener medicamentos si hay movimiento
+                    List<MedicamentoConsultaDto> medicamentos = null;
+
+                    if (!string.IsNullOrEmpty(c.IdMovimiento))
+                    {
+                        medicamentos = await _context.MovimientosDetalle
+                            .Include(d => d.Producto)
+                            .Where(d => d.IdMovimiento == c.IdMovimiento && d.Status == 1)
+                            .Select(d => new MedicamentoConsultaDto
+                            {
+                                IdProducto = d.IdProducto,
+                                Cantidad = d.Cantidad,
+                                Observaciones = d.Producto != null ? d.Producto.Nombre : null
+                            })
+                            .ToListAsync();
+                    }
+
+                    consultasDto.Add(new ConsultaResumenDto
+                    {
+                        IdConsulta = c.IdConsulta,
+                        IdEmpleado = c.IdEmpleado,
+                        NombreEmpleado = c.Empleado?.Nombre,
+                        IdUsuarioAcc = c.IdUsuarioAcc,
+                        NombreUsuario = c.Usuario?.Usuario,
+                        IdTipoEnfermedad = c.IdTipoEnfermedad,
+                        NombreTipoEnfermedad = c.TipoEnfermedad?.NombreEnfermedad,
+                        TipoEnfermedad = c.TipoEnfermedad?.NombreEnfermedad,
+                        IdMovimiento = c.IdMovimiento,
+                        MotivoConsulta = c.MotivoConsulta,
+                        Diagnostico = c.Diagnostico,
+                        FechaConsulta = c.FechaConsulta,
+                        FrecuenciaRespiratoria = c.FrecuenciaRespiratoria,
+                        FrecuenciaCardiaca = c.FrecuenciaCardiaca,
+                        Temperatura = c.Temperatura,
+                        PresionArterial = c.PresionArterial,
+                        Observaciones = c.Observaciones,
+                        UltimaComida = c.UltimaComida,
+                        Medicamentos = medicamentos // ⭐ AGREGAR MEDICAMENTOS
+                    });
+                }
+
+                _logger.LogInformation($"✓ {consultasDto.Count} consultas encontradas para empleado {idEmpleado}");
+                return Ok(consultasDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ Error al obtener consultas del empleado {idEmpleado}: {ex.Message}");
                 return StatusCode(500, new { error = "Error interno del servidor", detalle = ex.Message });
             }
         }
@@ -68,6 +175,23 @@ namespace SistemaParamedicos.API.Controllers
                     return NotFound(new { mensaje = $"Consulta con ID {id} no encontrada" });
                 }
 
+                // ⭐ CARGAR MEDICAMENTOS SI HAY MOVIMIENTO
+                List<MedicamentoConsultaDto> medicamentos = null;
+
+                if (!string.IsNullOrEmpty(consulta.IdMovimiento))
+                {
+                    medicamentos = await _context.MovimientosDetalle
+                        .Include(d => d.Producto)
+                        .Where(d => d.IdMovimiento == consulta.IdMovimiento && d.Status == 1)
+                        .Select(d => new MedicamentoConsultaDto
+                        {
+                            IdProducto = d.IdProducto,
+                            Cantidad = d.Cantidad,
+                            Observaciones = d.Producto != null ? d.Producto.Nombre : null
+                        })
+                        .ToListAsync();
+                }
+
                 var consultaDto = new ConsultaDto
                 {
                     IdConsulta = consulta.IdConsulta,
@@ -86,7 +210,8 @@ namespace SistemaParamedicos.API.Controllers
                     UltimaComida = consulta.UltimaComida,
                     MotivoConsulta = consulta.MotivoConsulta,
                     FechaConsulta = consulta.FechaConsulta,
-                    Diagnostico = consulta.Diagnostico
+                    Diagnostico = consulta.Diagnostico,
+                    Medicamentos = medicamentos // ⭐ AGREGAR MEDICAMENTOS
                 };
 
                 return Ok(consultaDto);
@@ -94,39 +219,6 @@ namespace SistemaParamedicos.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"❌ Error al obtener consulta {id}: {ex.Message}");
-                return StatusCode(500, new { error = "Error interno del servidor", detalle = ex.Message });
-            }
-        }
-
-        // GET: api/Consultas/empleado/EMP001
-        [HttpGet("empleado/{idEmpleado}")]
-        public async Task<ActionResult<IEnumerable<ConsultaResumenDto>>> GetConsultasPorEmpleado(string idEmpleado)
-        {
-            try
-            {
-                var consultas = await _context.Consultas
-                    .Include(c => c.Empleado)
-                    .Include(c => c.TipoEnfermedad)
-                    .Where(c => c.IdEmpleado == idEmpleado)
-                    .OrderByDescending(c => c.FechaConsulta)
-                    .Select(c => new ConsultaResumenDto
-                    {
-                        IdConsulta = c.IdConsulta,
-                        IdEmpleado = c.IdEmpleado,
-                        NombreEmpleado = c.Empleado.Nombre,
-                        MotivoConsulta = c.MotivoConsulta,
-                        Diagnostico = c.Diagnostico,
-                        TipoEnfermedad = c.TipoEnfermedad.NombreEnfermedad,
-                        FechaConsulta = c.FechaConsulta
-                    })
-                    .ToListAsync();
-
-                _logger.LogInformation($"✓ {consultas.Count} consultas encontradas para empleado {idEmpleado}");
-                return Ok(consultas);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"❌ Error al obtener consultas del empleado {idEmpleado}: {ex.Message}");
                 return StatusCode(500, new { error = "Error interno del servidor", detalle = ex.Message });
             }
         }
@@ -170,11 +262,11 @@ namespace SistemaParamedicos.API.Controllers
                     var movimiento = new MovimientoModel
                     {
                         IdMovimiento = idMovimiento,
-                        IdTipoMovimiento = "MV2",           // SALIDA
-                        IdAlmacen = "ALM6",                 // Almacén de Paramédicos
+                        IdTipoMovimiento = "MV2",
+                        IdAlmacen = "ALM6",
                         FechaMovimiento = DateTime.Now,
-                        IdEmpleado = dto.IdEmpleado,        // Empleado que recibe
-                        IdUsuario = dto.IdUsuarioAcc,       // Paramédico que atiende
+                        IdEmpleado = dto.IdEmpleado,
+                        IdUsuario = dto.IdUsuarioAcc,
                         Status = 1,
                         EsTraspaso = 0
                     };
@@ -191,10 +283,9 @@ namespace SistemaParamedicos.API.Controllers
                             IdMovimientoDetalles = Guid.NewGuid().ToString("N").Substring(0, 25),
                             IdMovimiento = idMovimiento,
                             IdProducto = medicamento.IdProducto,
-                            Cantidad = (float)medicamento.Cantidad, // ⭐ Convertir a float
-                            CantidadUtilizada = (float)medicamento.Cantidad, // ⭐ Convertir a float
+                            Cantidad = medicamento.Cantidad,
+                            CantidadUtilizada = medicamento.Cantidad,
                             Status = 1
-                            // ⚠️ Observaciones no existe en MovimientoDetalleModel, lo quitamos
                         };
 
                         _context.MovimientosDetalle.Add(detalle);
@@ -215,7 +306,7 @@ namespace SistemaParamedicos.API.Controllers
                     IdEmpleado = dto.IdEmpleado,
                     IdUsuarioAcc = dto.IdUsuarioAcc,
                     IdTipoEnfermedad = dto.IdTipoEnfermedad,
-                    IdMovimiento = idMovimiento, // Puede ser null si no hay medicamentos
+                    IdMovimiento = idMovimiento,
                     FrecuenciaRespiratoria = dto.FrecuenciaRespiratoria,
                     FrecuenciaCardiaca = dto.FrecuenciaCardiaca,
                     Temperatura = dto.Temperatura,

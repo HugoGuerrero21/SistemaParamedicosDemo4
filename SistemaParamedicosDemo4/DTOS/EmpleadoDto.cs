@@ -64,9 +64,14 @@ namespace SistemaParamedicosDemo4.DTOS
                 Telefono = this.Telefono ?? "",
                 FechaNacimiento = this.Nacimiento ?? DateTime.Now.AddYears(-30),
                 IdPuesto = this.IdPuesto,
-                NombrePuesto = this.Puesto?.Nombre ?? this.IdPuesto
+                NombrePuesto = this.Puesto?.Nombre ?? this.IdPuesto,
+                Estatus = this.Estado?? "ACTIVO",
+                Foto = this.Foto
+
             };
         }
+
+
 
     }
 }

@@ -224,6 +224,47 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             MostrarFormulario = false;
         }
 
+        public async Task SincronizarTodosTiposAsync()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("🔄 Sincronizando tipos de enfermedad desde API...");
+
+                var tiposDto = await _tipoEnfermedadApiService.ObtenerTiposEnfermedadAsync();
+
+                if (tiposDto == null || tiposDto.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("⚠️ No se obtuvieron tipos de la API");
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"✅ {tiposDto.Count} tipos obtenidos de la API");
+
+                // CONVERTIR Y SINCRONIZAR
+                var tiposModels = tiposDto.Select(dto => dto.ToModel()).ToList();
+                _tipoEnfermedadRepo.SincronizarTiposEnfermedad(tiposModels);
+
+                // ACTUALIZAR UI
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    TiposEnfermedad.Clear();
+                    foreach (var tipo in tiposModels)
+                    {
+                        TiposEnfermedad.Add(tipo);
+                        System.Diagnostics.Debug.WriteLine($"  ✅ Tipo {tipo.IdTipoEnfermedad}: {tipo.NombreEnfermedad}");
+                    }
+                    TotalTipos = TiposEnfermedad.Count;
+                });
+
+                System.Diagnostics.Debug.WriteLine($"✅ Sincronización completa: {TotalTipos} tipos ahora disponibles");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error sincronizando tipos: {ex.Message}");
+            }
+        }
+
+
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
 

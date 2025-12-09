@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SistemaParamedicos.API.DTOs
 {
@@ -80,12 +81,61 @@ namespace SistemaParamedicos.API.DTOs
     // DTO simplificado para listados
     public class ConsultaResumenDto
     {
+        [JsonPropertyName("idConsulta")]
         public int IdConsulta { get; set; }
+
+        [JsonPropertyName("idEmpleado")]
         public string IdEmpleado { get; set; }
+
+        [JsonPropertyName("nombreEmpleado")]
         public string NombreEmpleado { get; set; }
+
+        [JsonPropertyName("idUsuarioAcc")]
+        public string IdUsuarioAcc { get; set; }
+
+        [JsonPropertyName("nombreUsuario")]
+        public string NombreUsuario { get; set; }
+
+        [JsonPropertyName("idTipoEnfermedad")]
+        public int IdTipoEnfermedad { get; set; }
+
+        [JsonPropertyName("nombreTipoEnfermedad")]
+        public string NombreTipoEnfermedad { get; set; }
+
+        [JsonPropertyName("idMovimiento")]
+        public string IdMovimiento { get; set; }
+
+        [JsonPropertyName("motivoConsulta")]
         public string MotivoConsulta { get; set; }
+
+        [JsonPropertyName("diagnostico")]
         public string Diagnostico { get; set; }
+
+        [JsonPropertyName("tipoEnfermedad")]
         public string TipoEnfermedad { get; set; }
+
+        [JsonPropertyName("fechaConsulta")]
         public DateTime FechaConsulta { get; set; }
+
+        [JsonPropertyName("frecuenciaRespiratoria")]
+        public byte? FrecuenciaRespiratoria { get; set; }
+
+        [JsonPropertyName("frecuenciaCardiaca")]
+        public short? FrecuenciaCardiaca { get; set; }
+
+        [JsonPropertyName("temperatura")]
+        public decimal? Temperatura { get; set; }
+
+        [JsonPropertyName("presionArterial")]
+        public string PresionArterial { get; set; }
+
+        [JsonPropertyName("observaciones")]
+        public string Observaciones { get; set; }
+
+        [JsonPropertyName("ultimaComida")]
+        public string UltimaComida { get; set; }
+
+        [JsonPropertyName("medicamentos")]
+        public List<MedicamentoConsultaDto> Medicamentos { get; set; }
     }
 }

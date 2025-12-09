@@ -15,7 +15,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         #region Repositorios y Servicios
         private EmpleadoRepository _empleadoRepo;
         private ConsultaRepository _consultaRepo;
-        private EmpleadoApiService _empleadoApiService; // ⭐ NUEVO
+        private EmpleadoApiService _empleadoApiService;
+        private PuestoRepository _puestoRepo;
         #endregion
 
         #region Properties
@@ -39,8 +40,9 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         {
             _empleadoRepo = new EmpleadoRepository();
             _consultaRepo = new ConsultaRepository();
-            _empleadoApiService = new EmpleadoApiService(); // ⭐ INICIALIZAR
+            _empleadoApiService = new EmpleadoApiService(); 
             EmpleadosFiltrados = new ObservableCollection<EmpleadoModel>();
+            _puestoRepo = new PuestoRepository();
 
             // Inicializar Commands
             BuscarCommand = new Command(Buscar);
@@ -125,6 +127,21 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
 
                 if (empleadosDto != null && empleadosDto.Count > 0)
                 {
+
+                    var puestosParaGuardar = empleadosDto
+                        .Where(dto => dto.Puesto != null)
+                        .Select(dto => dto.Puesto.ToPuestoModel())
+                        .GroupBy(p => p.IdPuesto) // Agrupar por ID para eliminar duplicados
+                        .Select(g => g.First())   // Tomar el primero de cada grupo
+                        .ToList();
+
+                    // B) Guardar los puestos en SQLite
+                    if (puestosParaGuardar.Count > 0)
+                    {
+                        _puestoRepo.SincronizarPuestos(puestosParaGuardar);
+                        System.Diagnostics.Debug.WriteLine($"✅ {puestosParaGuardar.Count} puestos actualizados en BD Local");
+                    }
+
                     System.Diagnostics.Debug.WriteLine($"✅ {empleadosDto.Count} empleados obtenidos de la API");
 
                     // 2️⃣ CONVERTIR A MODELOS
@@ -180,7 +197,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine("📂 Cargando empleados desde SQLite...");
 
-                var empleados = _empleadoRepo.GetAll();
+                var empleados = _empleadoRepo.GetEmpleadosActivos();
 
                 // Obtener total de consultas de cada empleado
                 _todosLosEmpleados = empleados.Select(e =>
