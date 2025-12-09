@@ -31,7 +31,7 @@ namespace SistemaParamedicosDemo4
             _ = CheckSavedCrashAsync();
 
             //SOLO LO DEBO DE USAR CUANDO ESTE DESARROLLANDO
-            DatabaseManager.Instance.ReiniciarBaseDeDatos();
+            //DatabaseManager.Instance.ReiniciarBaseDeDatos();
 
 
         }

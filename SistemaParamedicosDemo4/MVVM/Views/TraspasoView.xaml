@@ -62,29 +62,54 @@
 
     <Grid>
         <ScrollView>
-            <StackLayout Padding="20">
+            <StackLayout>
+                <StackLayout.Padding>
+                    <OnIdiom x:TypeArguments="Thickness">
+                        <OnIdiom.Phone>10</OnIdiom.Phone>
+                        <OnIdiom.Tablet>20</OnIdiom.Tablet>
+                        <OnIdiom.Desktop>20</OnIdiom.Desktop>
+                    </OnIdiom>
+                </StackLayout.Padding>
 
                 <!-- Header -->
-                <Grid Margin="0,0,0,20">
+                <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <StackLayout Grid.Column="0">
-                        <Label Text="Recepción de Traspasos" Style="{StaticResource HeaderStyle}"/>
-                        <Label Text="Gestión de traspasos desde Hermosillo (ALM1) hacia Paramédicos (ALM6)" Style="{StaticResource BodyStyle}"/>
+                        <Label Text="Recepción de Traspasos" Style="{StaticResource HeaderStyle}">
+                            <Label.FontSize>
+                                <OnIdiom x:TypeArguments="x:Double">
+                                    <OnIdiom.Phone>20</OnIdiom.Phone>
+                                    <OnIdiom.Tablet>24</OnIdiom.Tablet>
+                                    <OnIdiom.Desktop>24</OnIdiom.Desktop>
+                                </OnIdiom>
+                            </Label.FontSize>
+                        </Label>
+                        <Label Text="Gestión de traspasos desde Hermosillo (ALM1) hacia Paramédicos (ALM6)" 
+                               Style="{StaticResource BodyStyle}"
+                               FontSize="12">
+                            <Label.IsVisible>
+                                <OnIdiom x:TypeArguments="x:Boolean">
+                                    <OnIdiom.Phone>False</OnIdiom.Phone>
+                                    <OnIdiom.Tablet>True</OnIdiom.Tablet>
+                                    <OnIdiom.Desktop>True</OnIdiom.Desktop>
+                                </OnIdiom>
+                            </Label.IsVisible>
+                        </Label>
                     </StackLayout>
 
                     <!-- Botón Refrescar -->
                     <Button Grid.Column="1"
-                            Text="🔄 Refrescar"
+                            Text="🔄"
                             Command="{Binding RefrescarCommand}"
                             BackgroundColor="{StaticResource SecondaryColor}"
                             TextColor="White"
                             CornerRadius="8"
-                            Padding="15,10"
-                            FontSize="14"
+                            Padding="12,8"
+                            FontSize="16"
                             VerticalOptions="Start"/>
                 </Grid>
 
@@ -101,126 +126,196 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Tab Pendientes -->
                         <Button Grid.Column="0"
-                Text="📦 Pendientes"
-                Command="{Binding CambiarVistaPendientesCommand}"
-                BackgroundColor="{Binding ColorTabPendientes}"
-                TextColor="{Binding ColorTextoTabPendientes}"
-                CornerRadius="8"
-                FontSize="14"
-                FontAttributes="Bold"
-                HeightRequest="45"/>
+                                Text="📦 Pendientes"
+                                Command="{Binding CambiarVistaPendientesCommand}"
+                                BackgroundColor="{Binding ColorTabPendientes}"
+                                TextColor="{Binding ColorTextoTabPendientes}"
+                                CornerRadius="8"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                HeightRequest="45"/>
 
-                        <!-- Tab Historial -->
                         <Button Grid.Column="1"
-                Text="📋 Historial"
-                Command="{Binding CambiarVistaHistorialCommand}"
-                BackgroundColor="{Binding ColorTabHistorial}"
-                TextColor="{Binding ColorTextoTabHistorial}"
-                CornerRadius="8"
-                FontSize="14"
-                FontAttributes="Bold"
-                HeightRequest="45"/>
+                                Text="📋 Historial"
+                                Command="{Binding CambiarVistaHistorialCommand}"
+                                BackgroundColor="{Binding ColorTabHistorial}"
+                                TextColor="{Binding ColorTextoTabHistorial}"
+                                CornerRadius="8"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                HeightRequest="45"/>
                     </Grid>
                 </Border>
 
                 <!-- Tarjetas de Estadísticas -->
-                <Grid ColumnSpacing="10" Margin="0,0,0,20" IsVisible="{Binding MostrandoPendientes}">
+                <Grid Margin="0,0,0,15" IsVisible="{Binding MostrandoPendientes}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
                     <!-- Total Traspasos -->
-                    <Border Grid.Column="0"
+                    <Border Grid.Column="0" Grid.Row="0"
                             BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="{StaticResource BorderColor}"
                             StrokeShape="RoundRectangle 12"
-                            Padding="15,12">
-                        <StackLayout Spacing="5">
-                            <Label Text="📦"
-                                   FontSize="28"
-                                   HorizontalOptions="Center"/>
+                            Padding="12,10"
+                            Margin="2">
+                        <StackLayout Spacing="3">
+                            <Label Text="📦" FontSize="24" HorizontalOptions="Center"/>
                             <Label Text="{Binding TotalTraspasos}"
-                                   FontSize="32"
+                                   FontSize="28"
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource PrimaryColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Traspasos pendientes"
-                                   FontSize="13"
+                            <Label Text="Traspasos"
+                                   FontSize="11"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
                     <!-- Productos Totales -->
-                    <Border Grid.Column="1"
+                    <Border Grid.Column="1" Grid.Row="0"
                             BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="{StaticResource PrimaryColor}"
                             StrokeShape="RoundRectangle 12"
-                            Padding="15,12">
-                        <StackLayout Spacing="5">
-                            <Label Text="📋"
-                                   FontSize="28"
-                                   HorizontalOptions="Center"/>
+                            Padding="12,10"
+                            Margin="2">
+                        <StackLayout Spacing="3">
+                            <Label Text="📋" FontSize="24" HorizontalOptions="Center"/>
                             <Label Text="{Binding ProductosTotales}"
-                                   FontSize="32"
+                                   FontSize="28"
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource PrimaryColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Productos totales"
-                                   FontSize="13"
+                            <Label Text="Productos"
+                                   FontSize="11"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
                     <!-- Completados -->
-                    <Border Grid.Column="2"
+                    <Border Grid.Column="2" Grid.Row="0"
                             BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="{StaticResource SuccessColor}"
                             StrokeShape="RoundRectangle 12"
-                            Padding="15,12">
-                        <StackLayout Spacing="5">
-                            <Label Text="✅"
-                                   FontSize="28"
-                                   HorizontalOptions="Center"/>
+                            Padding="12,10"
+                            Margin="2">
+                        <Border.IsVisible>
+                            <OnIdiom x:TypeArguments="x:Boolean">
+                                <OnIdiom.Phone>False</OnIdiom.Phone>
+                                <OnIdiom.Tablet>True</OnIdiom.Tablet>
+                                <OnIdiom.Desktop>True</OnIdiom.Desktop>
+                            </OnIdiom>
+                        </Border.IsVisible>
+                        <StackLayout Spacing="3">
+                            <Label Text="✅" FontSize="24" HorizontalOptions="Center"/>
                             <Label Text="{Binding ProductosCompletados}"
-                                   FontSize="32"
+                                   FontSize="28"
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource SuccessColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Productos Recibidos"
-                                   FontSize="13"
+                            <Label Text="Recibidos"
+                                   FontSize="11"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
                     <!-- Pendientes -->
-                    <Border Grid.Column="3"
+                    <Border Grid.Column="3" Grid.Row="0"
                             BackgroundColor="White"
                             StrokeThickness="1"
                             Stroke="{StaticResource WarningColor}"
                             StrokeShape="RoundRectangle 12"
-                            Padding="15,12">
-                        <StackLayout Spacing="5">
-                            <Label Text="⏳"
-                                   FontSize="28"
-                                   HorizontalOptions="Center"/>
+                            Padding="12,10"
+                            Margin="2">
+                        <Border.IsVisible>
+                            <OnIdiom x:TypeArguments="x:Boolean">
+                                <OnIdiom.Phone>False</OnIdiom.Phone>
+                                <OnIdiom.Tablet>True</OnIdiom.Tablet>
+                                <OnIdiom.Desktop>True</OnIdiom.Desktop>
+                            </OnIdiom>
+                        </Border.IsVisible>
+                        <StackLayout Spacing="3">
+                            <Label Text="⏳" FontSize="24" HorizontalOptions="Center"/>
                             <Label Text="{Binding ProductosPendientes}"
-                                   FontSize="32"
+                                   FontSize="28"
                                    FontAttributes="Bold"
                                    TextColor="{StaticResource WarningColor}"
                                    HorizontalOptions="Center"/>
-                            <Label Text="Productos Pendientes"
-                                   FontSize="13"
+                            <Label Text="Pendientes"
+                                   FontSize="11"
+                                   TextColor="{StaticResource MediumGray}"
+                                   HorizontalOptions="Center"/>
+                        </StackLayout>
+                    </Border>
+
+                    <!-- Completados (segunda fila móvil) -->
+                    <Border Grid.Column="0" Grid.Row="1"
+                            BackgroundColor="White"
+                            StrokeThickness="1"
+                            Stroke="{StaticResource SuccessColor}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="12,10"
+                            Margin="2">
+                        <Border.IsVisible>
+                            <OnIdiom x:TypeArguments="x:Boolean">
+                                <OnIdiom.Phone>True</OnIdiom.Phone>
+                                <OnIdiom.Tablet>False</OnIdiom.Tablet>
+                                <OnIdiom.Desktop>False</OnIdiom.Desktop>
+                            </OnIdiom>
+                        </Border.IsVisible>
+                        <StackLayout Spacing="3">
+                            <Label Text="✅" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosCompletados}"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource SuccessColor}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Recibidos"
+                                   FontSize="11"
+                                   TextColor="{StaticResource MediumGray}"
+                                   HorizontalOptions="Center"/>
+                        </StackLayout>
+                    </Border>
+
+                    <!-- Pendientes (segunda fila móvil) -->
+                    <Border Grid.Column="1" Grid.Row="1"
+                            BackgroundColor="White"
+                            StrokeThickness="1"
+                            Stroke="{StaticResource WarningColor}"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="12,10"
+                            Margin="2">
+                        <Border.IsVisible>
+                            <OnIdiom x:TypeArguments="x:Boolean">
+                                <OnIdiom.Phone>True</OnIdiom.Phone>
+                                <OnIdiom.Tablet>False</OnIdiom.Tablet>
+                                <OnIdiom.Desktop>False</OnIdiom.Desktop>
+                            </OnIdiom>
+                        </Border.IsVisible>
+                        <StackLayout Spacing="3">
+                            <Label Text="⏳" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosPendientes}"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource WarningColor}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Pendientes"
+                                   FontSize="11"
                                    TextColor="{StaticResource MediumGray}"
                                    HorizontalOptions="Center"/>
                         </StackLayout>
@@ -246,9 +341,7 @@
                                 SelectionMode="None">
                     <CollectionView.EmptyView>
                         <StackLayout Padding="50" VerticalOptions="Center">
-                            <Label Text="📦"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="📦" FontSize="48" HorizontalOptions="Center"/>
                             <Label Text="No hay traspasos pendientes"
                                    FontSize="18"
                                    TextColor="{StaticResource MediumGray}"
@@ -264,9 +357,9 @@
 
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,0,10">
+                            <Border Style="{StaticResource CardStyle}" Padding="15" Margin="0,0,0,10">
                                 <StackLayout>
-                                    <!-- Header del Traspaso (Clickeable) -->
+                                    <!-- Header del Traspaso -->
                                     <Grid>
                                         <Grid.GestureRecognizers>
                                             <TapGestureRecognizer 
@@ -286,112 +379,26 @@
                                                FontSize="20"
                                                TextColor="{StaticResource PrimaryColor}"
                                                VerticalOptions="Center"
-                                               Margin="0,0,15,0"/>
+                                               Margin="0,0,10,0"/>
 
                                         <!-- Info del Traspaso -->
-                                        <StackLayout Grid.Column="1" Spacing="6">
+                                        <StackLayout Grid.Column="1" Spacing="5">
                                             <Label Text="{Binding IdTraspaso, StringFormat='Traspaso: {0}'}"
                                                    Style="{StaticResource SubHeaderStyle}"
-                                                   FontSize="18"/>
+                                                   FontSize="16"/>
 
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <!-- Almacén Origen -->
-                                                <Label Grid.Row="0" Grid.Column="0"
-                                                       Text="Almacén Origen:"
-                                                       Style="{StaticResource FieldLabelStyle}"
-                                                       FontSize="12"
-                                                       VerticalOptions="Center"
-                                                       Margin="0,0,10,0"/>
-                                                <Label Grid.Row="0" Grid.Column="1"
-                                                       Text="{Binding NombreAlmacenOrigen}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
-
-                                                <!-- Almacén Destino -->
-                                                <Label Grid.Row="1" Grid.Column="0"
-                                                       Text="Almacén Destino:"
-                                                       Style="{StaticResource FieldLabelStyle}"
-                                                       FontSize="12"
-                                                       VerticalOptions="Center"
-                                                       Margin="0,0,10,0"/>
-                                                <Label Grid.Row="1" Grid.Column="1"
-                                                       Text="{Binding NombreAlmacenDestino}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
-
-                                                <!-- Chofer -->
-                                                <Label Grid.Row="2" Grid.Column="0"
-                                                       Text="Chofer:"
-                                                       Style="{StaticResource FieldLabelStyle}"
-                                                       FontSize="12"
-                                                       VerticalOptions="Center"
-                                                       Margin="0,0,10,0"/>
-                                                <Label Grid.Row="2" Grid.Column="1"
-                                                       Text="{Binding NombreChofer}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
-
-                                                <!-- Unidad -->
-                                                <Label Grid.Row="3" Grid.Column="0"
-                                                       Text="Unidad:"
-                                                       Style="{StaticResource FieldLabelStyle}"
-                                                       FontSize="12"
-                                                       VerticalOptions="Center"
-                                                       Margin="0,0,10,0"/>
-                                                <Label Grid.Row="3" Grid.Column="1"
-                                                       Text="{Binding NoEconomico}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
-
-                                                <!-- Fecha de Envío -->
-                                                <Label Grid.Row="4" Grid.Column="0"
-                                                       Text="Fecha Envío:"
-                                                       Style="{StaticResource FieldLabelStyle}"
-                                                       FontSize="12"
-                                                       VerticalOptions="Center"
-                                                       Margin="0,0,10,0"/>
-                                                <Label Grid.Row="4" Grid.Column="1"
-                                                       Text="{Binding FechaEnvioFormateada}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"
-                                                       VerticalOptions="Center"/>
-
-                                                <!-- Progreso -->
-                                                <Label Grid.Row="5" Grid.Column="0"
-                                                       Text="Progreso:"
-                                                       Style="{StaticResource FieldLabelStyle}"
-                                                       FontSize="12"
-                                                       VerticalOptions="Center"
-                                                       Margin="0,0,10,0"/>
-                                                <Label Grid.Row="5" Grid.Column="1"
-                                                       Text="{Binding ProgresoTexto}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="12"
+                                            <StackLayout Spacing="3">
+                                                <Label Text="{Binding NombreAlmacenOrigen, StringFormat='Origen: {0}'}"
+                                                       FontSize="11"
+                                                       TextColor="{StaticResource MediumGray}"/>
+                                                <Label Text="{Binding NombreChofer, StringFormat='Chofer: {0}'}"
+                                                       FontSize="11"
+                                                       TextColor="{StaticResource MediumGray}"/>
+                                                <Label Text="{Binding ProgresoTexto, StringFormat='Progreso: {0}'}"
+                                                       FontSize="11"
                                                        TextColor="{StaticResource SuccessColor}"
-                                                       FontAttributes="Bold"
-                                                       VerticalOptions="Center"/>
-                                            </Grid>
+                                                       FontAttributes="Bold"/>
+                                            </StackLayout>
                                         </StackLayout>
 
                                         <!-- Badge de Estado -->
@@ -399,199 +406,168 @@
                                                 BackgroundColor="{Binding ColorStatus}"
                                                 StrokeThickness="0"
                                                 StrokeShape="RoundRectangle 12"
-                                                Padding="12,6"
+                                                Padding="10,5"
                                                 VerticalOptions="Start">
                                             <Label Text="{Binding StatusTexto}"
                                                    TextColor="White"
-                                                   FontSize="12"
+                                                   FontSize="11"
                                                    FontAttributes="Bold"/>
                                         </Border>
                                     </Grid>
 
                                     <!-- Detalles del Traspaso (Expandible) -->
-                                    <StackLayout IsVisible="{Binding Expandido}" Margin="0,20,0,0">
+                                    <StackLayout IsVisible="{Binding Expandido}" Margin="0,15,0,0">
 
-                                        <!-- Lista de Productos (Tabla) -->
-                                        <!-- ⭐ TABLA DE PRODUCTOS CORREGIDA -->
+                                        <!-- DESKTOP/TABLET: Tabla horizontal -->
                                         <Border BackgroundColor="#F8F9FA"
-        StrokeThickness="1"
-        Stroke="#DEE2E6"
-        StrokeShape="RoundRectangle 8"
-        Padding="0">
+                                                StrokeThickness="1"
+                                                Stroke="#DEE2E6"
+                                                StrokeShape="RoundRectangle 8"
+                                                Padding="0">
+                                            <Border.IsVisible>
+                                                <OnIdiom x:TypeArguments="x:Boolean">
+                                                    <OnIdiom.Phone>False</OnIdiom.Phone>
+                                                    <OnIdiom.Tablet>True</OnIdiom.Tablet>
+                                                    <OnIdiom.Desktop>True</OnIdiom.Desktop>
+                                                </OnIdiom>
+                                            </Border.IsVisible>
+
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
-                                                    <!-- Header -->
                                                     <RowDefinition Height="Auto"/>
-                                                    <!-- Items -->
                                                 </Grid.RowDefinitions>
 
-                                                <!-- ⭐ HEADER DE LA TABLA -->
+                                                <!-- Header de la Tabla -->
                                                 <Grid Grid.Row="0" 
-              BackgroundColor="#343A40"
-              Padding="12,10">
+                                                      BackgroundColor="#343A40"
+                                                      Padding="12,10">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="120"/>
-                                                        <!-- Clave Producto -->
-                                                        <ColumnDefinition Width="2*"/>
-                                                        <!-- Nombre Producto -->
-                                                        <ColumnDefinition Width="90"/>
-                                                        <!-- Solicitada -->
-                                                        <ColumnDefinition Width="90"/>
-                                                        <!-- Recibida -->
-                                                        <ColumnDefinition Width="90"/>
-                                                        <!-- Faltante -->
-                                                        <ColumnDefinition Width="120"/>
-                                                        <!-- Estado -->
                                                         <ColumnDefinition Width="100"/>
-                                                        <!-- Acción -->
+                                                        <ColumnDefinition Width="2*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="90"/>
                                                     </Grid.ColumnDefinitions>
 
-                                                    <Label Grid.Column="0" Text="Clave" 
-                   TextColor="White" FontSize="12" FontAttributes="Bold" 
-                   VerticalOptions="Center"/>
-                                                    <Label Grid.Column="1" Text="Producto" 
-                   TextColor="White" FontSize="12" FontAttributes="Bold" 
-                   VerticalOptions="Center"/>
-                                                    <Label Grid.Column="2" Text="Solicitada" 
-                   TextColor="White" FontSize="12" FontAttributes="Bold" 
-                   HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                    <Label Grid.Column="3" Text="Recibida" 
-                   TextColor="White" FontSize="12" FontAttributes="Bold" 
-                   HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                    <Label Grid.Column="4" Text="Faltante" 
-                   TextColor="White" FontSize="12" FontAttributes="Bold" 
-                   HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                    <Label Grid.Column="5" Text="Estado" 
-                   TextColor="White" FontSize="12" FontAttributes="Bold" 
-                   HorizontalOptions="Center" VerticalOptions="Center"/>
-                                                    <Label Grid.Column="6" Text="Acción" 
-                   TextColor="White" FontSize="12" FontAttributes="Bold" 
-                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="0" Text="Clave" TextColor="White" FontSize="12" FontAttributes="Bold" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="1" Text="Producto" TextColor="White" FontSize="12" FontAttributes="Bold" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="2" Text="Solicitada" TextColor="White" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="3" Text="Recibida" TextColor="White" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="4" Text="Faltante" TextColor="White" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="5" Text="Estado" TextColor="White" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                    <Label Grid.Column="6" Text="Acción" TextColor="White" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
                                                 </Grid>
 
-                                                <!-- ⭐ ITEMS DE LA TABLA -->
+                                                <!-- Items de la Tabla -->
                                                 <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding Detalles}"
-                        SelectionMode="None">
+                                                                ItemsSource="{Binding Detalles}"
+                                                                SelectionMode="None">
                                                     <CollectionView.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Grid BackgroundColor="White"
-                          Padding="12,15">
+                                                            <Grid BackgroundColor="White" Padding="12,15">
                                                                 <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="120"/>
-                                                                    <ColumnDefinition Width="2*"/>
-                                                                    <ColumnDefinition Width="90"/>
-                                                                    <ColumnDefinition Width="90"/>
-                                                                    <ColumnDefinition Width="90"/>
-                                                                    <ColumnDefinition Width="120"/>
                                                                     <ColumnDefinition Width="100"/>
+                                                                    <ColumnDefinition Width="2*"/>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="100"/>
+                                                                    <ColumnDefinition Width="90"/>
                                                                 </Grid.ColumnDefinitions>
 
-                                                                <!-- Clave Producto -->
-                                                                <Label Grid.Column="0"
-                               Text="{Binding IdProducto}"
-                               FontSize="12"
-                               TextColor="#343A40"
-                               FontAttributes="Bold"
-                               VerticalOptions="Center"
-                               LineBreakMode="TailTruncation"/>
+                                                                <Label Grid.Column="0" Text="{Binding IdProducto}" FontSize="11" TextColor="#343A40" FontAttributes="Bold" VerticalOptions="Center"/>
+                                                                <Label Grid.Column="1" Text="{Binding NombreCompletoProducto}" FontSize="11" TextColor="#343A40" VerticalOptions="Center" LineBreakMode="WordWrap" Margin="5,0"/>
+                                                                <Label Grid.Column="2" Text="{Binding Cantidad, StringFormat='{0:F0}'}" FontSize="13" FontAttributes="Bold" TextColor="#343A40" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                                <Label Grid.Column="3" Text="{Binding CantidadRecibida, StringFormat='{0:F0}'}" FontSize="13" FontAttributes="Bold" TextColor="#28A745" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                                <Label Grid.Column="4" Text="{Binding CantidadFaltante, StringFormat='{0:F0}'}" FontSize="13" FontAttributes="Bold" TextColor="#FFC107" HorizontalOptions="Center" VerticalOptions="Center"/>
 
-                                                                <!-- Nombre Producto -->
-                                                                <Label Grid.Column="1"
-                               Text="{Binding NombreCompletoProducto}"
-                               FontSize="12"
-                               TextColor="#343A40"
-                               VerticalOptions="Center"
-                               LineBreakMode="WordWrap"
-                               MaxLines="2"
-                               Margin="5,0"/>
-
-                                                                <!-- Solicitada -->
-                                                                <Label Grid.Column="2"
-                               Text="{Binding Cantidad, StringFormat='{0:F0}'}"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="#343A40"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-
-                                                                <!-- Recibida -->
-                                                                <Label Grid.Column="3"
-                               Text="{Binding CantidadRecibida, StringFormat='{0:F0}'}"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="#28A745"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-
-                                                                <!-- Faltante -->
-                                                                <Label Grid.Column="4"
-                               Text="{Binding CantidadFaltante, StringFormat='{0:F0}'}"
-                               FontSize="14"
-                               FontAttributes="Bold"
-                               TextColor="#FFC107"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-
-                                                                <!-- Estado -->
-                                                                <Border Grid.Column="5"
-                                BackgroundColor="{Binding ColorEstado}"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 12"
-                                Padding="10,6"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center">
-                                                                    <Label Text="{Binding TextoEstado}"
-                                   TextColor="White"
-                                   FontSize="11"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
+                                                                <Border Grid.Column="5" BackgroundColor="{Binding ColorEstado}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="8,5" HorizontalOptions="Center" VerticalOptions="Center">
+                                                                    <Label Text="{Binding TextoEstado}" TextColor="White" FontSize="10" FontAttributes="Bold"/>
                                                                 </Border>
 
-                                                                <!-- Acción (Botones ✓ y ✕) -->
-                                                                <HorizontalStackLayout Grid.Column="6"
-                                               Spacing="8"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center"
-                                               IsVisible="{Binding MostrarBotonesAccion}">
-
-                                                                    <!-- Botón Check (Sí llegó TODO) -->
-                                                                    <Button Text="✓"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ConfirmarRecepcionCommand}"
-                                    CommandParameter="{Binding .}"
-                                    BackgroundColor="#28A745"
-                                    TextColor="White"
-                                    CornerRadius="8"
-                                    WidthRequest="38"
-                                    HeightRequest="38"
-                                    FontSize="18"
-                                    FontAttributes="Bold"
-                                    Padding="0"
-                                    VerticalOptions="Center"/>
-
-                                                                    <!-- Botón X (No llegó NADA) -->
-                                                                    <Button Text="✕"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RechazarRecepcionCommand}"
-                                    CommandParameter="{Binding .}"
-                                    BackgroundColor="#DC3545"
-                                    TextColor="White"
-                                    CornerRadius="8"
-                                    WidthRequest="38"
-                                    HeightRequest="38"
-                                    FontSize="18"
-                                    FontAttributes="Bold"
-                                    Padding="0"
-                                    VerticalOptions="Center"/>
+                                                                <HorizontalStackLayout Grid.Column="6" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding MostrarBotonesAccion}">
+                                                                    <Button Text="✓" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ConfirmarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#28A745" TextColor="White" CornerRadius="6" WidthRequest="32" HeightRequest="32" FontSize="16" Padding="0"/>
+                                                                    <Button Text="✕" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RechazarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#DC3545" TextColor="White" CornerRadius="6" WidthRequest="32" HeightRequest="32" FontSize="16" Padding="0"/>
                                                                 </HorizontalStackLayout>
-
                                                             </Grid>
                                                         </DataTemplate>
                                                     </CollectionView.ItemTemplate>
                                                 </CollectionView>
                                             </Grid>
                                         </Border>
+
+                                        <!-- MOBILE: Cards verticales -->
+                                        <StackLayout BindableLayout.ItemsSource="{Binding Detalles}">
+                                            <StackLayout.IsVisible>
+                                                <OnIdiom x:TypeArguments="x:Boolean">
+                                                    <OnIdiom.Phone>True</OnIdiom.Phone>
+                                                    <OnIdiom.Tablet>False</OnIdiom.Tablet>
+                                                    <OnIdiom.Desktop>False</OnIdiom.Desktop>
+                                                </OnIdiom>
+                                            </StackLayout.IsVisible>
+
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BackgroundColor="White"
+                                                            StrokeThickness="1"
+                                                            Stroke="#DEE2E6"
+                                                            StrokeShape="RoundRectangle 8"
+                                                            Padding="12"
+                                                            Margin="0,5">
+                                                        <StackLayout Spacing="8">
+                                                            <!-- Clave y Estado -->
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <Label Grid.Column="0" Text="{Binding IdProducto}" FontSize="13" FontAttributes="Bold" TextColor="#343A40" VerticalOptions="Center"/>
+                                                                <Border Grid.Column="1" BackgroundColor="{Binding ColorEstado}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="8,4">
+                                                                    <Label Text="{Binding TextoEstado}" TextColor="White" FontSize="10" FontAttributes="Bold"/>
+                                                                </Border>
+                                                            </Grid>
+
+                                                            <!-- Nombre del Producto -->
+                                                            <Label Text="{Binding NombreCompletoProducto}" FontSize="12" TextColor="#6C757D" LineBreakMode="WordWrap"/>
+
+                                                            <!-- Cantidades -->
+                                                            <Grid ColumnSpacing="10">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <StackLayout Grid.Column="0">
+                                                                    <Label Text="Solicitada" FontSize="10" TextColor="#6C757D"/>
+                                                                    <Label Text="{Binding Cantidad, StringFormat='{0:F0}'}" FontSize="16" FontAttributes="Bold" TextColor="#343A40"/>
+                                                                </StackLayout>
+
+                                                                <StackLayout Grid.Column="1">
+                                                                    <Label Text="Recibida" FontSize="10" TextColor="#6C757D"/>
+                                                                    <Label Text="{Binding CantidadRecibida, StringFormat='{0:F0}'}" FontSize="16" FontAttributes="Bold" TextColor="#28A745"/>
+                                                                </StackLayout>
+
+                                                                <StackLayout Grid.Column="2">
+                                                                    <Label Text="Faltante" FontSize="10" TextColor="#6C757D"/>
+                                                                    <Label Text="{Binding CantidadFaltante, StringFormat='{0:F0}'}" FontSize="16" FontAttributes="Bold" TextColor="#FFC107"/>
+                                                                </StackLayout>
+                                                            </Grid>
+
+                                                            <!-- Botones de Acción -->
+                                                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" IsVisible="{Binding MostrarBotonesAccion}">
+                                                                <Button Text="✓ Confirmar" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ConfirmarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#28A745" TextColor="White" CornerRadius="6" Padding="15,8" FontSize="13"/>
+                                                                <Button Text="✕ Rechazar" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RechazarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#DC3545" TextColor="White" CornerRadius="6" Padding="15,8" FontSize="13"/>
+                                                            </HorizontalStackLayout>
+                                                        </StackLayout>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </StackLayout>
                                     </StackLayout>
                                 </StackLayout>
                             </Border>

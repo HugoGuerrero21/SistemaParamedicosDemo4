@@ -41,13 +41,11 @@ namespace SistemaParamedicosDemo4
             builder.Services.AddTransient<ConsultaViewModel>();
             builder.Services.AddTransient<HistorialConsultasViewModel>();
             builder.Services.AddTransient<EmpleadosListViewModel>();
-            builder.Services.AddTransient<DetalleConsultaViewModel>();
 
             // ⭐ REGISTRAR VISTAS
             builder.Services.AddTransient<ConsultaView>();
             builder.Services.AddTransient<HistorialConsultasView>();
             builder.Services.AddTransient<EmpleadosListView>();
-            builder.Services.AddTransient<DetalleConsultaView>();
 #endif
 
             return builder.Build();

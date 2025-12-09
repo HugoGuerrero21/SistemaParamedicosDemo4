@@ -12,7 +12,6 @@ namespace SistemaParamedicosDemo4
             Routing.RegisterRoute("empleados", typeof(EmpleadosListView));
             Routing.RegisterRoute("consulta", typeof(ConsultaView));
             Routing.RegisterRoute("historial", typeof(HistorialConsultasView));
-            Routing.RegisterRoute("detalleConsulta", typeof(DetalleConsultaView));
             Routing.RegisterRoute("inventario", typeof(InventarioView));
             Routing.RegisterRoute("tiposEnfermedad", typeof(GestionTiposEnfermedadView));
             Routing.RegisterRoute("traspaso", typeof(TraspasoView));
