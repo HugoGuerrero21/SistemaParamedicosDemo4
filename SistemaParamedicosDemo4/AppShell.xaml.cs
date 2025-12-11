@@ -16,6 +16,7 @@ namespace SistemaParamedicosDemo4
             Routing.RegisterRoute("tiposEnfermedad", typeof(GestionTiposEnfermedadView));
             Routing.RegisterRoute("traspaso", typeof(TraspasoView));
             Routing.RegisterRoute("historicoMovimiento", typeof(HistorialConsultasView));
+            Routing.RegisterRoute("estadisticas", typeof(EstadisticasView));
         }
 
         private async void OnCerrarSesionClicked(object sender, EventArgs e)

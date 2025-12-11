@@ -366,6 +366,130 @@ namespace SistemaParamedicos.API.Controllers
             }
         }
 
+        // GET: api/Consultas/estadisticas
+        // GET: api/Consultas/estadisticas
+        [HttpGet("estadisticas")]
+        public async Task<ActionResult<EstadisticasResponseDto>> GetEstadisticas(
+            [FromQuery] DateTime fechaInicio,
+            [FromQuery] DateTime fechaFin)
+        {
+            try
+            {
+                // 1️⃣ AJUSTE DE FECHAS
+                // Asegurar que fechaInicio sea el comienzo del día y fechaFin el final del día
+                DateTime inicio = fechaInicio.Date;
+                DateTime fin = fechaFin.Date.AddDays(1).AddTicks(-1); // 23:59:59.999
+
+                _logger.LogInformation($"📊 Obteniendo estadísticas: Desde {inicio} hasta {fin}");
+
+                // VALIDACIÓN BÁSICA
+                if (inicio > fin)
+                {
+                    return BadRequest(new { error = "La fecha de inicio no puede ser mayor a la fecha final." });
+                }
+
+                string periodo = $"Del {inicio:dd/MM/yyyy} al {fin:dd/MM/yyyy}";
+
+                // 2️⃣ OBTENER TODOS LOS TIPOS DE ENFERMEDAD
+                var todosTiposEnfermedad = await _context.TiposEnfermedad
+                    .OrderBy(t => t.NombreEnfermedad)
+                    .ToListAsync();
+
+                // 3️⃣ CONSULTAR DATOS AGRUPADOS POR RANGO DE FECHAS
+                var consultasAgrupadas = await _context.Consultas
+                    .Include(c => c.TipoEnfermedad)
+                    .Where(c => c.FechaConsulta >= inicio && c.FechaConsulta <= fin)
+                    .GroupBy(c => new
+                    {
+                        c.IdTipoEnfermedad,
+                        c.TipoEnfermedad.NombreEnfermedad
+                    })
+                    .Select(g => new
+                    {
+                        IdTipoEnfermedad = g.Key.IdTipoEnfermedad,
+                        NombreEnfermedad = g.Key.NombreEnfermedad,
+                        Cantidad = g.Count()
+                    })
+                    .ToListAsync();
+
+                // 4️⃣ CALCULAR TOTAL
+                int totalConsultas = consultasAgrupadas.Sum(x => x.Cantidad);
+
+                // 5️⃣ COLORES PREDEFINIDOS
+                var coloresPredefinidos = new List<string>
+                {
+                    "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8",
+                    "#F7DC6F", "#BB8FCE", "#85C1E2", "#F8B739", "#52B788",
+                    "#E07A5F", "#81C3D7", "#F4A261", "#2A9D8F", "#E76F51"
+                };
+
+                // 6️⃣ CREAR ESTADÍSTICAS
+                var estadisticas = new List<EstadisticaEnfermedadDto>();
+                int colorIndex = 0;
+
+                foreach (var tipo in todosTiposEnfermedad)
+                {
+                    var consultaTipo = consultasAgrupadas.FirstOrDefault(c => c.IdTipoEnfermedad == tipo.IdTipoEnfermedad);
+                    int cantidad = consultaTipo?.Cantidad ?? 0;
+
+                    decimal porcentaje = totalConsultas > 0
+                        ? Math.Round((decimal)cantidad / totalConsultas * 100, 2)
+                        : 0;
+
+                    estadisticas.Add(new EstadisticaEnfermedadDto
+                    {
+                        IdTipoEnfermedad = tipo.IdTipoEnfermedad,
+                        NombreEnfermedad = tipo.NombreEnfermedad,
+                        Cantidad = cantidad,
+                        Porcentaje = porcentaje,
+                        Color = coloresPredefinidos[colorIndex % coloresPredefinidos.Count]
+                    });
+
+                    colorIndex++;
+                }
+
+                // Ordenar: Mayor a menor cantidad
+                estadisticas = estadisticas
+                    .OrderByDescending(e => e.Cantidad)
+                    .ThenBy(e => e.NombreEnfermedad)
+                    .ToList();
+
+                // 7️⃣ CALCULAR DATOS ADICIONALES (PROMEDIO CORREGIDO)
+                var masComun = estadisticas.FirstOrDefault(e => e.Cantidad > 0);
+
+                // Calcular diferencia de días exactos (mínimo 1 día para evitar división por cero)
+                double totalDias = (fin - inicio).TotalDays;
+                if (totalDias < 1) totalDias = 1;
+
+                // Redondear días hacia arriba (ej: si seleccionas hoy a las 8am hasta hoy a las 8pm, cuenta como 1 día)
+                int diasEnPeriodo = (int)Math.Ceiling(totalDias);
+
+                decimal promedioDiario = diasEnPeriodo > 0
+                    ? Math.Round((decimal)totalConsultas / diasEnPeriodo, 2)
+                    : 0;
+
+                // 8️⃣ CONSTRUIR RESPUESTA
+                var response = new EstadisticasResponseDto
+                {
+                    TotalConsultas = totalConsultas,
+                    Periodo = periodo,
+                    FechaInicio = inicio,
+                    FechaFin = fin,
+                    Estadisticas = estadisticas,
+                    EnfermedadMasComun = masComun?.NombreEnfermedad ?? "N/A",
+                    CantidadMasComun = masComun?.Cantidad ?? 0,
+                    PromedioDiario = promedioDiario
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ Error al generar estadísticas: {ex.Message}");
+                return StatusCode(500, new { error = "Error interno del servidor", detalle = ex.Message });
+            }
+        }
+
         // GET: api/Consultas/test
         [HttpGet("test")]
         public IActionResult Test()

@@ -32,8 +32,6 @@ namespace SistemaParamedicosDemo4
 
             //SOLO LO DEBO DE USAR CUANDO ESTE DESARROLLANDO
             //DatabaseManager.Instance.ReiniciarBaseDeDatos();
-
-
         }
 
         private void SubscribeGlobalExceptionHandlers()

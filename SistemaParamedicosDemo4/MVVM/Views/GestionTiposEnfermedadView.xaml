@@ -3,12 +3,11 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:SistemaParamedicosDemo4.Converters"
-             Title="Gestión de Tipos de Enfermedad"
+             Title="Gestión de Clasificaciones"
              BackgroundColor="#F5F7FA">
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- ⭐ AGREGAR EL CONVERTIDOR -->
             <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
 
             <Color x:Key="PrimaryColor">#2E86AB</Color>
@@ -17,229 +16,197 @@
             <Color x:Key="LightGray">#F8F9FA</Color>
             <Color x:Key="BorderColor">#DEE2E6</Color>
             <Color x:Key="SuccessColor">#28A745</Color>
-
-            <Style x:Key="CardStyle" TargetType="Border">
-                <Setter Property="BackgroundColor" Value="White"/>
-                <Setter Property="StrokeThickness" Value="1"/>
-                <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
-                <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
-                <Setter Property="Padding" Value="15"/>
-                <Setter Property="Margin" Value="10,5"/>
-                <Setter Property="Shadow">
-                    <Setter.Value>
-                        <Shadow Brush="Gray" Opacity="0.1" Radius="8" Offset="0,2"/>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            <Color x:Key="WarningColor">#FFC107</Color>
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ScrollView>
-        <StackLayout Padding="20" Spacing="15">
+    <Grid RowDefinitions="Auto,*" Padding="15">
 
-            <!-- Header con estadísticas -->
-            <Border BackgroundColor="White"
-                    StrokeThickness="1"
-                    Stroke="{StaticResource BorderColor}"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="20">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+        <!-- 📊 HEADER CON ESTADÍSTICAS -->
+        <Border Grid.Row="0"
+                BackgroundColor="White"
+                StrokeThickness="1"
+                Stroke="{StaticResource BorderColor}"
+                StrokeShape="RoundRectangle 12"
+                Padding="20"
+                Margin="0,0,0,15">
+            <Grid ColumnDefinitions="Auto,*,Auto">
 
-                    <!-- Icono -->
-                    <Border Grid.Column="0"
-                            BackgroundColor="{StaticResource PrimaryColor}"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 25"
-                            WidthRequest="50"
-                            HeightRequest="50"
-                            VerticalOptions="Center">
-                        <Label Text="🏥"
-                               FontSize="28"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
+                <!-- Icono -->
+                <Border Grid.Column="0"
+                        BackgroundColor="{StaticResource PrimaryColor}"
+                        StrokeThickness="0"
+                        WidthRequest="60"
+                        HeightRequest="60"
+                        StrokeShape="RoundRectangle 12">
+                    <Label Text="🏥"
+                           FontSize="32"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
 
-                    <!-- Información -->
-                    <StackLayout Grid.Column="1" 
-                                 Spacing="5" 
-                                 Margin="15,0"
-                                 VerticalOptions="Center">
-                        <Label Text="Tipos de Enfermedad"
+                <!-- Info -->
+                <StackLayout Grid.Column="1" 
+                             Spacing="4" 
+                             Margin="15,0"
+                             VerticalOptions="Center">
+                    <Label Text="Clasificaciones de enfermedades"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource DarkGray}"/>
+                    <Label Text="{Binding MensajeEstado}"
+                           FontSize="13"
+                           TextColor="{StaticResource MediumGray}"/>
+                </StackLayout>
+
+                <!-- Total -->
+                <Border Grid.Column="2"
+                        BackgroundColor="#E3F2FD"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 25"
+                        Padding="18,12"
+                        VerticalOptions="Center">
+                    <Label Text="{Binding TotalTipos}"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           TextColor="#2196F3"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 📋 CONTENIDO PRINCIPAL -->
+        <ScrollView Grid.Row="1">
+            <StackLayout Spacing="15">
+
+                <!-- ➕ BOTÓN NUEVO -->
+                <Button Text="➕ NUEVA CLASIFICACIÓN"
+                        Command="{Binding MostrarFormularioCommand}"
+                        BackgroundColor="{StaticResource SuccessColor}"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        CornerRadius="8"
+                        HeightRequest="50"
+                        IsVisible="{Binding MostrarFormulario, Converter={StaticResource InverseBoolConverter}}"/>
+
+                <!-- ⚠️ FORMULARIO NUEVO TIPO -->
+                <Border IsVisible="{Binding MostrarFormulario}"
+                        BackgroundColor="#FFF3CD"
+                        StrokeThickness="2"
+                        Stroke="{StaticResource WarningColor}"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="20">
+                    <StackLayout Spacing="15">
+
+                        <Label Text="⚠️ Nueva Clasificación"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="{StaticResource DarkGray}"/>
-                        <Label Text="{Binding MensajeEstado}"
+                               TextColor="#856404"/>
+
+                        <Label Text="Una vez creada, NO podrá eliminarse. Verifique que el nombre sea correcto antes de guardar."
                                FontSize="13"
-                               TextColor="{StaticResource MediumGray}"/>
-                    </StackLayout>
+                               TextColor="#856404"
+                               LineBreakMode="WordWrap"/>
 
-                    <!-- Total -->
-                    <Border Grid.Column="2"
-                            BackgroundColor="#E3F2FD"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 20"
-                            Padding="15,8"
-                            VerticalOptions="Center">
-                        <Label Text="{Binding TotalTipos}"
-                               FontSize="24"
-                               FontAttributes="Bold"
-                               TextColor="#2196F3"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- Botón Nuevo Tipo -->
-            <Button Text="➕ NUEVO TIPO DE ENFERMEDAD"
-                    Command="{Binding MostrarFormularioCommand}"
-                    BackgroundColor="{StaticResource SuccessColor}"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    CornerRadius="8"
-                    Padding="15"
-                    IsVisible="{Binding MostrarFormulario, Converter={StaticResource InverseBoolConverter}}"/>
-
-            <!-- Formulario para crear nuevo tipo -->
-            <Border IsVisible="{Binding MostrarFormulario}"
-                    BackgroundColor="#FFF3CD"
-                    StrokeThickness="2"
-                    Stroke="#FFC107"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="20">
-                <StackLayout Spacing="15">
-                    <Label Text="⚠️ Nuevo Tipo de Enfermedad"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           TextColor="#856404"/>
-
-                    <Label Text="Una vez creado, este tipo NO podrá ser eliminado. Asegúrese de escribir el nombre correctamente."
-                           FontSize="13"
-                           TextColor="#856404"
-                           LineBreakMode="WordWrap"/>
-
-                    <!-- Campo de texto -->
-                    <Border BackgroundColor="White"
-                            StrokeThickness="2"
-                            Stroke="{StaticResource PrimaryColor}"
-                            StrokeShape="RoundRectangle 8"
-                            Padding="5">
-                        <Entry Placeholder="Nombre del tipo de enfermedad"
-                               Text="{Binding NuevoTipoNombre}"
-                               FontSize="16"
-                               BackgroundColor="Transparent"
-                               TextColor="Black"/>
-                    </Border>
-
-                    <!-- Botones -->
-                    <Grid ColumnSpacing="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0"
-                                Text="CANCELAR"
-                                Command="{Binding CancelarCommand}"
-                                BackgroundColor="{StaticResource MediumGray}"
-                                TextColor="White"
-                                FontAttributes="Bold"
-                                CornerRadius="8"/>
-
-                        <Button Grid.Column="1"
-                                Text="GUARDAR"
-                                Command="{Binding GuardarTipoCommand}"
-                                BackgroundColor="{StaticResource SuccessColor}"
-                                TextColor="White"
-                                FontAttributes="Bold"
-                                CornerRadius="8"/>
-                    </Grid>
-                </StackLayout>
-            </Border>
-
-            <!-- Lista de tipos existentes -->
-            <Label Text="Tipos Registrados"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource DarkGray}"
-                   Margin="10,10,10,5"/>
-
-            <CollectionView ItemsSource="{Binding TiposEnfermedad}">
-                <CollectionView.EmptyView>
-                    <StackLayout Padding="50" VerticalOptions="Center">
-                        <Label Text="🏥"
-                               FontSize="48"
-                               HorizontalOptions="Center"/>
-                        <Label Text="No hay tipos de enfermedad registrados"
-                               FontSize="16"
-                               TextColor="{StaticResource MediumGray}"
-                               HorizontalOptions="Center"
-                               Margin="0,10,0,0"/>
-                    </StackLayout>
-                </CollectionView.EmptyView>
-
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource CardStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Icono -->
-                                <Border Grid.Column="0"
-                                        BackgroundColor="{StaticResource LightGray}"
-                                        StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 20"
-                                        WidthRequest="40"
-                                        HeightRequest="40"
-                                        VerticalOptions="Center">
-                                    <Label Text="📋"
-                                           FontSize="20"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"/>
-                                </Border>
-
-                                <!-- Nombre -->
-                                <Label Grid.Column="1"
-                                       Text="{Binding NombreEnfermedad}"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       TextColor="{StaticResource DarkGray}"
-                                       VerticalOptions="Center"
-                                       Margin="15,0"/>
-
-                                <!-- ID -->
-                                <Border Grid.Column="2"
-                                        BackgroundColor="{StaticResource LightGray}"
-                                        StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 12"
-                                        Padding="10,5"
-                                        VerticalOptions="Center">
-                                    <Label Text="{Binding IdTipoEnfermedad, StringFormat='ID: {0}'}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource MediumGray}"
-                                           FontAttributes="Bold"/>
-                                </Border>
-                            </Grid>
+                        <!-- Campo -->
+                        <Border BackgroundColor="White"
+                                StrokeThickness="2"
+                                Stroke="{StaticResource PrimaryColor}"
+                                StrokeShape="RoundRectangle 8">
+                            <Entry Placeholder="Nombre de la clasificación..."
+                                   Text="{Binding NuevoTipoNombre}"
+                                   FontSize="16"
+                                   Margin="10,5"/>
                         </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
 
-            <!-- Indicador de carga -->
-            <ActivityIndicator IsRunning="{Binding IsCargando}"
-                               IsVisible="{Binding IsCargando}"
-                               Color="{StaticResource PrimaryColor}"
-                               WidthRequest="50"
-                               HeightRequest="50"
-                               Margin="0,20"/>
+                        <!-- Botones -->
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-        </StackLayout>
-    </ScrollView>
+                            <Button Grid.Column="0"
+                                    Text="CANCELAR"
+                                    Command="{Binding CancelarCommand}"
+                                    BackgroundColor="{StaticResource MediumGray}"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    CornerRadius="8"
+                                    HeightRequest="45"/>
+
+                            <Button Grid.Column="1"
+                                    Text="GUARDAR"
+                                    Command="{Binding GuardarTipoCommand}"
+                                    BackgroundColor="{StaticResource SuccessColor}"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    CornerRadius="8"
+                                    HeightRequest="45"/>
+                        </Grid>
+                    </StackLayout>
+                </Border>
+
+                <!-- 📋 LISTA ORDENADA ALFABÉTICAMENTE -->
+                <Label Text="Clasificaciones Registradas (A-Z)"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource DarkGray}"
+                       Margin="5,5,5,10"/>
+
+                <CollectionView ItemsSource="{Binding TiposEnfermedad}"
+                                SelectionMode="None">
+
+                    <CollectionView.EmptyView>
+                        <StackLayout Padding="50" VerticalOptions="Center">
+                            <Label Text="📋"
+                                   FontSize="64"
+                                   HorizontalOptions="Center"
+                                   Opacity="0.3"/>
+                            <Label Text="No hay clasificaciones registradas"
+                                   FontSize="16"
+                                   TextColor="{StaticResource MediumGray}"
+                                   HorizontalOptions="Center"
+                                   Margin="0,15,0,0"/>
+                        </StackLayout>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="{StaticResource BorderColor}"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="15"
+                                    Margin="0,5">
+                                <Grid ColumnDefinitions="Auto,*">
+
+                                    <!-- Ícono -->
+
+
+                                    <!-- Nombre -->
+                                    <Label Grid.Column="1"
+                                           Text="{Binding NombreEnfermedad}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource DarkGray}"
+                                           VerticalOptions="Center"
+                                           LineBreakMode="WordWrap"
+                                           Margin="15,0,0,0"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Loading -->
+                <ActivityIndicator IsRunning="{Binding IsCargando}"
+                                   IsVisible="{Binding IsCargando}"
+                                   Color="{StaticResource PrimaryColor}"
+                                   WidthRequest="50"
+                                   HeightRequest="50"
+                                   Margin="0,20"/>
+            </StackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

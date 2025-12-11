@@ -305,91 +305,107 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             }
         }
 
-private void CargarConsultas()
-{
-    try
-    {
-        Consultas.Clear();
-
-        System.Diagnostics.Debug.WriteLine($"📋 Cargando consultas de: {Empleado.IdEmpleado}");
-
-        var consultas = _consultaRepo.GetConsultasByEmpleado(Empleado.IdEmpleado);
-
-        System.Diagnostics.Debug.WriteLine($"✓ Consultas encontradas en BD: {consultas.Count}");
-
-        // ⭐ OBTENER TODOS LOS TIPOS DISPONIBLES
-        var tiposDisponibles = _tipoEnfermedadRepo.GetAllTypes();
-        System.Diagnostics.Debug.WriteLine($"📦 Tipos disponibles: {string.Join(", ", tiposDisponibles.Select(t => $"{t.IdTipoEnfermedad}={t.NombreEnfermedad}"))}");
-
-        foreach (var c in consultas)
+        private void CargarConsultas()
         {
-            System.Diagnostics.Debug.WriteLine($"  - ID: {c.IdConsulta}, Fecha: {c.FechaConsulta:dd/MM/yyyy HH:mm}");
-            System.Diagnostics.Debug.WriteLine($"    IdTipoEnfermedad: {c.IdTipoEnfermedad}");
-
-            // ⭐ BUSCAR EL TIPO CON LINQ (más seguro)
-            var tipoModelo = tiposDisponibles.FirstOrDefault(t => t.IdTipoEnfermedad == c.IdTipoEnfermedad);
-
-            if (tipoModelo != null)
+            try
             {
-                c.TipoEnfermedad = tipoModelo;
-                System.Diagnostics.Debug.WriteLine($"    ✅ Tipo asignado: {tipoModelo.NombreEnfermedad}");
-            }
-            else
-            {
-                // ⭐ CREAR TIPO PLACEHOLDER SI NO EXISTE
-                c.TipoEnfermedad = new TipoEnfermedadModel
+                Consultas.Clear();
+
+                System.Diagnostics.Debug.WriteLine($"📋 Cargando consultas de: {Empleado.IdEmpleado}");
+
+                var consultas = _consultaRepo.GetConsultasByEmpleado(Empleado.IdEmpleado);
+
+                System.Diagnostics.Debug.WriteLine($"✓ Consultas encontradas en BD: {consultas.Count}");
+
+                var tiposDisponibles = _tipoEnfermedadRepo.GetAllTypes();
+                System.Diagnostics.Debug.WriteLine($"📦 Tipos disponibles: {tiposDisponibles.Count}");
+
+                foreach (var c in consultas)
                 {
-                    IdTipoEnfermedad = c.IdTipoEnfermedad,
-                    NombreEnfermedad = $"⚠️ Tipo {c.IdTipoEnfermedad} no encontrado"
-                };
-                System.Diagnostics.Debug.WriteLine($"    ❌ Tipo {c.IdTipoEnfermedad} NO EXISTE en BD");
+                    System.Diagnostics.Debug.WriteLine($"\n  📄 Procesando consulta ID: {c.IdConsulta}");
+                    System.Diagnostics.Debug.WriteLine($"     Fecha: {c.FechaConsulta:dd/MM/yyyy HH:mm}");
+                    System.Diagnostics.Debug.WriteLine($"     IdTipoEnfermedad: {c.IdTipoEnfermedad}");
+                    System.Diagnostics.Debug.WriteLine($"     IdUsuarioAcc: '{c.IdUsuarioAcc}'");
+
+                    // ⭐ 1. CARGAR TIPO DE ENFERMEDAD
+                    var tipoModelo = tiposDisponibles.FirstOrDefault(t => t.IdTipoEnfermedad == c.IdTipoEnfermedad);
+
+                    if (tipoModelo != null)
+                    {
+                        c.TipoEnfermedad = tipoModelo;
+                        System.Diagnostics.Debug.WriteLine($"     ✅ Tipo: {tipoModelo.NombreEnfermedad}");
+                    }
+                    else
+                    {
+                        c.TipoEnfermedad = new TipoEnfermedadModel
+                        {
+                            IdTipoEnfermedad = c.IdTipoEnfermedad,
+                            NombreEnfermedad = $"Tipo {c.IdTipoEnfermedad}"
+                        };
+                        System.Diagnostics.Debug.WriteLine($"     ⚠️ Tipo {c.IdTipoEnfermedad} no encontrado");
+                    }
+
+                    // ⭐ 2. CARGAR USUARIO/PARAMÉDICO
+                    if (!string.IsNullOrEmpty(c.IdUsuarioAcc))
+                    {
+                        c.UsuariosAcceso = _usuarioRepo.GetById(c.IdUsuarioAcc);
+
+                        if (c.UsuariosAcceso != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"     ✅ Paramédico: {c.UsuariosAcceso.Nombre}");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"     ❌ Paramédico NO encontrado para ID: '{c.IdUsuarioAcc}'");
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"     ⚠️ IdUsuarioAcc está vacío o nulo");
+                    }
+
+                    // ⭐ 3. CREAR CONSULTA EXTENDIDA
+                    var consultaExtendida = new ConsultaModelExtendido
+                    {
+                        IdConsulta = c.IdConsulta,
+                        IdEmpleado = c.IdEmpleado,
+                        Empleado = c.Empleado,
+                        IdUsuarioAcc = c.IdUsuarioAcc,
+                        UsuariosAcceso = c.UsuariosAcceso, // ⭐ CRÍTICO: Asignar el usuario
+                        IdTipoEnfermedad = c.IdTipoEnfermedad,
+                        TipoEnfermedad = c.TipoEnfermedad,
+                        IdMovimiento = c.IdMovimiento,
+                        FrecuenciaRespiratoria = c.FrecuenciaRespiratoria,
+                        FrecuenciaCardiaca = c.FrecuenciaCardiaca,
+                        Temperatura = string.IsNullOrWhiteSpace(c.Temperatura) ? "N/A" : $"{c.Temperatura}°C",
+                        PresionArterial = string.IsNullOrWhiteSpace(c.PresionArterial) ? "N/A" : c.PresionArterial,
+                        Observaciones = c.Observaciones,
+                        UltimaComida = c.UltimaComida,
+                        MotivoConsulta = c.MotivoConsulta,
+                        FechaConsulta = c.FechaConsulta,
+                        Diagnostico = c.Diagnostico,
+                        TieneMovimiento = !string.IsNullOrEmpty(c.IdMovimiento),
+                        EstaExpandido = false,
+                        Medicamentos = new ObservableCollection<MovimientoDetalleModel>(),
+                        TieneMedicamentos = false,
+                        TieneObservaciones = !string.IsNullOrWhiteSpace(c.Observaciones)
+                    };
+
+                    Consultas.Add(consultaExtendida);
+                }
+
+                TotalConsultas = Consultas.Count;
+                System.Diagnostics.Debug.WriteLine($"\n✅ {TotalConsultas} consultas cargadas en la UI");
+
+                OnPropertyChanged(nameof(Consultas));
+                OnPropertyChanged(nameof(TotalConsultas));
             }
-
-            var consultaExtendida = new ConsultaModelExtendido
+            catch (Exception ex)
             {
-                IdConsulta = c.IdConsulta,
-                IdEmpleado = c.IdEmpleado,
-                Empleado = c.Empleado,
-                IdUsuarioAcc = c.IdUsuarioAcc,
-                UsuariosAcceso = c.UsuariosAcceso,
-                IdTipoEnfermedad = c.IdTipoEnfermedad,
-                TipoEnfermedad = c.TipoEnfermedad, // ⭐ Ya está asignado arriba
-                IdMovimiento = c.IdMovimiento,
-                FrecuenciaRespiratoria = c.FrecuenciaRespiratoria,
-                FrecuenciaCardiaca = c.FrecuenciaCardiaca,
-
-                // ⭐ MANEJAR VALORES VACÍOS CORRECTAMENTE
-                Temperatura = string.IsNullOrWhiteSpace(c.Temperatura) ? "N/A" : $"{c.Temperatura}°C",
-                PresionArterial = string.IsNullOrWhiteSpace(c.PresionArterial) ? "N/A" : c.PresionArterial,
-
-                Observaciones = c.Observaciones,
-                UltimaComida = c.UltimaComida,
-                MotivoConsulta = c.MotivoConsulta,
-                FechaConsulta = c.FechaConsulta,
-                Diagnostico = c.Diagnostico,
-                TieneMovimiento = !string.IsNullOrEmpty(c.IdMovimiento),
-                EstaExpandido = false,
-                Medicamentos = new ObservableCollection<MovimientoDetalleModel>(),
-                TieneMedicamentos = false,
-                TieneObservaciones = !string.IsNullOrWhiteSpace(c.Observaciones)
-            };
-
-            Consultas.Add(consultaExtendida);
-            System.Diagnostics.Debug.WriteLine($"    ✅ Consulta agregada con tipo: {consultaExtendida.TipoEnfermedad.NombreEnfermedad}");
+                System.Diagnostics.Debug.WriteLine($"\n❌ ERROR al cargar consultas: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+            }
         }
-
-        TotalConsultas = Consultas.Count;
-        System.Diagnostics.Debug.WriteLine($"✅ {TotalConsultas} consultas cargadas en la UI");
-
-        OnPropertyChanged(nameof(Consultas));
-        OnPropertyChanged(nameof(TotalConsultas));
-    }
-    catch (Exception ex)
-    {
-        System.Diagnostics.Debug.WriteLine($"❌ Error al cargar consultas: {ex.Message}");
-        System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
-    }
-}
 
         private async void VerDetalle(ConsultaModelExtendido consulta)
         {

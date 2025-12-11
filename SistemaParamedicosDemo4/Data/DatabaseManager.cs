@@ -122,44 +122,5 @@ namespace SistemaParamedicosDemo4.Data
                 System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
             }
         }
-
-        // Elimina solo las tablas de traspasos
-        // Útil si necesitas recrearlas sin afectar los demás datos
-
-        public void ResetearTablasTraspaso()
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("🔄 Reseteando tablas de traspaso...");
-
-                Connection.DropTable<TraspasoDetalleModel>();
-                Connection.DropTable<TraspasoModel>();
-
-                Connection.CreateTable<TraspasoModel>();
-                Connection.CreateTable<TraspasoDetalleModel>();
-
-                System.Diagnostics.Debug.WriteLine("✅ Tablas de traspaso reseteadas");
-                StatusMessage = "Tablas de traspaso reseteadas";
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"Error al resetear tablas de traspaso: {ex.Message}";
-                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
-            }
-        }
-
-        /// Cierra la conexión de la base de datos
-        public void Cerrar()
-        {
-            try
-            {
-                Connection?.Close();
-                System.Diagnostics.Debug.WriteLine("✓ Conexión a BD cerrada");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"❌ Error al cerrar conexión: {ex.Message}");
-            }
-        }
     }
 }

@@ -591,9 +591,17 @@
                                            Placeholder="0" 
                                            Keyboard="Numeric"
                                            Style="{StaticResource EntryStyle}"/>
+                                    <Label Text="{Binding MensajeErrorCantidad}"
+                                           TextColor="{StaticResource DangerColor}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           IsVisible="{Binding CantidadExcedida}"
+                                           Margin="0,5,0,0"/>
+
                                 </StackLayout>
                             </Grid>
 
+                           
                             <!-- Botón agregar -->
                             <Button Text="+ AGREGAR MEDICAMENTO"
                                     Command="{Binding AgregarMedicamentoCommand}"

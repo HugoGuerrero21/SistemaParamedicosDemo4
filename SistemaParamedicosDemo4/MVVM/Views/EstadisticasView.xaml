@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="SistemaParamedicosDemo4.MVVM.Views.EstadisticasView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:microcharts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+             xmlns:converters="clr-namespace:SistemaParamedicosDemo4.Converters"
+             Title="Estadísticas"
+             BackgroundColor="#F5F7FA">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <Color x:Key="PrimaryColor">#2E86AB</Color>
+            <Color x:Key="BorderColor">#DEE2E6</Color>
+            <Color x:Key="DarkGray">#343A40</Color>
+
+            <Style x:Key="KpiCardStyle" TargetType="Border">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 10"/>
+                <Setter Property="Padding" Value="15"/>
+                <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+
+            <DataTemplate x:Key="EnfermedadCardTemplate">
+                <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="0" HorizontalOptions="Fill">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,1" Radius="2" Opacity="0.1"/>
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="4, *">
+                        <BoxView Grid.Column="0" Color="{Binding ColorMaui}" VerticalOptions="Fill"/>
+                        <StackLayout Grid.Column="1" Padding="10,6" Spacing="2">
+                            <Label Text="{Binding NombreEnfermedad}" FontAttributes="Bold" FontSize="12" TextColor="{StaticResource DarkGray}" LineBreakMode="TailTruncation" MaxLines="1"/>
+                            <BoxView HeightRequest="1" Color="#F1F3F5" Margin="0,1"/>
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Text="{Binding TextoDetalle}" FontSize="11" TextColor="#6C757D" VerticalOptions="Center"/>
+                                <Border BackgroundColor="{Binding ColorMaui}" StrokeThickness="0" Padding="6,1" StrokeShape="RoundRectangle 4" VerticalOptions="Center">
+                                    <Label Text="{Binding TextoPorcentaje}" FontSize="10" FontAttributes="Bold" TextColor="White"/>
+                                </Border>
+                            </HorizontalStackLayout>
+                        </StackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <StackLayout Padding="{OnIdiom Phone='10', Desktop='20'}" Spacing="15">
+
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="20" Stroke="{StaticResource BorderColor}">
+                <Grid ColumnDefinitions="Auto,*">
+                    <Border Grid.Column="0" BackgroundColor="{StaticResource PrimaryColor}" 
+                            WidthRequest="{OnIdiom Phone='50', Desktop='60'}" 
+                            HeightRequest="{OnIdiom Phone='50', Desktop='60'}" 
+                            StrokeShape="RoundRectangle 12">
+                        <Label Text="📊" FontSize="{OnIdiom Phone='24', Desktop='32'}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <StackLayout Grid.Column="1" Margin="15,0" VerticalOptions="Center">
+                        <Label Text="Panel de Estadísticas" 
+                               FontSize="{OnIdiom Phone='18', Desktop='22'}" 
+                               FontAttributes="Bold" TextColor="{StaticResource DarkGray}"/>
+                        <Label Text="Análisis de consultas" FontSize="13" TextColor="#6C757D"/>
+                    </StackLayout>
+                </Grid>
+            </Border>
+
+            <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="20" Stroke="{StaticResource BorderColor}">
+                <StackLayout Spacing="10">
+                    <Label Text="Configuración" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource DarkGray}"/>
+
+                    <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="SpaceBetween" AlignItems="End">
+
+                        <StackLayout FlexLayout.Basis="{OnIdiom Phone='100%', Desktop='30%'}" Margin="0,0,0,10">
+                            <Label Text="Desde:" FontSize="12" TextColor="#6C757D" Margin="0,0,0,5"/>
+                            <DatePicker Date="{Binding FechaInicio}" MaximumDate="{Binding FechaMaxima}" Format="dd/MM/yyyy" TextColor="{StaticResource DarkGray}" BackgroundColor="#F8F9FA" HeightRequest="45"/>
+                        </StackLayout>
+
+                        <StackLayout FlexLayout.Basis="{OnIdiom Phone='100%', Desktop='30%'}" Margin="0,0,0,10">
+                            <Label Text="Hasta:" FontSize="12" TextColor="#6C757D" Margin="0,0,0,5"/>
+                            <DatePicker Date="{Binding FechaFin}" MaximumDate="{Binding FechaMaxima}" Format="dd/MM/yyyy" TextColor="{StaticResource DarkGray}" BackgroundColor="#F8F9FA" HeightRequest="45"/>
+                        </StackLayout>
+
+                        <Button Text="📄 PDF" 
+                                Command="{Binding ExportarPdfCommand}" 
+                                FlexLayout.Basis="{OnIdiom Phone='100%', Desktop='150'}"
+                                BackgroundColor="#28A745" TextColor="White" FontAttributes="Bold" 
+                                CornerRadius="8" HeightRequest="45" Margin="0,0,0,10"/>
+                    </FlexLayout>
+                </StackLayout>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding IsCargando}" IsVisible="{Binding IsCargando}" Color="{StaticResource PrimaryColor}"/>
+
+            <StackLayout IsVisible="{Binding TieneEstadisticas}" Spacing="15">
+
+                <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="SpaceBetween">
+                    <Border Style="{StaticResource KpiCardStyle}" FlexLayout.Basis="{OnIdiom Phone='100%', Desktop='32%'}">
+                        <StackLayout Spacing="5">
+                            <Label Text="TOTAL" FontSize="11" FontAttributes="Bold" TextColor="#6C757D"/>
+                            <Label Text="{Binding TotalConsultas}" FontSize="28" FontAttributes="Bold" TextColor="#2196F3"/>
+                        </StackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource KpiCardStyle}" FlexLayout.Basis="{OnIdiom Phone='48%', Desktop='32%'}">
+                        <StackLayout Spacing="5">
+                            <Label Text="DIARIO" FontSize="11" FontAttributes="Bold" TextColor="#6C757D"/>
+                            <Label Text="{Binding PromedioDiario}" FontSize="28" FontAttributes="Bold" TextColor="#009688"/>
+                        </StackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource KpiCardStyle}" FlexLayout.Basis="{OnIdiom Phone='48%', Desktop='32%'}">
+                        <StackLayout Spacing="5">
+                            <Label Text="TOP ENFERMEDAD" FontSize="11" FontAttributes="Bold" TextColor="#6C757D"/>
+                            <Label Text="{Binding EnfermedadMasComun}" FontSize="{OnIdiom Phone='14', Desktop='16'}" FontAttributes="Bold" TextColor="#FF9800" LineBreakMode="TailTruncation"/>
+                        </StackLayout>
+                    </Border>
+                </FlexLayout>
+
+                <Border BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="15" Stroke="{StaticResource BorderColor}">
+
+                    <Grid ColumnDefinitions="{OnIdiom Phone='*', Desktop='280, *, 280'}"
+                          RowDefinitions="{OnIdiom Phone='Auto,Auto,Auto', Desktop='Auto'}">
+
+                        <StackLayout Grid.Row="{OnIdiom Phone=0, Desktop=0}"
+                                     Grid.Column="{OnIdiom Phone=0, Desktop=1}"
+                                     HorizontalOptions="Fill" 
+                                     VerticalOptions="Center" 
+                                     Margin="0,0,0,20">
+
+                            <Label Text="Distribución" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource DarkGray}" 
+                                   Margin="0,0,0,10" HorizontalOptions="Center"/>
+
+                            <Border StrokeThickness="0" BackgroundColor="Transparent" 
+                                    HeightRequest="{OnIdiom Phone='280', Desktop='360'}" 
+                                    WidthRequest="{OnIdiom Phone='280', Desktop='360'}"
+                                    HorizontalOptions="Center">
+                                <Grid>
+                                    <microcharts:ChartView Chart="{Binding GraficaPastel}" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+                                    <StackLayout HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True">
+                                        <Label Text="{Binding TotalConsultas}" FontSize="42" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource DarkGray}"/>
+                                        <Label Text="Total" FontSize="14" HorizontalOptions="Center" TextColor="#6C757D"/>
+                                    </StackLayout>
+                                </Grid>
+                            </Border>
+                        </StackLayout>
+
+                        <StackLayout Grid.Row="{OnIdiom Phone=1, Desktop=0}"
+                                     Grid.Column="{OnIdiom Phone=0, Desktop=0}"
+                                     VerticalOptions="Start">
+
+                            <Label Text="Detalle" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource DarkGray}" Margin="0,0,0,10"/>
+
+                            <CollectionView ItemsSource="{Binding EstadisticasIzquierda}" 
+                                            ItemTemplate="{StaticResource EnfermedadCardTemplate}"
+                                            VerticalScrollBarVisibility="Never"
+                                            HeightRequest="{OnIdiom Phone='-1', Desktop='450'}">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                                </CollectionView.ItemsLayout>
+                            </CollectionView>
+                        </StackLayout>
+
+                        <StackLayout Grid.Row="{OnIdiom Phone=2, Desktop=0}"
+                                     Grid.Column="{OnIdiom Phone=0, Desktop=2}"
+                                     VerticalOptions="Start"
+                                     Margin="{OnIdiom Phone='0,10,0,0', Desktop='0'}">
+
+                            <Label Text="Más detalles" IsVisible="{OnIdiom Phone=True, Desktop=False}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource DarkGray}" Margin="0,0,0,10"/>
+                            <BoxView HeightRequest="29" Color="Transparent" IsVisible="{OnIdiom Phone=False, Desktop=True}"/>
+
+                            <CollectionView ItemsSource="{Binding EstadisticasDerecha}" 
+                                            ItemTemplate="{StaticResource EnfermedadCardTemplate}"
+                                            VerticalScrollBarVisibility="Never"
+                                            HeightRequest="{OnIdiom Phone='-1', Desktop='450'}">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10"/>
+                                </CollectionView.ItemsLayout>
+                            </CollectionView>
+                        </StackLayout>
+
+                    </Grid>
+                </Border>
+            </StackLayout>
+
+            <Border IsVisible="{Binding TieneEstadisticas, Converter={StaticResource InverseBoolConverter}}"
+                    BackgroundColor="White" StrokeShape="RoundRectangle 12" Padding="40" Margin="0,20">
+                <StackLayout Spacing="10">
+                    <Label Text="📅" FontSize="40" HorizontalOptions="Center"/>
+                    <Label Text="Sin datos" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource DarkGray}" HorizontalOptions="Center"/>
+                    <Label Text="Cambia el rango de fechas" FontSize="13" TextColor="#6C757D" HorizontalOptions="Center"/>
+                </StackLayout>
+            </Border>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

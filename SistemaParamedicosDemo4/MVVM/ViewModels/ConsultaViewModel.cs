@@ -78,6 +78,8 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
         public double CantidadDisponible { get; set; }
         public double CantidadMedicamento { get; set; }
         public string ObservacionesMedicamento { get; set; }
+        public bool CantidadExcedida { get; set; }
+        public string MensajeErrorCantidad { get; set; }
 
         public bool TieneMedicamentosAgregados => MedicamentosAgregados?.Count > 0;
 
@@ -102,7 +104,6 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             {
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                // ⭐ INICIALIZAR SOLO CUANDO SE NECESITE (NO EN CONSTRUCTOR)
                 TiposEnfermedad = new ObservableCollection<TipoEnfermedadModel>();
                 Medicamentos = new ObservableCollection<ProductoModel>();
                 MedicamentosAgregados = new ObservableCollection<MovimientoDetalleModel>();
@@ -128,15 +129,21 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 CancelarCommand = new Command(Cancelar);
                 ToggleHistorialCommand = new Command(() => HistorialExpandido = !HistorialExpandido);
 
+                // ⭐ ÚNICO PropertyChanged - CONSOLIDADO
                 PropertyChanged += (s, e) =>
                 {
                     if (e.PropertyName == nameof(MedicamentoSeleccionado))
                     {
                         ActualizarCantidadDisponible();
+                        ValidarCantidad(); // ⭐ AGREGAR AQUÍ TAMBIÉN
                         ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
                     }
-                    else if (e.PropertyName == nameof(CantidadMedicamento) ||
-                             e.PropertyName == nameof(SeUtilizoMaterial) ||
+                    else if (e.PropertyName == nameof(CantidadMedicamento))
+                    {
+                        ValidarCantidad(); // ⭐ VALIDAR CUANDO CAMBIA LA CANTIDAD
+                        ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
+                    }
+                    else if (e.PropertyName == nameof(SeUtilizoMaterial) ||
                              e.PropertyName == nameof(CantidadDisponible))
                     {
                         ((Command)AgregarMedicamentoCommand).ChangeCanExecute();
@@ -346,6 +353,27 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             finally
             {
                 IsCargandoEmpleados = false;
+            }
+        }
+
+        private void ValidarCantidad()
+        {
+            if (MedicamentoSeleccionado == null)
+            {
+                CantidadExcedida = false;
+                MensajeErrorCantidad = string.Empty;
+                return;
+            }
+
+            if (CantidadMedicamento > CantidadDisponible)
+            {
+                CantidadExcedida = true;
+                MensajeErrorCantidad = $"⚠️ Cantidad no disponible. Máximo: {CantidadDisponible:F2}";
+            }
+            else
+            {
+                CantidadExcedida = false;
+                MensajeErrorCantidad = string.Empty;
             }
         }
 
@@ -605,14 +633,20 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 return;
             }
 
-            MedicamentosAgregados.Add(new MovimientoDetalleModel
+            // ⭐ CREAR EL DETALLE CON EL PRODUCTO COMPLETO
+            var nuevoDetalle = new MovimientoDetalleModel
             {
                 IdMovimientoDetalle = Guid.NewGuid().ToString(),
                 ClaveProducto = MedicamentoSeleccionado.ProductoId,
                 Cantidad = CantidadMedicamento,
                 Observaciones = ObservacionesMedicamento ?? "Sin observaciones",
-                Status = 1
-            });
+                Status = 1,
+                Producto = MedicamentoSeleccionado // ⭐ ASIGNAR EL PRODUCTO COMPLETO
+            };
+
+            MedicamentosAgregados.Add(nuevoDetalle);
+
+            System.Diagnostics.Debug.WriteLine($"✅ Medicamento agregado: {nuevoDetalle.NombreMedicamento}");
 
             MedicamentoSeleccionado.CantidadDisponible -= CantidadMedicamento;
             LimpiarCamposMedicamento();

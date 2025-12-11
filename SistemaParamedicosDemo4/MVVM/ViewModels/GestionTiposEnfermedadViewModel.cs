@@ -67,15 +67,18 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
             try
             {
                 IsCargando = true;
-                MensajeEstado = "Cargando tipos de enfermedad...";
+                MensajeEstado = "Cargando clasificaciones...";
 
                 // 1. INTENTAR CARGAR DESDE LA API
                 var tiposDto = await _tipoEnfermedadApiService.ObtenerTiposEnfermedadAsync();
 
                 if (tiposDto != null && tiposDto.Count > 0)
                 {
-                    // 2. CONVERTIR DTOs A MODELS
-                    var tipos = tiposDto.Select(dto => dto.ToModel()).ToList();
+                    // 2. CONVERTIR Y ORDENAR ALFABÉTICAMENTE
+                    var tipos = tiposDto
+                        .Select(dto => dto.ToModel())
+                        .OrderBy(t => t.NombreEnfermedad) // ⭐ ORDEN ALFABÉTICO
+                        .ToList();
 
                     // 3. SINCRONIZAR CON SQLITE
                     _tipoEnfermedadRepo.SincronizarTiposEnfermedad(tipos);
@@ -89,7 +92,7 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                             TiposEnfermedad.Add(tipo);
                         }
                         TotalTipos = TiposEnfermedad.Count;
-                        MensajeEstado = $"{TotalTipos} tipos de enfermedad disponibles";
+                        MensajeEstado = $"{TotalTipos} clasificaciones disponibles";
                     });
 
                     System.Diagnostics.Debug.WriteLine($"✅ {TotalTipos} tipos cargados desde API");
@@ -98,7 +101,10 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                 {
                     // FALLBACK A SQLITE
                     System.Diagnostics.Debug.WriteLine("⚠️ API sin datos, cargando desde SQLite...");
-                    var tiposLocal = _tipoEnfermedadRepo.GetAllTypes();
+
+                    var tiposLocal = _tipoEnfermedadRepo.GetAllTypes()
+                        .OrderBy(t => t.NombreEnfermedad) // ⭐ ORDEN ALFABÉTICO
+                        .ToList();
 
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
@@ -108,14 +114,14 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                             TiposEnfermedad.Add(tipo);
                         }
                         TotalTipos = TiposEnfermedad.Count;
-                        MensajeEstado = $"{TotalTipos} tipos (caché local)";
+                        MensajeEstado = $"{TotalTipos} clasificaciones (caché local)";
                     });
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"❌ Error al cargar tipos: {ex.Message}");
-                MensajeEstado = "Error al cargar tipos de enfermedad";
+                MensajeEstado = "Error al cargar clasificaciones";
             }
             finally
             {
@@ -184,7 +190,20 @@ namespace SistemaParamedicosDemo4.MVVM.ViewModels
                     // ACTUALIZAR UI
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-                        TiposEnfermedad.Add(nuevoTipo);
+                        var todosLosTipos = TiposEnfermedad.ToList();
+                        todosLosTipos.Add(nuevoTipo);
+
+                        // Reordenar alfabéticamente
+                        todosLosTipos = todosLosTipos
+                            .OrderBy(t => t.NombreEnfermedad)
+                            .ToList();
+
+                        TiposEnfermedad.Clear();
+                        foreach (var tipo in todosLosTipos)
+                        {
+                            TiposEnfermedad.Add(tipo);
+                        }
+
                         TotalTipos = TiposEnfermedad.Count;
                     });
 

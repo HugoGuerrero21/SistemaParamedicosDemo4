@@ -68,6 +68,42 @@ namespace SistemaParamedicosDemo4.Data.Repositories
             }
         }
 
+        public UsuariosAccesoModel GetById(string idUsuario)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(idUsuario))
+                {
+                    StatusMessage = "El ID de usuario no puede estar vacío";
+                    System.Diagnostics.Debug.WriteLine(StatusMessage);
+                    return null;
+                }
+
+                var usuario = Connection.Table<UsuariosAccesoModel>()
+                    .FirstOrDefault(u => u.IdUsuario == idUsuario);
+
+                if (usuario != null)
+                {
+                    StatusMessage = $"Usuario encontrado: {usuario.Nombre}";
+                    System.Diagnostics.Debug.WriteLine($"✅ Usuario encontrado: {usuario.Nombre} (ID: {usuario.IdUsuario})");
+                }
+                else
+                {
+                    StatusMessage = $"Usuario no encontrado con ID: {idUsuario}";
+                    System.Diagnostics.Debug.WriteLine($"⚠️ Usuario NO encontrado con ID: {idUsuario}");
+                }
+
+                return usuario;
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error al obtener usuario por ID: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"❌ {StatusMessage}");
+                System.Diagnostics.Debug.WriteLine($"❌ StackTrace: {ex.StackTrace}");
+                return null;
+            }
+        }
+
         public bool ValidarCredenciales(string nombreUsuario, string password)
         {
             try

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microcharts.Maui;
+using Microsoft.Extensions.Logging;
 using SistemaParamedicosDemo4.Data.Repositories;
 using SistemaParamedicosDemo4.MVVM.ViewModels;
 using SistemaParamedicosDemo4.MVVM.Views;
@@ -19,7 +20,9 @@ namespace SistemaParamedicosDemo4
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+                })
+
+            .UseMicrocharts();
 
 #if DEBUG
     		builder.Logging.AddDebug();
@@ -49,6 +52,7 @@ namespace SistemaParamedicosDemo4
 #endif
 
             return builder.Build();
+
         }
     }
 

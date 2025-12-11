@@ -85,6 +85,13 @@
                       Route="traspasos"/>
     </FlyoutItem>
 
+    <FlyoutItem Title="📊 Estadisticas 📊"
+                FlyoutDisplayOptions="AsMultipleItems">
+        <ShellContent Title="Estadisticas"
+                      ContentTemplate="{DataTemplate views:EstadisticasView}"
+                      Route="estadisticas"/>
+    </FlyoutItem>
+
 
 
     <!-- Footer del Flyout (Cerrar Sesión) -->
