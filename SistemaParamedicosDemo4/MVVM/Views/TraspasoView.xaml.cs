@@ -11,22 +11,18 @@ namespace SistemaParamedicosDemo4.MVVM.Views
             InitializeComponent();
             _viewModel = new TraspasoViewModel();
             BindingContext = _viewModel;
-            System.Diagnostics.Debug.WriteLine("✓ TraspasoView inicializada con ViewModel");
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            System.Diagnostics.Debug.WriteLine("🚀 TraspasoView.OnAppearing ejecutado");
-            await _viewModel.InicializarVistaAsync();
+            await _viewModel.InicializarVistaAsync(); // Aquí inicia el timer
         }
 
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
-            System.Diagnostics.Debug.WriteLine("👋 TraspasoView.OnDisappearing ejecutado");
-            // Limpiar recursos del ViewModel
-            _viewModel?.Dispose();
+            _viewModel?.DetenerActualizacionAutomatica(); // ✅ DETENER TIMER
         }
     }
 }

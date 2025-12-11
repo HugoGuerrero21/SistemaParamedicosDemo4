@@ -11,22 +11,17 @@ namespace SistemaParamedicosDemo4.MVVM.Views
             InitializeComponent();
             _viewModel = new InventarioViewModel();
             BindingContext = _viewModel;
-            System.Diagnostics.Debug.WriteLine("✓ InventarioView inicializada con ViewModel");
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            System.Diagnostics.Debug.WriteLine("🚀 InventarioView.OnAppearing ejecutado");
-            await _viewModel.InicializarVistaAsync();
+            await _viewModel.InicializarVistaAsync(); // Aquí inicia el timer
         }
 
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
-            System.Diagnostics.Debug.WriteLine("👋 InventarioView.OnDisappearing ejecutado");
-            // Limpiar recursos del ViewModel
-            _viewModel?.Dispose();
         }
     }
 }

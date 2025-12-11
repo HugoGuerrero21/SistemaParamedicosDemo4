@@ -8,7 +8,6 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Colores -->
             <Color x:Key="PrimaryColor">#2E86AB</Color>
             <Color x:Key="SecondaryColor">#17A2B8</Color>
             <Color x:Key="SuccessColor">#28A745</Color>
@@ -19,7 +18,6 @@
             <Color x:Key="DarkGray">#343A40</Color>
             <Color x:Key="BorderColor">#DEE2E6</Color>
 
-            <!-- Estilos -->
             <Style x:Key="CardStyle" TargetType="Border">
                 <Setter Property="BackgroundColor" Value="White"/>
                 <Setter Property="StrokeThickness" Value="1"/>
@@ -51,12 +49,6 @@
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="TextColor" Value="{StaticResource MediumGray}"/>
             </Style>
-
-            <Style x:Key="FieldLabelStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="13"/>
-                <Setter Property="TextColor" Value="{StaticResource DarkGray}"/>
-                <Setter Property="Margin" Value="0,0,0,5"/>
-            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -71,14 +63,8 @@
                     </OnIdiom>
                 </StackLayout.Padding>
 
-                <!-- Header -->
                 <Grid Margin="0,0,0,15">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackLayout Grid.Column="0">
+                    <StackLayout>
                         <Label Text="Recepción de Traspasos" Style="{StaticResource HeaderStyle}">
                             <Label.FontSize>
                                 <OnIdiom x:TypeArguments="x:Double">
@@ -88,67 +74,23 @@
                                 </OnIdiom>
                             </Label.FontSize>
                         </Label>
-                        <Label Text="Gestión de traspasos desde Hermosillo (ALM1) hacia Paramédicos (ALM6)" 
+                        <Label Text="Gestión de traspasos desde Hermosillo (ALM1) hacia Paramédicos (ALM6) - Actualización Auto" 
                                Style="{StaticResource BodyStyle}"
-                               FontSize="12">
-                            <Label.IsVisible>
-                                <OnIdiom x:TypeArguments="x:Boolean">
-                                    <OnIdiom.Phone>False</OnIdiom.Phone>
-                                    <OnIdiom.Tablet>True</OnIdiom.Tablet>
-                                    <OnIdiom.Desktop>True</OnIdiom.Desktop>
-                                </OnIdiom>
-                            </Label.IsVisible>
-                        </Label>
+                               FontSize="12"/>
                     </StackLayout>
-
-                    <!-- Botón Refrescar -->
-                    <Button Grid.Column="1"
-                            Text="🔄"
-                            Command="{Binding RefrescarCommand}"
-                            BackgroundColor="{StaticResource SecondaryColor}"
-                            TextColor="White"
-                            CornerRadius="8"
-                            Padding="12,8"
-                            FontSize="16"
-                            VerticalOptions="Start"/>
                 </Grid>
 
-                <!-- Selector de Vista (Tabs) -->
-                <Border BackgroundColor="White"
-                        StrokeThickness="1"
-                        Stroke="#DEE2E6"
-                        StrokeShape="RoundRectangle 10"
-                        Padding="5"
-                        Margin="0,0,0,15">
+                <Border BackgroundColor="White" StrokeThickness="1" Stroke="#DEE2E6" StrokeShape="RoundRectangle 10" Padding="5" Margin="0,0,0,15">
                     <Grid ColumnSpacing="5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0"
-                                Text="📦 Pendientes"
-                                Command="{Binding CambiarVistaPendientesCommand}"
-                                BackgroundColor="{Binding ColorTabPendientes}"
-                                TextColor="{Binding ColorTextoTabPendientes}"
-                                CornerRadius="8"
-                                FontSize="13"
-                                FontAttributes="Bold"
-                                HeightRequest="45"/>
-
-                        <Button Grid.Column="1"
-                                Text="📋 Historial"
-                                Command="{Binding CambiarVistaHistorialCommand}"
-                                BackgroundColor="{Binding ColorTabHistorial}"
-                                TextColor="{Binding ColorTextoTabHistorial}"
-                                CornerRadius="8"
-                                FontSize="13"
-                                FontAttributes="Bold"
-                                HeightRequest="45"/>
+                        <Button Grid.Column="0" Text="📦 Pendientes" Command="{Binding CambiarVistaPendientesCommand}" BackgroundColor="{Binding ColorTabPendientes}" TextColor="{Binding ColorTextoTabPendientes}" CornerRadius="8" FontSize="13" FontAttributes="Bold" HeightRequest="45"/>
+                        <Button Grid.Column="1" Text="📋 Historial" Command="{Binding CambiarVistaHistorialCommand}" BackgroundColor="{Binding ColorTabHistorial}" TextColor="{Binding ColorTextoTabHistorial}" CornerRadius="8" FontSize="13" FontAttributes="Bold" HeightRequest="45"/>
                     </Grid>
                 </Border>
 
-                <!-- Tarjetas de Estadísticas -->
                 <Grid Margin="0,0,0,15" IsVisible="{Binding MostrandoPendientes}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -156,202 +98,49 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
 
-                    <!-- Total Traspasos -->
-                    <Border Grid.Column="0" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource BorderColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="0" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource BorderColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <StackLayout Spacing="3">
                             <Label Text="📦" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding TotalTraspasos}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Traspasos"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding TotalTraspasos}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center"/>
+                            <Label Text="Traspasos" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Productos Totales -->
-                    <Border Grid.Column="1" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource PrimaryColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="1" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource PrimaryColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <StackLayout Spacing="3">
                             <Label Text="📋" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosTotales}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Productos"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosTotales}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center"/>
+                            <Label Text="Productos" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Completados -->
-                    <Border Grid.Column="2" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource SuccessColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
-                        <Border.IsVisible>
-                            <OnIdiom x:TypeArguments="x:Boolean">
-                                <OnIdiom.Phone>False</OnIdiom.Phone>
-                                <OnIdiom.Tablet>True</OnIdiom.Tablet>
-                                <OnIdiom.Desktop>True</OnIdiom.Desktop>
-                            </OnIdiom>
-                        </Border.IsVisible>
+                    <Border Grid.Column="2" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource SuccessColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <StackLayout Spacing="3">
                             <Label Text="✅" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosCompletados}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource SuccessColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Recibidos"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosCompletados}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource SuccessColor}" HorizontalOptions="Center"/>
+                            <Label Text="Recibidos" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Pendientes -->
-                    <Border Grid.Column="3" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource WarningColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
-                        <Border.IsVisible>
-                            <OnIdiom x:TypeArguments="x:Boolean">
-                                <OnIdiom.Phone>False</OnIdiom.Phone>
-                                <OnIdiom.Tablet>True</OnIdiom.Tablet>
-                                <OnIdiom.Desktop>True</OnIdiom.Desktop>
-                            </OnIdiom>
-                        </Border.IsVisible>
+                    <Border Grid.Column="3" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource WarningColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <StackLayout Spacing="3">
                             <Label Text="⏳" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosPendientes}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource WarningColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Pendientes"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
-                        </StackLayout>
-                    </Border>
-
-                    <!-- Completados (segunda fila móvil) -->
-                    <Border Grid.Column="0" Grid.Row="1"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource SuccessColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
-                        <Border.IsVisible>
-                            <OnIdiom x:TypeArguments="x:Boolean">
-                                <OnIdiom.Phone>True</OnIdiom.Phone>
-                                <OnIdiom.Tablet>False</OnIdiom.Tablet>
-                                <OnIdiom.Desktop>False</OnIdiom.Desktop>
-                            </OnIdiom>
-                        </Border.IsVisible>
-                        <StackLayout Spacing="3">
-                            <Label Text="✅" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosCompletados}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource SuccessColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Recibidos"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
-                        </StackLayout>
-                    </Border>
-
-                    <!-- Pendientes (segunda fila móvil) -->
-                    <Border Grid.Column="1" Grid.Row="1"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource WarningColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
-                        <Border.IsVisible>
-                            <OnIdiom x:TypeArguments="x:Boolean">
-                                <OnIdiom.Phone>True</OnIdiom.Phone>
-                                <OnIdiom.Tablet>False</OnIdiom.Tablet>
-                                <OnIdiom.Desktop>False</OnIdiom.Desktop>
-                            </OnIdiom>
-                        </Border.IsVisible>
-                        <StackLayout Spacing="3">
-                            <Label Text="⏳" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosPendientes}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource WarningColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Pendientes"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosPendientes}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource WarningColor}" HorizontalOptions="Center"/>
+                            <Label Text="Pendientes" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
                 </Grid>
 
-                <!-- Mensaje de Estado -->
-                <Label Text="{Binding MensajeEstado}"
-                       Style="{StaticResource BodyStyle}"
-                       FontSize="12"
-                       HorizontalOptions="Center"
-                       Margin="0,0,0,10"
-                       IsVisible="{Binding MensajeEstado}"/>
+                <Label Text="{Binding MensajeEstado}" Style="{StaticResource BodyStyle}" FontSize="12" HorizontalOptions="Center" Margin="0,0,0,10" IsVisible="{Binding MensajeEstado}"/>
 
-                <!-- Indicador de Carga -->
-                <ActivityIndicator IsRunning="{Binding IsCargando}"
-                                   IsVisible="{Binding IsCargando}"
-                                   Color="{StaticResource PrimaryColor}"
-                                   Margin="0,10,0,10"/>
+                <ActivityIndicator IsRunning="{Binding IsCargando}" IsVisible="{Binding IsCargando}" Color="{StaticResource PrimaryColor}" Margin="0,10,0,10"/>
 
-                <!-- Lista de Traspasos -->
-                <CollectionView ItemsSource="{Binding TraspasosPendientes}"
-                                SelectionMode="None">
+                <CollectionView ItemsSource="{Binding TraspasosPendientes}" SelectionMode="None">
                     <CollectionView.EmptyView>
                         <StackLayout Padding="50" VerticalOptions="Center">
                             <Label Text="📦" FontSize="48" HorizontalOptions="Center"/>
-                            <Label Text="No hay traspasos pendientes"
-                                   FontSize="18"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"
-                                   Margin="0,10,0,0"/>
-                            <Label Text="Los traspasos recibidos aparecerán aquí"
-                                   FontSize="14"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"
-                                   Margin="0,5,0,0"/>
+                            <Label Text="No hay traspasos pendientes" FontSize="18" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center" Margin="0,10,0,0"/>
                         </StackLayout>
                     </CollectionView.EmptyView>
 
@@ -359,89 +148,42 @@
                         <DataTemplate>
                             <Border Style="{StaticResource CardStyle}" Padding="15" Margin="0,0,0,10">
                                 <StackLayout>
-                                    <!-- Header del Traspaso -->
                                     <Grid>
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer 
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleDetalleCommand}"
-                                                CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ToggleDetalleCommand}" CommandParameter="{Binding .}"/>
                                         </Grid.GestureRecognizers>
-
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Icono Expandir -->
-                                        <Label Grid.Column="0"
-                                               Text="{Binding IconoExpandir}"
-                                               FontSize="20"
-                                               TextColor="{StaticResource PrimaryColor}"
-                                               VerticalOptions="Center"
-                                               Margin="0,0,10,0"/>
+                                        <Label Grid.Column="0" Text="{Binding IconoExpandir}" FontSize="20" TextColor="{StaticResource PrimaryColor}" VerticalOptions="Center" Margin="0,0,10,0"/>
 
-                                        <!-- Info del Traspaso -->
                                         <StackLayout Grid.Column="1" Spacing="5">
-                                            <Label Text="{Binding IdTraspaso, StringFormat='Traspaso: {0}'}"
-                                                   Style="{StaticResource SubHeaderStyle}"
-                                                   FontSize="16"/>
-
+                                            <Label Text="{Binding IdTraspaso, StringFormat='Traspaso: {0}'}" Style="{StaticResource SubHeaderStyle}" FontSize="16"/>
                                             <StackLayout Spacing="3">
-                                                <Label Text="{Binding NombreAlmacenOrigen, StringFormat='Origen: {0}'}"
-                                                       FontSize="11"
-                                                       TextColor="{StaticResource MediumGray}"/>
-                                                <Label Text="{Binding NombreChofer, StringFormat='Chofer: {0}'}"
-                                                       FontSize="11"
-                                                       TextColor="{StaticResource MediumGray}"/>
-                                                <Label Text="{Binding ProgresoTexto, StringFormat='Progreso: {0}'}"
-                                                       FontSize="11"
-                                                       TextColor="{StaticResource SuccessColor}"
-                                                       FontAttributes="Bold"/>
+                                                <Label Text="{Binding NombreAlmacenOrigen, StringFormat='Origen: {0}'}" FontSize="11" TextColor="{StaticResource MediumGray}"/>
+                                                <Label Text="{Binding NombreChofer, StringFormat='Chofer: {0}'}" FontSize="11" TextColor="{StaticResource MediumGray}"/>
+                                                <Label Text="{Binding ProgresoTexto, StringFormat='Progreso: {0}'}" FontSize="11" TextColor="{StaticResource SuccessColor}" FontAttributes="Bold"/>
                                             </StackLayout>
                                         </StackLayout>
 
-                                        <!-- Badge de Estado -->
-                                        <Border Grid.Column="2"
-                                                BackgroundColor="{Binding ColorStatus}"
-                                                StrokeThickness="0"
-                                                StrokeShape="RoundRectangle 12"
-                                                Padding="10,5"
-                                                VerticalOptions="Start">
-                                            <Label Text="{Binding StatusTexto}"
-                                                   TextColor="White"
-                                                   FontSize="11"
-                                                   FontAttributes="Bold"/>
+                                        <Border Grid.Column="2" BackgroundColor="{Binding ColorStatus}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,5" VerticalOptions="Start">
+                                            <Label Text="{Binding StatusTexto}" TextColor="White" FontSize="11" FontAttributes="Bold"/>
                                         </Border>
                                     </Grid>
 
-                                    <!-- Detalles del Traspaso (Expandible) -->
                                     <StackLayout IsVisible="{Binding Expandido}" Margin="0,15,0,0">
 
-                                        <!-- DESKTOP/TABLET: Tabla horizontal -->
-                                        <Border BackgroundColor="#F8F9FA"
-                                                StrokeThickness="1"
-                                                Stroke="#DEE2E6"
-                                                StrokeShape="RoundRectangle 8"
-                                                Padding="0">
-                                            <Border.IsVisible>
-                                                <OnIdiom x:TypeArguments="x:Boolean">
-                                                    <OnIdiom.Phone>False</OnIdiom.Phone>
-                                                    <OnIdiom.Tablet>True</OnIdiom.Tablet>
-                                                    <OnIdiom.Desktop>True</OnIdiom.Desktop>
-                                                </OnIdiom>
-                                            </Border.IsVisible>
-
+                                        <Border BackgroundColor="#F8F9FA" StrokeThickness="1" Stroke="#DEE2E6" StrokeShape="RoundRectangle 8" Padding="0">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <!-- Header de la Tabla -->
-                                                <Grid Grid.Row="0" 
-                                                      BackgroundColor="#343A40"
-                                                      Padding="12,10">
+                                                <Grid Grid.Row="0" BackgroundColor="#343A40" Padding="12,10">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="100"/>
                                                         <ColumnDefinition Width="2*"/>
@@ -461,10 +203,7 @@
                                                     <Label Grid.Column="6" Text="Acción" TextColor="White" FontSize="12" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
                                                 </Grid>
 
-                                                <!-- Items de la Tabla -->
-                                                <CollectionView Grid.Row="1"
-                                                                ItemsSource="{Binding Detalles}"
-                                                                SelectionMode="None">
+                                                <CollectionView Grid.Row="1" ItemsSource="{Binding Detalles}" SelectionMode="None">
                                                     <CollectionView.ItemTemplate>
                                                         <DataTemplate>
                                                             <Grid BackgroundColor="White" Padding="12,15">
@@ -489,8 +228,27 @@
                                                                 </Border>
 
                                                                 <HorizontalStackLayout Grid.Column="6" Spacing="6" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding MostrarBotonesAccion}">
-                                                                    <Button Text="✓" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ConfirmarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#28A745" TextColor="White" CornerRadius="6" WidthRequest="32" HeightRequest="32" FontSize="16" Padding="0"/>
-                                                                    <Button Text="✕" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RechazarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#DC3545" TextColor="White" CornerRadius="6" WidthRequest="32" HeightRequest="32" FontSize="16" Padding="0"/>
+                                                                    <Button Text="✓" 
+                                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ConfirmarRecepcionCommand}" 
+                                                                            CommandParameter="{Binding .}" 
+                                                                            BackgroundColor="#28A745" 
+                                                                            TextColor="White" 
+                                                                            CornerRadius="6" 
+                                                                            WidthRequest="32" 
+                                                                            HeightRequest="32" 
+                                                                            FontSize="16" 
+                                                                            Padding="0"/>
+
+                                                                    <Button Text="✕" 
+                                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RechazarRecepcionCommand}" 
+                                                                            CommandParameter="{Binding .}" 
+                                                                            BackgroundColor="#DC3545" 
+                                                                            TextColor="White" 
+                                                                            CornerRadius="6" 
+                                                                            WidthRequest="32" 
+                                                                            HeightRequest="32" 
+                                                                            FontSize="16" 
+                                                                            Padding="0"/>
                                                                 </HorizontalStackLayout>
                                                             </Grid>
                                                         </DataTemplate>
@@ -498,76 +256,6 @@
                                                 </CollectionView>
                                             </Grid>
                                         </Border>
-
-                                        <!-- MOBILE: Cards verticales -->
-                                        <StackLayout BindableLayout.ItemsSource="{Binding Detalles}">
-                                            <StackLayout.IsVisible>
-                                                <OnIdiom x:TypeArguments="x:Boolean">
-                                                    <OnIdiom.Phone>True</OnIdiom.Phone>
-                                                    <OnIdiom.Tablet>False</OnIdiom.Tablet>
-                                                    <OnIdiom.Desktop>False</OnIdiom.Desktop>
-                                                </OnIdiom>
-                                            </StackLayout.IsVisible>
-
-                                            <BindableLayout.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border BackgroundColor="White"
-                                                            StrokeThickness="1"
-                                                            Stroke="#DEE2E6"
-                                                            StrokeShape="RoundRectangle 8"
-                                                            Padding="12"
-                                                            Margin="0,5">
-                                                        <StackLayout Spacing="8">
-                                                            <!-- Clave y Estado -->
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="Auto"/>
-                                                                </Grid.ColumnDefinitions>
-
-                                                                <Label Grid.Column="0" Text="{Binding IdProducto}" FontSize="13" FontAttributes="Bold" TextColor="#343A40" VerticalOptions="Center"/>
-                                                                <Border Grid.Column="1" BackgroundColor="{Binding ColorEstado}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="8,4">
-                                                                    <Label Text="{Binding TextoEstado}" TextColor="White" FontSize="10" FontAttributes="Bold"/>
-                                                                </Border>
-                                                            </Grid>
-
-                                                            <!-- Nombre del Producto -->
-                                                            <Label Text="{Binding NombreCompletoProducto}" FontSize="12" TextColor="#6C757D" LineBreakMode="WordWrap"/>
-
-                                                            <!-- Cantidades -->
-                                                            <Grid ColumnSpacing="10">
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                </Grid.ColumnDefinitions>
-
-                                                                <StackLayout Grid.Column="0">
-                                                                    <Label Text="Solicitada" FontSize="10" TextColor="#6C757D"/>
-                                                                    <Label Text="{Binding Cantidad, StringFormat='{0:F0}'}" FontSize="16" FontAttributes="Bold" TextColor="#343A40"/>
-                                                                </StackLayout>
-
-                                                                <StackLayout Grid.Column="1">
-                                                                    <Label Text="Recibida" FontSize="10" TextColor="#6C757D"/>
-                                                                    <Label Text="{Binding CantidadRecibida, StringFormat='{0:F0}'}" FontSize="16" FontAttributes="Bold" TextColor="#28A745"/>
-                                                                </StackLayout>
-
-                                                                <StackLayout Grid.Column="2">
-                                                                    <Label Text="Faltante" FontSize="10" TextColor="#6C757D"/>
-                                                                    <Label Text="{Binding CantidadFaltante, StringFormat='{0:F0}'}" FontSize="16" FontAttributes="Bold" TextColor="#FFC107"/>
-                                                                </StackLayout>
-                                                            </Grid>
-
-                                                            <!-- Botones de Acción -->
-                                                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" IsVisible="{Binding MostrarBotonesAccion}">
-                                                                <Button Text="✓ Confirmar" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ConfirmarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#28A745" TextColor="White" CornerRadius="6" Padding="15,8" FontSize="13"/>
-                                                                <Button Text="✕ Rechazar" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RechazarRecepcionCommand}" CommandParameter="{Binding .}" BackgroundColor="#DC3545" TextColor="White" CornerRadius="6" Padding="15,8" FontSize="13"/>
-                                                            </HorizontalStackLayout>
-                                                        </StackLayout>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </BindableLayout.ItemTemplate>
-                                        </StackLayout>
                                     </StackLayout>
                                 </StackLayout>
                             </Border>

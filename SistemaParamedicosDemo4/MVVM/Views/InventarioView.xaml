@@ -8,7 +8,6 @@
 
     <ContentPage.Resources>
         <ResourceDictionary>
-            <!-- Colores -->
             <Color x:Key="PrimaryColor">#2E86AB</Color>
             <Color x:Key="SecondaryColor">#17A2B8</Color>
             <Color x:Key="SuccessColor">#28A745</Color>
@@ -19,7 +18,6 @@
             <Color x:Key="DarkGray">#343A40</Color>
             <Color x:Key="BorderColor">#DEE2E6</Color>
 
-            <!-- Estilos -->
             <Style x:Key="CardStyle" TargetType="Border">
                 <Setter Property="BackgroundColor" Value="White"/>
                 <Setter Property="StrokeThickness" Value="1"/>
@@ -65,47 +63,27 @@
                     </OnIdiom>
                 </StackLayout.Padding>
 
-                <!-- Header -->
-                <Grid Margin="0,0,0,15">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                <StackLayout Margin="0,0,0,15">
+                    <Label Text="Inventario de Paramédicos" Style="{StaticResource HeaderStyle}">
+                        <Label.FontSize>
+                            <OnIdiom x:TypeArguments="x:Double">
+                                <OnIdiom.Phone>20</OnIdiom.Phone>
+                                <OnIdiom.Tablet>24</OnIdiom.Tablet>
+                                <OnIdiom.Desktop>24</OnIdiom.Desktop>
+                            </OnIdiom>
+                        </Label.FontSize>
+                    </Label>
+                    <Label Text="Gestión de existencias del almacén ALM6 - Actualización Automática" Style="{StaticResource BodyStyle}" FontSize="12">
+                        <Label.IsVisible>
+                            <OnIdiom x:TypeArguments="x:Boolean">
+                                <OnIdiom.Phone>False</OnIdiom.Phone>
+                                <OnIdiom.Tablet>True</OnIdiom.Tablet>
+                                <OnIdiom.Desktop>True</OnIdiom.Desktop>
+                            </OnIdiom>
+                        </Label.IsVisible>
+                    </Label>
+                </StackLayout>
 
-                    <StackLayout Grid.Column="0">
-                        <Label Text="Inventario de Paramédicos" Style="{StaticResource HeaderStyle}">
-                            <Label.FontSize>
-                                <OnIdiom x:TypeArguments="x:Double">
-                                    <OnIdiom.Phone>20</OnIdiom.Phone>
-                                    <OnIdiom.Tablet>24</OnIdiom.Tablet>
-                                    <OnIdiom.Desktop>24</OnIdiom.Desktop>
-                                </OnIdiom>
-                            </Label.FontSize>
-                        </Label>
-                        <Label Text="Gestión de existencias del almacén ALM6" Style="{StaticResource BodyStyle}" FontSize="12">
-                            <Label.IsVisible>
-                                <OnIdiom x:TypeArguments="x:Boolean">
-                                    <OnIdiom.Phone>False</OnIdiom.Phone>
-                                    <OnIdiom.Tablet>True</OnIdiom.Tablet>
-                                    <OnIdiom.Desktop>True</OnIdiom.Desktop>
-                                </OnIdiom>
-                            </Label.IsVisible>
-                        </Label>
-                    </StackLayout>
-
-                    <!-- Botón Refrescar -->
-                    <Button Grid.Column="1"
-                            Text="🔄"
-                            Command="{Binding RefrescarCommand}"
-                            BackgroundColor="{StaticResource SecondaryColor}"
-                            TextColor="White"
-                            CornerRadius="8"
-                            Padding="12,8"
-                            FontSize="16"
-                            VerticalOptions="Start"/>
-                </Grid>
-
-                <!-- Tarjetas de Estadísticas -->
                 <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -118,58 +96,23 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Total de Productos -->
-                    <Border Grid.Column="0" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource BorderColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="0" Grid.Row="0" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource BorderColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <StackLayout Spacing="3">
                             <Label Text="📦" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding TotalProductos}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource PrimaryColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Total"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding TotalProductos}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}" HorizontalOptions="Center"/>
+                            <Label Text="Total" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Disponibles -->
-                    <Border Grid.Column="1" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource SuccessColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="1" Grid.Row="0" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource SuccessColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <StackLayout Spacing="3">
                             <Label Text="✅" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosDisponibles}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource SuccessColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Disponibles"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosDisponibles}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource SuccessColor}" HorizontalOptions="Center"/>
+                            <Label Text="Disponibles" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Stock Bajo -->
-                    <Border Grid.Column="2" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource WarningColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="2" Grid.Row="0" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource WarningColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <Border.IsVisible>
                             <OnIdiom x:TypeArguments="x:Boolean">
                                 <OnIdiom.Phone>False</OnIdiom.Phone>
@@ -179,26 +122,12 @@
                         </Border.IsVisible>
                         <StackLayout Spacing="3">
                             <Label Text="⚠️" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosStockBajo}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource WarningColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Stock Bajo"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosStockBajo}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource WarningColor}" HorizontalOptions="Center"/>
+                            <Label Text="Stock Bajo" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Agotados -->
-                    <Border Grid.Column="3" Grid.Row="0"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource DangerColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="3" Grid.Row="0" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource DangerColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <Border.IsVisible>
                             <OnIdiom x:TypeArguments="x:Boolean">
                                 <OnIdiom.Phone>False</OnIdiom.Phone>
@@ -208,26 +137,12 @@
                         </Border.IsVisible>
                         <StackLayout Spacing="3">
                             <Label Text="❌" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosAgotados}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource DangerColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Agotados"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosAgotados}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource DangerColor}" HorizontalOptions="Center"/>
+                            <Label Text="Agotados" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Stock Bajo (segunda fila en móvil) -->
-                    <Border Grid.Column="0" Grid.Row="1"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource WarningColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="0" Grid.Row="1" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource WarningColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <Border.IsVisible>
                             <OnIdiom x:TypeArguments="x:Boolean">
                                 <OnIdiom.Phone>True</OnIdiom.Phone>
@@ -237,26 +152,12 @@
                         </Border.IsVisible>
                         <StackLayout Spacing="3">
                             <Label Text="⚠️" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosStockBajo}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource WarningColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Stock Bajo"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosStockBajo}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource WarningColor}" HorizontalOptions="Center"/>
+                            <Label Text="Stock Bajo" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
 
-                    <!-- Agotados (segunda fila en móvil) -->
-                    <Border Grid.Column="1" Grid.Row="1"
-                            BackgroundColor="White"
-                            StrokeThickness="1"
-                            Stroke="{StaticResource DangerColor}"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="12,10"
-                            Margin="2">
+                    <Border Grid.Column="1" Grid.Row="1" BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource DangerColor}" StrokeShape="RoundRectangle 12" Padding="12,10" Margin="2">
                         <Border.IsVisible>
                             <OnIdiom x:TypeArguments="x:Boolean">
                                 <OnIdiom.Phone>True</OnIdiom.Phone>
@@ -266,145 +167,51 @@
                         </Border.IsVisible>
                         <StackLayout Spacing="3">
                             <Label Text="❌" FontSize="24" HorizontalOptions="Center"/>
-                            <Label Text="{Binding ProductosAgotados}"
-                                   FontSize="28"
-                                   FontAttributes="Bold"
-                                   TextColor="{StaticResource DangerColor}"
-                                   HorizontalOptions="Center"/>
-                            <Label Text="Agotados"
-                                   FontSize="11"
-                                   TextColor="{StaticResource MediumGray}"
-                                   HorizontalOptions="Center"/>
+                            <Label Text="{Binding ProductosAgotados}" FontSize="28" FontAttributes="Bold" TextColor="{StaticResource DangerColor}" HorizontalOptions="Center"/>
+                            <Label Text="Agotados" FontSize="11" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center"/>
                         </StackLayout>
                     </Border>
                 </Grid>
 
-                <!-- Barra de Búsqueda y Filtros -->
                 <Border Style="{StaticResource CardStyle}">
                     <StackLayout>
-                        <!-- Búsqueda -->
-                        <Label Text="🔍 Buscar producto:" 
-                               Style="{StaticResource BodyStyle}"
-                               FontSize="12"
-                               Margin="0,0,0,5"/>
-
+                        <Label Text="🔍 Buscar producto:" Style="{StaticResource BodyStyle}" FontSize="12" Margin="0,0,0,5"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-
-                            <SearchBar Grid.Column="0"
-                                       Text="{Binding TextoBusqueda}"
-                                       Placeholder="Buscar por nombre, código..."
-                                       SearchCommand="{Binding BuscarCommand}"
-                                       BackgroundColor="White"
-                                       TextColor="{StaticResource DarkGray}"
-                                       PlaceholderColor="{StaticResource MediumGray}"/>
-
-                            <Button Grid.Column="1"
-                                    Text="✕"
-                                    Command="{Binding LimpiarBusquedaCommand}"
-                                    BackgroundColor="{StaticResource DangerColor}"
-                                    TextColor="White"
-                                    CornerRadius="6"
-                                    Padding="12,0"
-                                    Margin="8,0,0,0"
-                                    IsVisible="{Binding TextoBusqueda}"/>
+                            <SearchBar Grid.Column="0" Text="{Binding TextoBusqueda}" Placeholder="Buscar por nombre, código..." SearchCommand="{Binding BuscarCommand}" BackgroundColor="White" TextColor="{StaticResource DarkGray}" PlaceholderColor="{StaticResource MediumGray}"/>
+                            <Button Grid.Column="1" Text="✕" Command="{Binding LimpiarBusquedaCommand}" BackgroundColor="{StaticResource DangerColor}" TextColor="White" CornerRadius="6" Padding="12,0" Margin="8,0,0,0" IsVisible="{Binding TextoBusqueda}"/>
                         </Grid>
 
-                        <!-- Filtros -->
-                        <Label Text="🎯 Filtrar por:" 
-                               Style="{StaticResource BodyStyle}"
-                               FontSize="12"
-                               Margin="0,12,0,5"/>
-
+                        <Label Text="🎯 Filtrar por:" Style="{StaticResource BodyStyle}" FontSize="12" Margin="0,12,0,5"/>
                         <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Center">
-                            <Button Text="Todos"
-                                    Command="{Binding AplicarFiltroCommand}"
-                                    CommandParameter="Todos"
-                                    BackgroundColor="{StaticResource PrimaryColor}"
-                                    TextColor="White"
-                                    CornerRadius="20"
-                                    Padding="15,6"
-                                    FontSize="12"
-                                    Margin="3"/>
-
-                            <Button Text="✅ Disponibles"
-                                    Command="{Binding AplicarFiltroCommand}"
-                                    CommandParameter="Disponibles"
-                                    BackgroundColor="{StaticResource SuccessColor}"
-                                    TextColor="White"
-                                    CornerRadius="20"
-                                    Padding="15,6"
-                                    FontSize="12"
-                                    Margin="3"/>
-
-                            <Button Text="⚠️ Stock Bajo"
-                                    Command="{Binding AplicarFiltroCommand}"
-                                    CommandParameter="Stock Bajo"
-                                    BackgroundColor="{StaticResource WarningColor}"
-                                    TextColor="White"
-                                    CornerRadius="20"
-                                    Padding="15,6"
-                                    FontSize="12"
-                                    Margin="3"/>
-
-                            <Button Text="❌ Agotados"
-                                    Command="{Binding AplicarFiltroCommand}"
-                                    CommandParameter="Agotados"
-                                    BackgroundColor="{StaticResource DangerColor}"
-                                    TextColor="White"
-                                    CornerRadius="20"
-                                    Padding="15,6"
-                                    FontSize="12"
-                                    Margin="3"/>
+                            <Button Text="Todos" Command="{Binding AplicarFiltroCommand}" CommandParameter="Todos" BackgroundColor="{StaticResource PrimaryColor}" TextColor="White" CornerRadius="20" Padding="15,6" FontSize="12" Margin="3"/>
+                            <Button Text="✅ Disponibles" Command="{Binding AplicarFiltroCommand}" CommandParameter="Disponibles" BackgroundColor="{StaticResource SuccessColor}" TextColor="White" CornerRadius="20" Padding="15,6" FontSize="12" Margin="3"/>
+                            <Button Text="⚠️ Stock Bajo" Command="{Binding AplicarFiltroCommand}" CommandParameter="Stock Bajo" BackgroundColor="{StaticResource WarningColor}" TextColor="White" CornerRadius="20" Padding="15,6" FontSize="12" Margin="3"/>
+                            <Button Text="❌ Agotados" Command="{Binding AplicarFiltroCommand}" CommandParameter="Agotados" BackgroundColor="{StaticResource DangerColor}" TextColor="White" CornerRadius="20" Padding="15,6" FontSize="12" Margin="3"/>
                         </FlexLayout>
 
-                        <!-- Mensaje de Estado -->
-                        <Label Text="{Binding MensajeEstado}"
-                               Style="{StaticResource BodyStyle}"
-                               FontSize="11"
-                               HorizontalOptions="Center"
-                               Margin="0,10,0,0"/>
+                        <Label Text="{Binding MensajeEstado}" Style="{StaticResource BodyStyle}" FontSize="11" HorizontalOptions="Center" Margin="0,10,0,0"/>
 
-                        <!-- Indicador de Carga -->
-                        <ActivityIndicator IsRunning="{Binding IsCargando}"
-                                           IsVisible="{Binding IsCargando}"
-                                           Color="{StaticResource PrimaryColor}"
-                                           Margin="0,10,0,0"/>
+                        <ActivityIndicator IsRunning="{Binding IsCargando}" IsVisible="{Binding IsCargando}" Color="{StaticResource PrimaryColor}" Margin="0,10,0,0"/>
                     </StackLayout>
                 </Border>
 
-                <!-- Lista de Productos -->
                 <Border Style="{StaticResource CardStyle}" Padding="10">
                     <StackLayout>
-                        <Label Text="Productos del inventario:" 
-                               Style="{StaticResource SubHeaderStyle}"
-                               FontSize="14"
-                               Margin="5,5,5,10"/>
-
-                        <CollectionView ItemsSource="{Binding ProductosInventario}"
-                                        SelectionMode="None">
+                        <Label Text="Productos del inventario:" Style="{StaticResource SubHeaderStyle}" FontSize="14" Margin="5,5,5,10"/>
+                        <CollectionView ItemsSource="{Binding ProductosInventario}" SelectionMode="None">
                             <CollectionView.EmptyView>
                                 <StackLayout Padding="50" VerticalOptions="Center">
                                     <Label Text="📦" FontSize="48" HorizontalOptions="Center"/>
-                                    <Label Text="No se encontraron productos"
-                                           FontSize="18"
-                                           TextColor="{StaticResource MediumGray}"
-                                           HorizontalOptions="Center"
-                                           Margin="0,10,0,0"/>
+                                    <Label Text="No se encontraron productos" FontSize="18" TextColor="{StaticResource MediumGray}" HorizontalOptions="Center" Margin="0,10,0,0"/>
                                 </StackLayout>
                             </CollectionView.EmptyView>
-
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BackgroundColor="White"
-                                            StrokeThickness="1"
-                                            Stroke="{StaticResource BorderColor}"
-                                            StrokeShape="RoundRectangle 8"
-                                            Padding="12"
-                                            Margin="5">
+                                    <Border BackgroundColor="White" StrokeThickness="1" Stroke="{StaticResource BorderColor}" StrokeShape="RoundRectangle 8" Padding="12" Margin="5">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="70"/>
@@ -417,100 +224,41 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
 
-                                            <!-- Imagen del Producto -->
-                                            <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
-                                                    BackgroundColor="{StaticResource LightGray}"
-                                                    StrokeThickness="1"
-                                                    Stroke="{StaticResource BorderColor}"
-                                                    StrokeShape="RoundRectangle 8"
-                                                    WidthRequest="60"
-                                                    HeightRequest="60"
-                                                    VerticalOptions="Start"
-                                                    Margin="0,0,12,0">
+                                            <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" BackgroundColor="{StaticResource LightGray}" StrokeThickness="1" Stroke="{StaticResource BorderColor}" StrokeShape="RoundRectangle 8" WidthRequest="60" HeightRequest="60" VerticalOptions="Start" Margin="0,0,12,0">
                                                 <Grid>
-                                                    <Label Text="📦"
-                                                           FontSize="30"
-                                                           HorizontalOptions="Center"
-                                                           VerticalOptions="Center"
-                                                           Opacity="0.3"
-                                                           IsVisible="{Binding TieneFoto}"/>
-
-                                                    <Image Source="{Binding FotoUrl}"
-                                                           Aspect="AspectFill"
-                                                           HorizontalOptions="Center"
-                                                           VerticalOptions="Center"
-                                                           IsVisible="{Binding TieneFoto}"/>
+                                                    <Label Text="📦" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" Opacity="0.3" IsVisible="{Binding TieneFoto}"/>
+                                                    <Image Source="{Binding FotoUrl}" Aspect="AspectFill" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding TieneFoto}"/>
                                                 </Grid>
                                             </Border>
 
-                                            <!-- Nombre del producto -->
-                                            <Label Grid.Row="0" Grid.Column="1"
-                                                   Text="{Binding NombreDelProducto}"
-                                                   FontSize="14"
-                                                   FontAttributes="Bold"
-                                                   TextColor="{StaticResource DarkGray}"
-                                                   LineBreakMode="TailTruncation"
-                                                   MaxLines="2"/>
+                                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding NombreDelProducto}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource DarkGray}" LineBreakMode="TailTruncation" MaxLines="2"/>
 
-                                            <!-- Badge de Stock -->
-                                            <Border Grid.Row="0" Grid.Column="2"
-                                                    BackgroundColor="{Binding ColorStock}"
-                                                    StrokeThickness="0"
-                                                    StrokeShape="RoundRectangle 10"
-                                                    Padding="8,4"
-                                                    VerticalOptions="Start">
-                                                <Label Text="{Binding EstadoStock}"
-                                                       TextColor="White"
-                                                       FontSize="10"
-                                                       FontAttributes="Bold"/>
+                                            <Border Grid.Row="0" Grid.Column="2" BackgroundColor="{Binding ColorStock}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="8,4" VerticalOptions="Start">
+                                                <Label Text="{Binding EstadoStock}" TextColor="White" FontSize="10" FontAttributes="Bold"/>
                                             </Border>
 
-                                            <!-- Código y Marca -->
-                                            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                                                                   Spacing="10"
-                                                                   Margin="0,6,0,0">
-                                                <Label Text="{Binding Producto, StringFormat='Código: {0}'}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="11"/>
-                                                <Label Text="{Binding Marca, StringFormat='• {0}'}"
-                                                       Style="{StaticResource BodyStyle}"
-                                                       FontSize="11"
-                                                       FontAttributes="Bold"
-                                                       IsVisible="{Binding Marca}"/>
+                                            <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Spacing="10" Margin="0,6,0,0">
+                                                <Label Text="{Binding Producto, StringFormat='Código: {0}'}" Style="{StaticResource BodyStyle}" FontSize="11"/>
+                                                <Label Text="{Binding Marca, StringFormat='• {0}'}" Style="{StaticResource BodyStyle}" FontSize="11" FontAttributes="Bold" IsVisible="{Binding Marca}"/>
                                             </HorizontalStackLayout>
 
-                                            <!-- Cantidades -->
-                                            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
-                                                  ColumnSpacing="12"
-                                                  Margin="0,10,0,0">
+                                            <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" ColumnSpacing="12" Margin="0,10,0,0">
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-
                                                 <StackLayout Grid.Column="0" Spacing="2">
                                                     <Label Text="Entradas" FontSize="10" TextColor="{StaticResource MediumGray}"/>
-                                                    <Label Text="{Binding Entrada, StringFormat='{0:F0}'}"
-                                                           FontSize="15"
-                                                           FontAttributes="Bold"
-                                                           TextColor="{StaticResource SuccessColor}"/>
+                                                    <Label Text="{Binding Entrada, StringFormat='{0:F0}'}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource SuccessColor}"/>
                                                 </StackLayout>
-
                                                 <StackLayout Grid.Column="1" Spacing="2">
                                                     <Label Text="Salidas" FontSize="10" TextColor="{StaticResource MediumGray}"/>
-                                                    <Label Text="{Binding Salida, StringFormat='{0:F0}'}"
-                                                           FontSize="15"
-                                                           FontAttributes="Bold"
-                                                           TextColor="{StaticResource DangerColor}"/>
+                                                    <Label Text="{Binding Salida, StringFormat='{0:F0}'}" FontSize="15" FontAttributes="Bold" TextColor="{StaticResource DangerColor}"/>
                                                 </StackLayout>
-
                                                 <StackLayout Grid.Column="2" Spacing="2">
                                                     <Label Text="Existencia" FontSize="10" TextColor="{StaticResource MediumGray}"/>
-                                                    <Label Text="{Binding Existencia, StringFormat='{0:F0}'}"
-                                                           FontSize="18"
-                                                           FontAttributes="Bold"
-                                                           TextColor="{StaticResource PrimaryColor}"/>
+                                                    <Label Text="{Binding Existencia, StringFormat='{0:F0}'}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource PrimaryColor}"/>
                                                 </StackLayout>
                                             </Grid>
                                         </Grid>
